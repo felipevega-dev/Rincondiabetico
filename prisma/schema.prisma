@@ -1,0 +1,158 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Usuarios (sincronizado con Clerk)
+model User {
+  id        String   @id @default(cuid())
+  clerkId   String   @unique
+  email     String   @unique
+  firstName String?
+  lastName  String?
+  phone     String?
+  
+  // Metadatos
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // Relaciones
+  orders    Order[]
+  
+  @@map("users")
+}
+
+// Categorías de productos
+model Category {
+  id          String    @id @default(cuid())
+  name        String    @unique
+  slug        String    @unique
+  description String?
+  image       String?
+  isActive    Boolean   @default(true)
+  
+  // Metadatos
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  
+  // Relaciones
+  products    Product[]
+  
+  @@map("categories")
+}
+
+// Productos
+model Product {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  description String?
+  price       Int      // Precio en centavos (CLP)
+  images      String[] // URLs de Cloudinary
+  isActive    Boolean  @default(true)
+  isAvailable Boolean  @default(true)
+  stock       Int      @default(0)
+  
+  // Metadatos
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Relaciones
+  categoryId  String
+  category    Category    @relation(fields: [categoryId], references: [id])
+  orderItems  OrderItem[]
+  
+  @@map("products")
+}
+
+// Estados de pedidos
+enum OrderStatus {
+  PENDIENTE   // Pendiente de pago
+  PAGADO      // Pagado, preparando
+  PREPARANDO  // En preparación
+  LISTO       // Listo para retiro
+  RETIRADO    // Retirado por cliente
+  CANCELADO   // Cancelado
+}
+
+// Pedidos
+model Order {
+  id            String      @id @default(cuid())
+  orderNumber   String      @unique
+  status        OrderStatus @default(PENDIENTE)
+  total         Int         // Total en centavos (CLP)
+  
+  // Información de retiro
+  pickupDate    DateTime?   // Fecha programada de retiro
+  pickupTime    String?     // Hora de retiro (ej: "14:30")
+  customerNotes String?     // Notas del cliente
+  adminNotes    String?     // Notas internas
+  
+  // Metadatos
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  
+  // Relaciones
+  userId        String
+  user          User        @relation(fields: [userId], references: [id])
+  items         OrderItem[]
+  payment       Payment?
+  
+  @@map("orders")
+}
+
+// Items de pedidos
+model OrderItem {
+  id        String  @id @default(cuid())
+  quantity  Int
+  price     Int     // Precio unitario en centavos
+  
+  // Relaciones
+  orderId   String
+  order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId String
+  product   Product @relation(fields: [productId], references: [id])
+  
+  @@map("order_items")
+}
+
+// Estados de pago
+enum PaymentStatus {
+  PENDING   // Pendiente
+  PAID      // Pagado
+  FAILED    // Fallido
+  REFUNDED  // Reembolsado
+}
+
+// Pagos (WebPay Plus)
+model Payment {
+  id              String        @id @default(cuid())
+  status          PaymentStatus @default(PENDING)
+  amount          Int           // Monto en centavos
+  currency        String        @default("CLP")
+  
+  // WebPay Plus data
+  transactionId   String?       @unique
+  buyOrder        String?       @unique
+  sessionId       String?
+  cardNumber      String?       // Últimos 4 dígitos
+  authCode        String?
+  responseCode    String?
+  
+  // Metadatos
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  
+  // Relaciones
+  orderId         String        @unique
+  order           Order         @relation(fields: [orderId], references: [id])
+  
+  @@map("payments")
+} 

@@ -1,0 +1,123 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# Rincón Diabético - Ecommerce de Postres
+
+## Contexto del Proyecto
+Ecommerce de postres y dulces para tienda física en Chiguayante, Chile.
+Solo retiro en tienda, sin delivery.
+
+## Stack Tecnológico
+- **Frontend/Backend**: Next.js 15 App Router + TypeScript
+- **Styling**: Tailwind CSS v4
+- **Base de datos**: NeonDB (PostgreSQL) + Prisma ORM
+- **Autenticación**: Clerk (admin + clientes)
+- **Pagos**: WebPay Plus (Transbank Chile)
+- **Imágenes**: Cloudinary
+- **Deployment**: Vercel
+
+## Estructura del Proyecto
+```
+src/
+├── app/                    # App Router pages
+│   ├── (admin)/           # Admin panel routes
+│   ├── (auth)/            # Auth pages
+│   ├── productos/         # Product catalog
+│   ├── carrito/           # Shopping cart
+│   ├── pedidos/           # Orders
+│   └── api/               # API routes
+├── components/            # Reusable components
+│   ├── ui/               # Base UI components
+│   ├── admin/            # Admin components
+│   ├── client/           # Client components
+│   └── shared/           # Shared components
+├── lib/                  # Utilities
+│   ├── prisma.ts         # Prisma client
+│   ├── clerk.ts          # Clerk config
+│   ├── cloudinary.ts     # Cloudinary config
+│   └── utils.ts          # General utils
+├── types/                # TypeScript types
+└── hooks/                # Custom hooks
+```
+
+## Reglas de Código
+
+### General
+- Usar TypeScript estricto
+- Componentes funcionales con hooks
+- Server Components por defecto, Client Components solo cuando necesario
+- Nombres en español para UI/UX, código en inglés
+- Comentarios en español para lógica de negocio
+
+### Naming Conventions
+- Componentes: PascalCase (ProductCard.tsx)
+- Archivos: kebab-case (product-card.tsx)
+- Variables/funciones: camelCase
+- Constantes: UPPER_CASE
+- Carpetas: kebab-case
+
+### Componentes
+- Un componente por archivo
+- Props interface antes del componente
+- Default export al final
+- Usar cn() para clases condicionales
+- Separar lógica en custom hooks cuando sea complejo
+
+### Base de Datos
+- Modelos en inglés (Product, Category, Order)
+- Campos descriptivos en inglés
+- Usar enums para estados
+- Relaciones claras y consistentes
+
+### API Routes
+- Usar App Router API routes
+- Validación con Zod
+- Manejo de errores consistente
+- Respuestas tipadas
+
+### Estilos
+- Tailwind CSS v4
+- Mobile-first responsive design
+- Usar CSS variables para colores del tema
+- Componentes UI reutilizables en /components/ui/
+
+### Funcionalidades Específicas
+
+#### Productos
+- Múltiples imágenes por producto
+- Categorización clara
+- Estado de disponibilidad
+- Precios en CLP
+
+#### Pedidos
+- Solo retiro en tienda
+- Estados: PENDIENTE, PREPARANDO, LISTO, RETIRADO, CANCELADO
+- Fecha y hora de retiro
+- Notificaciones de estado
+
+#### Pagos
+- Integración WebPay Plus
+- Manejo de estados de pago
+- Webhooks para confirmación
+
+#### Admin Panel
+- Protegido con Clerk roles
+- CRUD completo de productos
+- Dashboard con métricas
+- Gestión de pedidos en tiempo real
+
+## Comandos Importantes
+- `npm run dev` - Desarrollo con Turbopack
+- `npx prisma generate` - Generar cliente Prisma
+- `npx prisma db push` - Aplicar cambios a BD
+- `npx prisma studio` - Interface gráfica BD
+
+## Consideraciones Chilenas
+- Moneda: CLP (pesos chilenos)
+- Formato números: 1.234.567
+- WebPay Plus para pagos
+- Horarios comerciales locales
+
+- Términos legales chilenos
