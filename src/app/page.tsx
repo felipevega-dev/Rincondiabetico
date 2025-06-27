@@ -1,81 +1,133 @@
-import { SignInButton, SignUpButton, SignedIn, SignedOut, UserButton } from '@clerk/nextjs';
+import { currentUser } from '@clerk/nextjs/server'
+import { isAdmin, getOrCreateUser } from '@/lib/auth'
+import Link from 'next/link'
 
-export default function Home() {
+export default async function Home() {
+  const user = await currentUser()
+  let userIsAdmin = false
+  
+  // Solo verificar admin si hay usuario
+  if (user) {
+    userIsAdmin = await isAdmin()
+    // Sincronizar usuario con BD
+    await getOrCreateUser()
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-pink-50 to-purple-50">
-      {/* Header */}
-      <header className="bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-6">
-            <div className="flex items-center">
-              <h1 className="text-2xl font-bold text-pink-600">🧁 Rincón Diabético</h1>
-            </div>
-            
-            <div className="flex items-center space-x-4">
-              <SignedOut>
-                <SignInButton>
-                  <button className="text-gray-700 hover:text-pink-600 px-3 py-2 rounded-md text-sm font-medium">
-                    Iniciar Sesión
-                  </button>
-                </SignInButton>
-                <SignUpButton>
-                  <button className="bg-pink-600 hover:bg-pink-700 text-white px-4 py-2 rounded-md text-sm font-medium">
-                    Registrarse
-                  </button>
-                </SignUpButton>
-              </SignedOut>
-              
-              <SignedIn>
-                <UserButton afterSignOutUrl="/" />
-              </SignedIn>
-            </div>
-          </div>
-        </div>
-      </header>
-
-      {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="text-center">
-          <h2 className="text-4xl font-extrabold text-gray-900 sm:text-5xl">
+      {/* Hero Section */}
+      <section className="py-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-6">
             Deliciosos Postres Artesanales
-          </h2>
-          <p className="mt-4 text-xl text-gray-600">
+          </h1>
+          <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
             En Chiguayante, Chile - Solo retiro en tienda
           </p>
           
-          <div className="mt-8">
-            <SignedOut>
-              <p className="text-gray-600 mb-6">
-                Regístrate para ver nuestro catálogo y hacer pedidos
+          {!user && (
+            <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
+              <Link 
+                href="/sign-up"
+                className="bg-pink-600 text-white px-8 py-3 rounded-lg font-medium hover:bg-pink-700 transition-colors"
+              >
+                Crear Cuenta
+              </Link>
+              <Link 
+                href="/productos"
+                className="border border-pink-600 text-pink-600 px-8 py-3 rounded-lg font-medium hover:bg-pink-50 transition-colors"
+              >
+                Ver Productos
+              </Link>
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* Categories Section */}
+      <section className="py-16 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <h2 className="text-3xl font-bold text-center text-gray-900 mb-12">
+            Nuestras Especialidades
+          </h2>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {/* Tortas */}
+            <div className="bg-gradient-to-br from-orange-100 to-orange-200 p-8 rounded-2xl text-center hover:transform hover:scale-105 transition-all duration-300">
+              <div className="text-6xl mb-4">🍰</div>
+              <h3 className="text-2xl font-bold text-gray-900 mb-4">Tortas</h3>
+              <p className="text-gray-700 mb-6">
+                Tortas personalizadas para toda ocasión
               </p>
-              <SignUpButton>
-                <button className="bg-pink-600 hover:bg-pink-700 text-white px-8 py-3 rounded-lg text-lg font-semibold">
-                  Comenzar a Comprar
-                </button>
-              </SignUpButton>
-            </SignedOut>
-            
-            <SignedIn>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-12">
-                <div className="bg-white p-6 rounded-lg shadow-md">
-                  <h3 className="text-xl font-semibold text-gray-900 mb-2">🍰 Tortas</h3>
-                  <p className="text-gray-600">Tortas personalizadas para toda ocasión</p>
-                </div>
-                
-                <div className="bg-white p-6 rounded-lg shadow-md">
-                  <h3 className="text-xl font-semibold text-gray-900 mb-2">🧁 Cupcakes</h3>
-                  <p className="text-gray-600">Deliciosos cupcakes con decoraciones únicas</p>
-                </div>
-                
-                <div className="bg-white p-6 rounded-lg shadow-md">
-                  <h3 className="text-xl font-semibold text-gray-900 mb-2">🍪 Dulces</h3>
-                  <p className="text-gray-600">Variedad de dulces y postres artesanales</p>
-                </div>
-              </div>
-            </SignedIn>
+              <Link 
+                href="/productos?categoria=tortas"
+                className="inline-block bg-orange-600 text-white px-6 py-2 rounded-lg hover:bg-orange-700 transition-colors"
+              >
+                Ver Tortas
+              </Link>
+            </div>
+
+            {/* Cupcakes */}
+            <div className="bg-gradient-to-br from-pink-100 to-pink-200 p-8 rounded-2xl text-center hover:transform hover:scale-105 transition-all duration-300">
+              <div className="text-6xl mb-4">🧁</div>
+              <h3 className="text-2xl font-bold text-gray-900 mb-4">Cupcakes</h3>
+              <p className="text-gray-700 mb-6">
+                Deliciosos cupcakes con decoraciones únicas
+              </p>
+              <Link 
+                href="/productos?categoria=cupcakes"
+                className="inline-block bg-pink-600 text-white px-6 py-2 rounded-lg hover:bg-pink-700 transition-colors"
+              >
+                Ver Cupcakes
+              </Link>
+            </div>
+
+            {/* Dulces */}
+            <div className="bg-gradient-to-br from-purple-100 to-purple-200 p-8 rounded-2xl text-center hover:transform hover:scale-105 transition-all duration-300">
+              <div className="text-6xl mb-4">🍭</div>
+              <h3 className="text-2xl font-bold text-gray-900 mb-4">Dulces</h3>
+              <p className="text-gray-700 mb-6">
+                Variedad de dulces y postres artesanales
+              </p>
+              <Link 
+                href="/productos?categoria=dulces"
+                className="inline-block bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700 transition-colors"
+              >
+                Ver Dulces
+              </Link>
+            </div>
           </div>
         </div>
-      </main>
+      </section>
+
+      {/* Info Section */}
+      <section className="py-16 bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <h2 className="text-3xl font-bold text-gray-900 mb-8">
+            ¿Por qué elegirnos?
+          </h2>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="p-6">
+              <div className="text-4xl mb-4">🏠</div>
+              <h3 className="text-xl font-semibold mb-2">Artesanal</h3>
+              <p className="text-gray-600">Todos nuestros productos son hechos a mano con amor</p>
+            </div>
+            
+            <div className="p-6">
+              <div className="text-4xl mb-4">🥇</div>
+              <h3 className="text-xl font-semibold mb-2">Calidad Premium</h3>
+              <p className="text-gray-600">Ingredientes de primera calidad en cada receta</p>
+            </div>
+            
+            <div className="p-6">
+              <div className="text-4xl mb-4">📍</div>
+              <h3 className="text-xl font-semibold mb-2">Retiro en Tienda</h3>
+              <p className="text-gray-600">Ubicados en Chiguayante para tu comodidad</p>
+            </div>
+          </div>
+        </div>
+      </section>
     </div>
-  );
+  )
 }

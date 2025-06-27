@@ -1,21 +1,17 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
-import { ClerkProvider } from '@clerk/nextjs';
+import { Inter } from "next/font/google";
 import "./globals.css";
+import { ClerkProvider } from '@clerk/nextjs'
+import { Navbar } from '@/components/shared/navbar'
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const inter = Inter({ 
   subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+  variable: "--font-inter",
 });
 
 export const metadata: Metadata = {
-  title: "Rincón Diabético - Postres y Dulces",
-  description: "Deliciosos postres y dulces artesanales en Chiguayante, Chile. Solo retiro en tienda.",
+  title: "Rincón Diabético - Postres Artesanales",
+  description: "Deliciosos postres artesanales en Chiguayante, Chile. Solo retiro en tienda.",
 };
 
 export default function RootLayout({
@@ -27,8 +23,9 @@ export default function RootLayout({
     <ClerkProvider>
       <html lang="es">
         <body
-          className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+          className={`${inter.variable} font-sans antialiased`}
         >
+          <Navbar />
           {children}
         </body>
       </html>

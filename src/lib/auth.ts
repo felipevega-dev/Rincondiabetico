@@ -1,4 +1,4 @@
-import { auth, clerkClient } from '@clerk/nextjs/server'
+import { auth, clerkClient, currentUser } from '@clerk/nextjs/server'
 import { prisma } from './prisma'
 
 // Tipos de roles
@@ -6,70 +6,53 @@ export type UserRole = 'admin' | 'customer'
 
 // Verificar si el usuario es admin
 export async function isAdmin(): Promise<boolean> {
-  try {
-    const { userId } = await auth()
-    if (!userId) return false
-
-    // Verificar en Clerk directamente usando publicMetadata
-    const client = await clerkClient()
-    const user = await client.users.getUser(userId)
-    return user.publicMetadata?.role === 'admin'
-  } catch (error) {
-    console.error('Error verificando rol de admin:', error)
-    return false
-  }
+  const user = await currentUser()
+  return user?.publicMetadata?.role === 'admin'
 }
 
 // Obtener el usuario actual con datos de la DB
 export async function getCurrentUser() {
-  try {
-    const { userId } = await auth()
-    if (!userId) return null
-
-    // Buscar en nuestra base de datos
-    const user = await prisma.user.findUnique({
-      where: { clerkId: userId }
-    })
-
-    return user
-  } catch (error) {
-    console.error('Error obteniendo usuario actual:', error)
+  const { userId } = await auth()
+  
+  if (!userId) {
     return null
   }
+
+  // Solo buscar en BD, no crear
+  return await prisma.user.findUnique({
+    where: { clerkId: userId }
+  })
 }
 
 // Obtener o crear usuario en nuestra DB
 export async function getOrCreateUser() {
-  try {
-    const { userId } = await auth()
-    if (!userId) return null
-
-    // Intentar encontrar el usuario
-    let user = await prisma.user.findUnique({
-      where: { clerkId: userId }
-    })
-
-    // Si no existe, obtener datos de Clerk y crear
-    if (!user) {
-      const client = await clerkClient()
-      const clerkUser = await client.users.getUser(userId)
-      
-      user = await prisma.user.create({
-        data: {
-          clerkId: userId,
-          email: clerkUser.emailAddresses[0]?.emailAddress || '',
-          firstName: clerkUser.firstName,
-          lastName: clerkUser.lastName,
-          phone: clerkUser.phoneNumbers[0]?.phoneNumber || null,
-        }
-      })
-    }
-
-    return user
-  } catch (error) {
-    console.error('Error obteniendo o creando usuario:', error)
+  const { userId } = await auth()
+  
+  if (!userId) {
     return null
   }
+
+  // Primero verificar si ya existe en la BD
+  let user = await prisma.user.findUnique({
+    where: { clerkId: userId }
+  })
+
+  // Solo crear si no existe
+  if (!user) {
+    const clerkUser = await currentUser()
+    if (!clerkUser) return null
+
+    user = await prisma.user.create({
+      data: {
+        clerkId: userId,
+        email: clerkUser.emailAddresses[0]?.emailAddress || '',
+        firstName: clerkUser.firstName,
+        lastName: clerkUser.lastName,
+      }
+    })
+  }
+
+  return user
 }
 
 // Asignar rol de admin a un usuario (solo para desarrollo inicial)

@@ -1,14 +1,11 @@
 import { currentUser } from '@clerk/nextjs/server'
 import { redirect } from 'next/navigation'
-import { isAdmin, getOrCreateUser } from '@/lib/auth'
+import { isAdmin } from '@/lib/auth'
 import Link from 'next/link'
 
 export default async function AdminDashboard() {
   const user = await currentUser()
   const userIsAdmin = await isAdmin()
-  
-  // Sincronizar usuario admin con nuestra BD
-  const dbUser = await getOrCreateUser()
 
   if (!user) {
     redirect('/sign-in')
@@ -23,11 +20,6 @@ export default async function AdminDashboard() {
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-gray-900">Dashboard Administrativo</h1>
         <p className="text-gray-600">Gestiona tu tienda desde aquí</p>
-        {dbUser && (
-          <p className="text-sm text-green-600 mt-1">
-            ✅ Admin sincronizado con BD (ID: {dbUser.id})
-          </p>
-        )}
       </div>
 
       {/* Métricas rápidas */}
@@ -83,23 +75,7 @@ export default async function AdminDashboard() {
 
       {/* Quick Actions */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <Link href="/admin/productos/nuevo" className="group">
-          <div className="bg-white rounded-lg shadow p-6 hover:shadow-md transition-shadow">
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <span className="text-2xl">➕</span>
-              </div>
-              <div className="ml-4">
-                <h3 className="text-lg font-medium text-gray-900 group-hover:text-pink-600">
-                  Nuevo Producto
-                </h3>
-                <p className="text-gray-500">Agregar producto al catálogo</p>
-              </div>
-            </div>
-          </div>
-        </Link>
-
-        <Link href="/admin/categorias/nueva" className="group">
+        <Link href="/admin/categorias" className="group">
           <div className="bg-white rounded-lg shadow p-6 hover:shadow-md transition-shadow">
             <div className="flex items-center">
               <div className="flex-shrink-0">
@@ -107,9 +83,25 @@ export default async function AdminDashboard() {
               </div>
               <div className="ml-4">
                 <h3 className="text-lg font-medium text-gray-900 group-hover:text-pink-600">
-                  Nueva Categoría
+                  Gestionar Categorías
                 </h3>
-                <p className="text-gray-500">Crear categoría de productos</p>
+                <p className="text-gray-500">Ver y administrar categorías</p>
+              </div>
+            </div>
+          </div>
+        </Link>
+
+        <Link href="/admin/productos" className="group">
+          <div className="bg-white rounded-lg shadow p-6 hover:shadow-md transition-shadow">
+            <div className="flex items-center">
+              <div className="flex-shrink-0">
+                <span className="text-2xl">🍰</span>
+              </div>
+              <div className="ml-4">
+                <h3 className="text-lg font-medium text-gray-900 group-hover:text-pink-600">
+                  Gestionar Productos
+                </h3>
+                <p className="text-gray-500">Ver y administrar productos</p>
               </div>
             </div>
           </div>
@@ -126,6 +118,38 @@ export default async function AdminDashboard() {
                   Ver Pedidos
                 </h3>
                 <p className="text-gray-500">Gestionar pedidos pendientes</p>
+              </div>
+            </div>
+          </div>
+        </Link>
+
+        <Link href="/admin/categorias/nueva" className="group">
+          <div className="bg-gradient-to-br from-blue-50 to-blue-100 border-2 border-dashed border-blue-300 rounded-lg p-6 hover:border-blue-400 transition-colors">
+            <div className="flex items-center">
+              <div className="flex-shrink-0">
+                <span className="text-2xl">➕</span>
+              </div>
+              <div className="ml-4">
+                <h3 className="text-lg font-medium text-blue-700 group-hover:text-blue-800">
+                  Nueva Categoría
+                </h3>
+                <p className="text-blue-600">Crear categoría de productos</p>
+              </div>
+            </div>
+          </div>
+        </Link>
+
+        <Link href="/admin/productos/nuevo" className="group">
+          <div className="bg-gradient-to-br from-pink-50 to-pink-100 border-2 border-dashed border-pink-300 rounded-lg p-6 hover:border-pink-400 transition-colors">
+            <div className="flex items-center">
+              <div className="flex-shrink-0">
+                <span className="text-2xl">🆕</span>
+              </div>
+              <div className="ml-4">
+                <h3 className="text-lg font-medium text-pink-700 group-hover:text-pink-800">
+                  Nuevo Producto
+                </h3>
+                <p className="text-pink-600">Agregar producto al catálogo</p>
               </div>
             </div>
           </div>
