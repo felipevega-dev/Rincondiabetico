@@ -6,6 +6,7 @@ const isProtectedRoute = createRouteMatcher([
   '/admin(.*)',
   '/pedidos(.*)',
   '/perfil(.*)',
+  '/carrito(.*)',
 ])
 
 // Rutas solo para administradores
@@ -21,7 +22,20 @@ export default clerkMiddleware(async (auth, req) => {
   
   // Proteger rutas de administrador
   if (isAdminRoute(req)) {
-    await auth.protect({ role: 'admin' })
+    const { userId } = await auth()
+    if (!userId) {
+      await auth.protect()
+      return
+    }
+    
+    // Verificar si el usuario es admin usando metadata
+    const { sessionClaims } = await auth()
+    const isUserAdmin = sessionClaims?.metadata?.role === 'admin'
+    
+    if (!isUserAdmin) {
+      // Redirigir a dashboard si no es admin
+      return Response.redirect(new URL('/dashboard', req.url))
+    }
   }
 })
 
