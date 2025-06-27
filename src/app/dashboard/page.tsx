@@ -1,10 +1,13 @@
 import { currentUser } from '@clerk/nextjs/server'
-import { isAdmin } from '@/lib/auth'
+import { isAdmin, getOrCreateUser } from '@/lib/auth'
 import Link from 'next/link'
 
 export default async function DashboardPage() {
   const user = await currentUser()
   const userIsAdmin = await isAdmin()
+  
+  // Sincronizar usuario con nuestra BD
+  const dbUser = await getOrCreateUser()
 
   if (!user) {
     return <div>Cargando...</div>
@@ -20,6 +23,11 @@ export default async function DashboardPage() {
               ¡Hola, {user.firstName || user.emailAddresses[0]?.emailAddress}!
             </h1>
             <p className="text-gray-600">Bienvenido a tu panel de control</p>
+            {dbUser && (
+              <p className="text-sm text-green-600 mt-1">
+                ✅ Usuario sincronizado con la base de datos (ID: {dbUser.id})
+              </p>
+            )}
           </div>
         </div>
       </div>
@@ -130,6 +138,14 @@ export default async function DashboardPage() {
                     <dt className="text-sm font-medium text-gray-500">Nombre</dt>
                     <dd className="mt-1 text-sm text-gray-900">
                       {user.firstName} {user.lastName}
+                    </dd>
+                  </div>
+                )}
+                {dbUser && (
+                  <div>
+                    <dt className="text-sm font-medium text-gray-500">ID en BD</dt>
+                    <dd className="mt-1 text-sm text-gray-900 font-mono">
+                      {dbUser.id}
                     </dd>
                   </div>
                 )}

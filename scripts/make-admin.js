@@ -1,6 +1,7 @@
 // Script para hacer admin a un usuario durante desarrollo
 // Uso: node scripts/make-admin.js tu-email@ejemplo.com
 
+require('dotenv').config({ path: '.env.local' })
 const { clerkClient } = require('@clerk/nextjs/server')
 
 async function makeUserAdmin(email) {
