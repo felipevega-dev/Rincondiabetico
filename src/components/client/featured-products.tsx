@@ -2,6 +2,29 @@ import { prisma } from '@/lib/prisma'
 import Image from 'next/image'
 import Link from 'next/link'
 import { AddToCartButton } from './add-to-cart-button'
+import { Button } from '@/components/ui/button'
+import { Package } from 'lucide-react'
+import { VariationType } from '@/types'
+
+// Function to calculate price range
+const calculatePriceRange = (basePrice: number, variations?: any[]) => {
+  if (!variations || variations.length === 0) {
+    return `$${basePrice.toLocaleString('es-CL')}`
+  }
+
+  const priceChanges = variations.map(v => v.priceChange)
+  const minChange = Math.min(0, ...priceChanges)
+  const maxChange = Math.max(0, ...priceChanges)
+
+  const minPrice = basePrice + minChange
+  const maxPrice = basePrice + maxChange
+
+  if (minPrice === maxPrice) {
+    return `$${basePrice.toLocaleString('es-CL')}`
+  }
+
+  return `$${minPrice.toLocaleString('es-CL')} - $${maxPrice.toLocaleString('es-CL')}`
+}
 
 async function getFeaturedProducts() {
   try {
@@ -9,6 +32,11 @@ async function getFeaturedProducts() {
       where: {
         isAvailable: true,
         isActive: true
+      },
+      include: {
+        variations: {
+          orderBy: { order: 'asc' }
+        }
       },
       take: 6,
       orderBy: {
@@ -23,6 +51,11 @@ async function getFeaturedProducts() {
       where: {
         isAvailable: true,
         isActive: true
+      },
+      include: {
+        variations: {
+          orderBy: { order: 'asc' }
+        }
       },
       take: 6,
       orderBy: {
@@ -107,7 +140,7 @@ export async function FeaturedProducts() {
                 
                 <div className="flex items-center justify-between mb-4">
                   <span className="text-2xl font-bold text-pink-600">
-                    ${product.price.toLocaleString('es-CL')}
+                    {calculatePriceRange(product.price, product.variations)}
                   </span>
                   {!product.isAvailable && (
                     <span className="text-sm text-red-600 font-medium">
@@ -124,14 +157,23 @@ export async function FeaturedProducts() {
                     Ver Detalles
                   </Link>
                   {product.isAvailable && (
-                    <AddToCartButton
-                      productId={product.id}
-                      productName={product.name}
-                      productPrice={product.price}
-                      productImage={product.images?.[0]}
-                      productStock={product.stock}
-                      className="bg-pink-600 text-white py-2 px-4 rounded-lg font-medium hover:bg-pink-700 transition-colors"
-                    />
+                    product.variations && product.variations.length > 0 ? (
+                      <Link href={`/productos/${product.slug}`}>
+                        <Button className="bg-pink-600 text-white py-2 px-4 rounded-lg font-medium hover:bg-pink-700 transition-colors">
+                          <Package className="h-4 w-4 mr-1" />
+                          Opciones
+                        </Button>
+                      </Link>
+                    ) : (
+                      <AddToCartButton
+                        productId={product.id}
+                        productName={product.name}
+                        productPrice={product.price}
+                        productImage={product.images?.[0]}
+                        productStock={product.stock}
+                        className="bg-pink-600 text-white py-2 px-4 rounded-lg font-medium hover:bg-pink-700 transition-colors"
+                      />
+                    )
                   )}
                 </div>
               </div>

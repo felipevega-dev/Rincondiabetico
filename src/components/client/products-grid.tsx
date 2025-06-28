@@ -7,6 +7,8 @@ import Link from 'next/link'
 import { formatPrice } from '@/lib/utils'
 import { AddToCartButton } from '@/components/client/add-to-cart-button'
 import { Package } from 'lucide-react'
+import { VariationType } from '@/types'
+import { Button } from '@/components/ui/button'
 
 interface Product {
   id: string
@@ -21,6 +23,16 @@ interface Product {
     id: string
     name: string
   }
+  variations?: {
+    id: string
+    type: VariationType
+    name: string
+    description?: string | null
+    priceChange: number
+    servingSize?: number | null
+    order: number
+    isAvailable: boolean
+  }[]
 }
 
 interface ProductsResponse {
@@ -31,6 +43,26 @@ interface ProductsResponse {
     total: number
     pages: number
   }
+}
+
+// Function to calculate price range
+const calculatePriceRange = (basePrice: number, variations?: Product['variations']) => {
+  if (!variations || variations.length === 0) {
+    return formatPrice(basePrice)
+  }
+
+  const priceChanges = variations.map(v => v.priceChange)
+  const minChange = Math.min(0, ...priceChanges)
+  const maxChange = Math.max(0, ...priceChanges)
+
+  const minPrice = basePrice + minChange
+  const maxPrice = basePrice + maxChange
+
+  if (minPrice === maxPrice) {
+    return formatPrice(basePrice)
+  }
+
+  return `${formatPrice(minPrice)} - ${formatPrice(maxPrice)}`
 }
 
 export function ProductsGrid() {
@@ -153,7 +185,7 @@ export function ProductsGrid() {
                 <div className="flex flex-col gap-3">
                   <div className="flex items-center justify-between">
                     <span className="text-xl font-bold text-gray-900">
-                      {formatPrice(product.price)}
+                      {calculatePriceRange(product.price, product.variations)}
                     </span>
                     {product.stock > 0 && (
                       <span className="text-sm text-gray-600">
@@ -163,14 +195,23 @@ export function ProductsGrid() {
                   </div>
                   
                   <div onClick={(e) => e.preventDefault()}>
-                    <AddToCartButton
-                      productId={product.id}
-                      productName={product.name}
-                      productPrice={product.price}
-                      productImage={product.images[0]}
-                      productStock={product.stock}
-                      className="w-full"
-                    />
+                    {product.variations && product.variations.length > 0 ? (
+                      <Link href={`/productos/${product.slug}`}>
+                        <Button className="w-full bg-gradient-to-r from-pink-500 to-pink-600 hover:from-pink-600 hover:to-pink-700 text-white py-4 text-lg font-semibold shadow-lg shadow-pink-200">
+                          <Package className="h-6 w-6 mr-2" />
+                          Ver Opciones
+                        </Button>
+                      </Link>
+                    ) : (
+                      <AddToCartButton
+                        productId={product.id}
+                        productName={product.name}
+                        productPrice={product.price}
+                        productImage={product.images[0]}
+                        productStock={product.stock}
+                        className="w-full"
+                      />
+                    )}
                   </div>
                 </div>
               </div>
