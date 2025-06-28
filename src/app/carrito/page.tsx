@@ -4,6 +4,7 @@ import { useCart } from '@/components/providers/cart-provider'
 import { formatPrice } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { ShoppingCart, Minus, Plus, Trash2, ArrowLeft } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -15,8 +16,8 @@ export default function CartPage() {
 
   if (!isLoaded) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-pink-600"></div>
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
       </div>
     )
   }
@@ -31,22 +32,22 @@ export default function CartPage() {
 
   if (items.length === 0) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-background">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="text-center py-16">
-            <ShoppingCart className="h-24 w-24 text-gray-400 mx-auto mb-6" />
-            <h1 className="text-3xl font-bold text-gray-900 mb-4">
+            <ShoppingCart className="h-24 w-24 text-muted-foreground mx-auto mb-6" />
+            <h1 className="text-3xl font-bold text-foreground mb-4">
               Tu carrito está vacío
             </h1>
-            <p className="text-gray-600 mb-8">
+            <p className="text-muted-foreground mb-8">
               ¡Descubre nuestros deliciosos postres y agrega algunos a tu carrito!
             </p>
-            <Link href="/productos">
-              <Button className="flex items-center gap-2">
-                <ArrowLeft className="h-4 w-4" />
+            <Button asChild size="lg">
+              <Link href="/productos">
+                <ArrowLeft className="h-4 w-4 mr-2" />
                 Continuar comprando
-              </Button>
-            </Link>
+              </Link>
+            </Button>
           </div>
         </div>
       </div>
@@ -54,21 +55,20 @@ export default function CartPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-muted/20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
-          <Link 
-            href="/productos"
-            className="inline-flex items-center text-pink-600 hover:text-pink-700 mb-4"
-          >
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Continuar comprando
-          </Link>
+          <Button asChild variant="ghost" className="mb-4 text-primary hover:text-primary/80">
+            <Link href="/productos">
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Continuar comprando
+            </Link>
+          </Button>
           
           <div className="flex justify-between items-center">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">Tu Carrito</h1>
-              <p className="text-gray-600 mt-1">
+              <h1 className="text-3xl font-bold text-foreground">Tu Carrito</h1>
+              <p className="text-muted-foreground mt-1">
                 {itemCount} {itemCount === 1 ? 'producto' : 'productos'} en tu carrito
               </p>
             </div>
@@ -77,7 +77,7 @@ export default function CartPage() {
               <Button 
                 variant="outline" 
                 onClick={clearCart}
-                className="text-red-600 border-red-200 hover:bg-red-50"
+                className="text-destructive border-destructive/20 hover:bg-destructive/10"
               >
                 Vaciar carrito
               </Button>
@@ -87,156 +87,162 @@ export default function CartPage() {
 
         <div className="lg:grid lg:grid-cols-3 lg:gap-8">
           <div className="lg:col-span-2">
-            <div className="bg-white rounded-lg shadow">
-              <div className="px-6 py-4 border-b border-gray-200">
-                <h2 className="text-lg font-medium text-gray-900">Productos</h2>
-              </div>
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg">Productos</CardTitle>
+              </CardHeader>
               
-              <div className="divide-y divide-gray-200">
-                {items.map((item) => (
-                  <div key={item.id} className="p-6">
-                    <div className="flex items-center">
-                      <div className="flex-shrink-0 w-20 h-20">
-                        {item.image ? (
-                          <Image
-                            src={item.image}
-                            alt={item.name}
-                            width={80}
-                            height={80}
-                            className="w-20 h-20 object-cover rounded-lg"
-                          />
-                        ) : (
-                          <div className="w-20 h-20 bg-gray-200 rounded-lg flex items-center justify-center">
-                            <ShoppingCart className="h-8 w-8 text-gray-400" />
-                          </div>
-                        )}
-                      </div>
+              <CardContent className="p-0">
+                <div className="divide-y divide-border">
+                  {items.map((item) => (
+                    <div key={item.id} className="p-6">
+                      <div className="flex items-center">
+                        <div className="flex-shrink-0 w-20 h-20">
+                          {item.image ? (
+                            <Image
+                              src={item.image}
+                              alt={item.name}
+                              width={80}
+                              height={80}
+                              className="w-20 h-20 object-cover rounded-lg border border-border"
+                            />
+                          ) : (
+                            <div className="w-20 h-20 bg-muted rounded-lg flex items-center justify-center border border-border">
+                              <ShoppingCart className="h-8 w-8 text-muted-foreground" />
+                            </div>
+                          )}
+                        </div>
 
-                      <div className="ml-6 flex-1">
-                        <div className="flex justify-between">
-                          <div>
-                            <h3 className="text-lg font-medium text-gray-900">
-                              {item.name}
-                            </h3>
-                            <p className="text-gray-600">
-                              {formatPrice(item.price)} c/u
-                            </p>
-                          </div>
-                          
-                          <div className="flex items-center gap-4">
-                            <div className="flex items-center border border-gray-300 rounded-lg">
+                        <div className="ml-6 flex-1">
+                          <div className="flex justify-between">
+                            <div>
+                              <h3 className="text-lg font-medium text-foreground">
+                                {item.name}
+                              </h3>
+                              <p className="text-muted-foreground">
+                                {formatPrice(item.price)} c/u
+                              </p>
+                            </div>
+                            
+                            <div className="flex items-center gap-4">
+                              <div className="flex items-center border border-border rounded-lg">
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => handleQuantityChange(item.id, item.quantity - 1)}
+                                  className="h-8 w-8 p-0 hover:bg-primary/10"
+                                >
+                                  <Minus className="h-4 w-4" />
+                                </Button>
+                                
+                                <Input
+                                  type="number"
+                                  min="1"
+                                  value={item.quantity}
+                                  onChange={(e) => handleQuantityChange(item.id, parseInt(e.target.value) || 1)}
+                                  className="w-16 h-8 text-center border-0 focus:ring-0"
+                                />
+                                
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => handleQuantityChange(item.id, item.quantity + 1)}
+                                  className="h-8 w-8 p-0 hover:bg-primary/10"
+                                >
+                                  <Plus className="h-4 w-4" />
+                                </Button>
+                              </div>
+
+                              <div className="text-lg font-medium text-foreground min-w-[100px] text-right">
+                                {formatPrice(item.price * item.quantity)}
+                              </div>
+
                               <Button
                                 variant="ghost"
                                 size="sm"
-                                onClick={() => handleQuantityChange(item.id, item.quantity - 1)}
-                                className="h-8 w-8 p-0"
+                                onClick={() => removeItem(item.id)}
+                                className="text-destructive hover:text-destructive hover:bg-destructive/10 p-2"
                               >
-                                <Minus className="h-4 w-4" />
-                              </Button>
-                              
-                              <Input
-                                type="number"
-                                min="1"
-                                value={item.quantity}
-                                onChange={(e) => handleQuantityChange(item.id, parseInt(e.target.value) || 1)}
-                                className="w-16 h-8 text-center border-0 focus:ring-0"
-                              />
-                              
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => handleQuantityChange(item.id, item.quantity + 1)}
-                                className="h-8 w-8 p-0"
-                              >
-                                <Plus className="h-4 w-4" />
+                                <Trash2 className="h-4 w-4" />
                               </Button>
                             </div>
-
-                            <div className="text-lg font-medium text-gray-900 min-w-[100px] text-right">
-                              {formatPrice(item.price * item.quantity)}
-                            </div>
-
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => removeItem(item.id)}
-                              className="text-red-600 hover:text-red-700 hover:bg-red-50 p-2"
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
                           </div>
                         </div>
                       </div>
                     </div>
-                  </div>
-                ))}
-              </div>
-            </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
           </div>
 
           <div className="mt-8 lg:mt-0">
-            <div className="bg-white rounded-lg shadow p-6">
-              <h2 className="text-lg font-medium text-gray-900 mb-4">
-                Resumen del Pedido
-              </h2>
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg">Resumen del Pedido</CardTitle>
+              </CardHeader>
               
-              <div className="space-y-3">
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Subtotal</span>
-                  <span className="text-gray-900">{formatPrice(subtotal)}</span>
-                </div>
-                
-                <div className="flex justify-between text-sm text-gray-600">
-                  <span>Retiro en tienda</span>
-                  <span>Gratis</span>
-                </div>
-                
-                <div className="border-t border-gray-200 pt-3">
-                  <div className="flex justify-between text-lg font-medium">
-                    <span className="text-gray-900">Total</span>
-                    <span className="text-gray-900">{formatPrice(total)}</span>
+              <CardContent>
+                <div className="space-y-3">
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Subtotal</span>
+                    <span className="text-foreground">{formatPrice(subtotal)}</span>
+                  </div>
+                  
+                  <div className="flex justify-between text-sm text-muted-foreground">
+                    <span>Retiro en tienda</span>
+                    <span>Gratis</span>
+                  </div>
+                  
+                  <div className="border-t border-border pt-3">
+                    <div className="flex justify-between text-lg font-medium">
+                      <span className="text-foreground">Total</span>
+                      <span className="text-foreground">{formatPrice(total)}</span>
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              <div className="mt-6 space-y-4">
-                <Button 
-                  onClick={handleCheckout}
-                  disabled={isProcessing}
-                  className="w-full"
-                  size="lg"
-                >
-                  {isProcessing ? (
-                    <div className="flex items-center gap-2">
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                      Procesando...
-                    </div>
-                  ) : (
-                    'Proceder al Pago'
-                  )}
-                </Button>
-                
-                <div className="text-center">
-                  <p className="text-sm text-gray-600">
-                    * Solo retiro en tienda física
-                  </p>
-                  <p className="text-sm text-gray-600">
-                    Chiguayante, Chile
-                  </p>
+                <div className="mt-6 space-y-4">
+                  <Button 
+                    onClick={handleCheckout}
+                    disabled={isProcessing}
+                    className="w-full"
+                    size="lg"
+                  >
+                    {isProcessing ? (
+                      <div className="flex items-center gap-2">
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary-foreground"></div>
+                        Procesando...
+                      </div>
+                    ) : (
+                      'Proceder al Pago'
+                    )}
+                  </Button>
+                  
+                  <div className="text-center">
+                    <p className="text-sm text-muted-foreground">
+                      * Solo retiro en tienda física
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      Chiguayante, Chile
+                    </p>
+                  </div>
                 </div>
-              </div>
-            </div>
+              </CardContent>
+            </Card>
 
-            <div className="mt-6 bg-pink-50 rounded-lg p-4">
-              <h3 className="font-medium text-pink-900 mb-2">
-                Información de Retiro
-              </h3>
-              <ul className="text-sm text-pink-700 space-y-1">
-                <li>• Retiro solo en tienda física</li>
-                <li>• Coordinaremos fecha y hora contigo</li>
-                <li>• Productos frescos preparados al momento</li>
-              </ul>
-            </div>
+            <Card className="mt-6 bg-primary/5 border-primary/20">
+              <CardContent className="p-4">
+                <h3 className="font-medium text-primary mb-2">
+                  Información de Retiro
+                </h3>
+                <ul className="text-sm text-primary/80 space-y-1">
+                  <li>• Retiro solo en tienda física</li>
+                  <li>• Coordinaremos fecha y hora contigo</li>
+                  <li>• Productos frescos preparados al momento</li>
+                </ul>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </div>

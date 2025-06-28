@@ -213,13 +213,13 @@ src/
 ## Roadmap Sugerido
 
 ### Fase 1 (Inmediata - 1-2 semanas)
-- [ ] Sistema de pedidos básico
-- [ ] Checkout sin pagos (solo formulario)
+- [x] Sistema de pedidos básico
+- [x] Checkout sin pagos (solo formulario)
 - [ ] Email de confirmación
 
 ### Fase 2 (Corto plazo - 1 mes)
 - [ ] Integración WebPay Plus
-- [ ] Dashboard de pedidos
+- [x] Dashboard de pedidos
 - [ ] Gestión de stock básica
 
 ### Fase 3 (Mediano plazo - 2-3 meses)

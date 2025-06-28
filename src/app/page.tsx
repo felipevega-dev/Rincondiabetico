@@ -3,6 +3,9 @@ import { isAdmin, getOrCreateUser } from '@/lib/auth'
 import Link from 'next/link'
 import { HeroCarousel } from '@/components/client/hero-carousel'
 import { FeaturedProducts } from '@/components/client/featured-products'
+import { Cake, Heart, MapPin, MessageCircle, Instagram, Facebook, House, Sparkles, Clock, ChevronRight } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 
 export default async function Home() {
   const user = await currentUser()
@@ -16,189 +19,263 @@ export default async function Home() {
   }
 
   return (
-    <div className="min-h-screen">
-      {/* Hero Carousel */}
-      <section className="py-8">
-        <HeroCarousel />
+    <div className="min-h-screen bg-background">
+      {/* Hero Section */}
+      <section className="py-8 md:py-12 bg-gradient-to-br from-primary/5 to-accent/5">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <HeroCarousel />
+        </div>
       </section>
 
       {/* Featured Products */}
-      <FeaturedProducts />
-
-      {/* Categories Section */}
-      <section className="py-16 bg-gradient-to-br from-pink-50 to-purple-50">
+      <section className="py-16 bg-muted/30">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl md:text-4xl font-bold text-center text-gray-900 mb-12">
-            Nuestras Especialidades
-          </h2>
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+              Productos Destacados
+            </h2>
+            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+              Descubre nuestros dulces más populares, elaborados especialmente para diabéticos
+            </p>
+          </div>
+          <FeaturedProducts />
+        </div>
+      </section>
+
+      {/* Specialties Section */}
+      <section className="py-16 bg-background">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground mb-6">
+              Nuestras Especialidades
+            </h2>
+            <p className="text-lg sm:text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
+              Descubre nuestra selección de dulces artesanales, especialmente diseñados para personas con diabetes
+            </p>
+          </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-12">
             {/* Tortas */}
-            <div className="bg-white p-8 rounded-2xl text-center hover:transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl">
-              <div className="text-6xl mb-4">🍰</div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-4">Tortas</h3>
-              <p className="text-gray-700 mb-6">
-                Tortas personalizadas para toda ocasión, sin azúcar refinada
-              </p>
-              <Link 
-                href="/productos?categoria=tortas"
-                className="inline-block bg-orange-600 text-white px-6 py-3 rounded-lg hover:bg-orange-700 transition-colors font-semibold"
-              >
-                Ver Tortas
-              </Link>
-            </div>
+            <Card className="text-center hover:shadow-lg transition-all duration-500 group border-2 hover:border-primary/20 bg-card">
+              <CardContent className="p-8 lg:p-10">
+                <div className="w-24 h-24 bg-primary rounded-2xl flex items-center justify-center mx-auto mb-8 group-hover:scale-110 group-hover:rotate-3 transition-all duration-500 shadow-lg">
+                  <Cake className="h-12 w-12 text-primary-foreground" />
+                </div>
+                <CardTitle className="text-2xl lg:text-3xl font-bold text-foreground mb-6">
+                  Tortas
+                </CardTitle>
+                <CardDescription className="text-lg mb-8 leading-relaxed">
+                  Tortas personalizadas para toda ocasión, sin azúcar refinada
+                </CardDescription>
+                <Button asChild size="lg" className="group">
+                  <Link href="/productos?categoria=tortas">
+                    Ver Tortas
+                    <ChevronRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
+                  </Link>
+                </Button>
+              </CardContent>
+            </Card>
 
             {/* Cupcakes */}
-            <div className="bg-white p-8 rounded-2xl text-center hover:transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl">
-              <div className="text-6xl mb-4">🧁</div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-4">Cupcakes</h3>
-              <p className="text-gray-700 mb-6">
-                Deliciosos cupcakes con decoraciones únicas y sabores especiales
-              </p>
-              <Link 
-                href="/productos?categoria=cupcakes"
-                className="inline-block bg-pink-600 text-white px-6 py-3 rounded-lg hover:bg-pink-700 transition-colors font-semibold"
-              >
-                Ver Cupcakes
-              </Link>
-            </div>
+            <Card className="text-center hover:shadow-lg transition-all duration-500 group border-2 hover:border-primary/20 bg-card">
+              <CardContent className="p-8 lg:p-10">
+                <div className="w-24 h-24 bg-accent rounded-2xl flex items-center justify-center mx-auto mb-8 group-hover:scale-110 group-hover:rotate-3 transition-all duration-500 shadow-lg">
+                  <Heart className="h-12 w-12 text-accent-foreground" />
+                </div>
+                <CardTitle className="text-2xl lg:text-3xl font-bold text-foreground mb-6">
+                  Cupcakes
+                </CardTitle>
+                <CardDescription className="text-lg mb-8 leading-relaxed">
+                  Deliciosos cupcakes con decoraciones únicas y sabores especiales
+                </CardDescription>
+                <Button asChild size="lg" variant="secondary" className="group">
+                  <Link href="/productos?categoria=cupcakes">
+                    Ver Cupcakes
+                    <ChevronRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
+                  </Link>
+                </Button>
+              </CardContent>
+            </Card>
 
             {/* Dulces */}
-            <div className="bg-white p-8 rounded-2xl text-center hover:transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl">
-              <div className="text-6xl mb-4">🍭</div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-4">Dulces</h3>
-              <p className="text-gray-700 mb-6">
-                Variedad de dulces y postres artesanales para diabéticos
-              </p>
-              <Link 
-                href="/productos?categoria=dulces"
-                className="inline-block bg-purple-600 text-white px-6 py-3 rounded-lg hover:bg-purple-700 transition-colors font-semibold"
-              >
-                Ver Dulces
-              </Link>
-            </div>
+            <Card className="text-center hover:shadow-lg transition-all duration-500 group border-2 hover:border-primary/20 bg-card">
+              <CardContent className="p-8 lg:p-10">
+                <div className="w-24 h-24 bg-gradient-to-br from-primary to-accent rounded-2xl flex items-center justify-center mx-auto mb-8 group-hover:scale-110 group-hover:rotate-3 transition-all duration-500 shadow-lg">
+                  <Sparkles className="h-12 w-12 text-primary-foreground" />
+                </div>
+                <CardTitle className="text-2xl lg:text-3xl font-bold text-foreground mb-6">
+                  Dulces
+                </CardTitle>
+                <CardDescription className="text-lg mb-8 leading-relaxed">
+                  Variedad de dulces y postres artesanales para diabéticos
+                </CardDescription>
+                <Button asChild size="lg" variant="outline" className="group">
+                  <Link href="/productos?categoria=dulces">
+                    Ver Dulces
+                    <ChevronRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
+                  </Link>
+                </Button>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </section>
 
       {/* Call to Action Section */}
-      <section className="py-20 bg-gradient-to-r from-pink-600 to-purple-600">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      <section className="py-20 bg-gradient-to-br from-primary to-accent relative overflow-hidden">
+        <div className="absolute inset-0 bg-black/10"></div>
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute top-20 left-20 w-40 h-40 rounded-full bg-white/20"></div>
+          <div className="absolute bottom-20 right-20 w-32 h-32 rounded-full bg-white/15"></div>
+          <div className="absolute top-1/2 right-40 w-24 h-24 rounded-full bg-white/10"></div>
+        </div>
+        
+        <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-3xl md:text-5xl font-bold text-white mb-6">
             ¿Listo para endulzar tu día?
           </h2>
-          <p className="text-xl text-white/90 mb-8 max-w-2xl mx-auto">
-            Descubre nuestros postres sin azúcar refinada, perfectos para personas con diabetes. 
+          <p className="text-xl text-white/90 mb-8 max-w-2xl mx-auto leading-relaxed">
+            Descubre nuestros dulces sin azúcar refinada, perfectos para personas con diabetes. 
             ¡Visítanos en Chiguayante!
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link
-              href="/productos"
-              className="bg-white text-pink-600 px-8 py-4 rounded-full font-bold text-lg hover:bg-gray-100 transition-all duration-300 transform hover:scale-105 shadow-lg"
-            >
-              Ver Productos
-            </Link>
-            <Link
-              href="/contacto"
-              className="border-2 border-white text-white px-8 py-4 rounded-full font-bold text-lg hover:bg-white hover:text-pink-600 transition-all duration-300 transform hover:scale-105"
-            >
-              Contáctanos
-            </Link>
+            <Button asChild size="lg" className="bg-white text-primary hover:bg-white/90 shadow-lg">
+              <Link href="/productos">
+                <Cake className="h-5 w-5" />
+                Ver Productos
+              </Link>
+            </Button>
+            <Button asChild size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-primary">
+              <Link href="/contacto">
+                <MessageCircle className="h-5 w-5" />
+                Contáctanos
+              </Link>
+            </Button>
           </div>
         </div>
       </section>
 
       {/* Info Section */}
-      <section className="py-16 bg-white">
+      <section className="py-20 bg-muted/20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl md:text-4xl font-bold text-center text-gray-900 mb-12">
-            ¿Por qué elegirnos?
-          </h2>
+          <div className="text-center mb-16">
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground mb-6">
+              ¿Por qué elegirnos?
+            </h2>
+            <p className="text-lg sm:text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
+              Conoce las razones que nos hacen únicos en la elaboración de dulces para diabéticos
+            </p>
+          </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="text-center p-6 bg-gray-50 rounded-2xl hover:shadow-lg transition-all duration-300">
-              <div className="text-5xl mb-4">🏠</div>
-              <h3 className="text-xl font-semibold mb-3 text-gray-900">Artesanal</h3>
-              <p className="text-gray-600">Todos nuestros productos son hechos a mano con amor y técnicas tradicionales</p>
-            </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-12">
+            <Card className="text-center hover:shadow-lg transition-all duration-500 group border-2 hover:border-accent/20">
+              <CardContent className="p-8 lg:p-10">
+                <div className="w-20 h-20 bg-accent rounded-2xl flex items-center justify-center mx-auto mb-8 group-hover:scale-110 group-hover:rotate-6 transition-all duration-500 shadow-lg">
+                  <House className="h-10 w-10 text-accent-foreground" />
+                </div>
+                <CardTitle className="text-2xl lg:text-3xl font-bold mb-6 text-foreground">
+                  Artesanal
+                </CardTitle>
+                <CardDescription className="text-lg leading-relaxed">
+                  Todos nuestros productos son hechos a mano con amor y técnicas tradicionales
+                </CardDescription>
+              </CardContent>
+            </Card>
             
-            <div className="text-center p-6 bg-gray-50 rounded-2xl hover:shadow-lg transition-all duration-300">
-              <div className="text-5xl mb-4">💚</div>
-              <h3 className="text-xl font-semibold mb-3 text-gray-900">Para Diabéticos</h3>
-              <p className="text-gray-600">Postres especialmente diseñados sin azúcar refinada, seguros y deliciosos</p>
-            </div>
+            <Card className="text-center hover:shadow-lg transition-all duration-500 group border-2 hover:border-primary/20">
+              <CardContent className="p-8 lg:p-10">
+                <div className="w-20 h-20 bg-primary rounded-2xl flex items-center justify-center mx-auto mb-8 group-hover:scale-110 group-hover:rotate-6 transition-all duration-500 shadow-lg">
+                  <Heart className="h-10 w-10 text-primary-foreground" />
+                </div>
+                <CardTitle className="text-2xl lg:text-3xl font-bold mb-6 text-foreground">
+                  Para Diabéticos
+                </CardTitle>
+                <CardDescription className="text-lg leading-relaxed">
+                  Dulces especialmente diseñados sin azúcar refinada, seguros y deliciosos
+                </CardDescription>
+              </CardContent>
+            </Card>
             
-            <div className="text-center p-6 bg-gray-50 rounded-2xl hover:shadow-lg transition-all duration-300">
-              <div className="text-5xl mb-4">📍</div>
-              <h3 className="text-xl font-semibold mb-3 text-gray-900">Retiro en Tienda</h3>
-              <p className="text-gray-600">Ubicados en Progreso 393, Chiguayante para tu comodidad</p>
-            </div>
+            <Card className="text-center hover:shadow-lg transition-all duration-500 group border-2 hover:border-primary/20">
+              <CardContent className="p-8 lg:p-10">
+                <div className="w-20 h-20 bg-gradient-to-br from-primary to-accent rounded-2xl flex items-center justify-center mx-auto mb-8 group-hover:scale-110 group-hover:rotate-6 transition-all duration-500 shadow-lg">
+                  <MapPin className="h-10 w-10 text-primary-foreground" />
+                </div>
+                <CardTitle className="text-2xl lg:text-3xl font-bold mb-6 text-foreground">
+                  Retiro en Tienda
+                </CardTitle>
+                <CardDescription className="text-lg leading-relaxed">
+                  Ubicados en Progreso 393, Chiguayante para tu comodidad
+                </CardDescription>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </section>
 
       {/* Social Media & Contact Section */}
-      <section className="py-16 bg-gray-50">
+      <section className="py-16 bg-background">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
               Conéctate con nosotros
             </h2>
-            <p className="text-xl text-gray-600">
+            <p className="text-xl text-muted-foreground">
               Síguenos en redes sociales y mantente al día con nuestras novedades
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {/* WhatsApp */}
-            <a
-              href="https://wa.me/56912345678"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="bg-white p-6 rounded-2xl text-center hover:shadow-lg transition-all duration-300 transform hover:scale-105 group"
-            >
-              <div className="text-4xl mb-4 group-hover:scale-110 transition-transform">📱</div>
-              <h3 className="font-semibold text-gray-900 mb-2">WhatsApp</h3>
-              <p className="text-gray-600 text-sm">Contáctanos directamente</p>
-              <p className="text-green-600 font-medium mt-2">+56 9 1234 5678</p>
-            </a>
+            <Card className="text-center hover:shadow-lg transition-all duration-300 transform hover:scale-105 group border-2 hover:border-green-200">
+              <CardContent className="p-6">
+                <div className="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
+                  <MessageCircle className="h-8 w-8 text-white" />
+                </div>
+                <CardTitle className="font-semibold text-foreground mb-2">WhatsApp</CardTitle>
+                <CardDescription className="text-sm mb-3">Contáctanos directamente</CardDescription>
+                <p className="text-green-600 font-medium">+56 9 8687 4406</p>
+              </CardContent>
+            </Card>
 
             {/* Instagram */}
-            <a
-              href="https://instagram.com/rincondiabetico"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="bg-white p-6 rounded-2xl text-center hover:shadow-lg transition-all duration-300 transform hover:scale-105 group"
-            >
-              <div className="text-4xl mb-4 group-hover:scale-110 transition-transform">📷</div>
-              <h3 className="font-semibold text-gray-900 mb-2">Instagram</h3>
-              <p className="text-gray-600 text-sm">Ve nuestras creaciones</p>
-              <p className="text-pink-600 font-medium mt-2">@rincondiabetico</p>
-            </a>
+            <Card className="text-center hover:shadow-lg transition-all duration-300 transform hover:scale-105 group border-2 hover:border-pink-200">
+              <CardContent className="p-6">
+                <div className="w-16 h-16 bg-gradient-to-br from-purple-500 via-pink-500 to-orange-400 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
+                  <Instagram className="h-8 w-8 text-white" />
+                </div>
+                <CardTitle className="font-semibold text-foreground mb-2">Instagram</CardTitle>
+                <CardDescription className="text-sm mb-3">Ve nuestras creaciones</CardDescription>
+                <p className="text-primary font-medium">@dulcespasmino</p>
+              </CardContent>
+            </Card>
 
             {/* Facebook */}
-            <a
-              href="https://facebook.com/rincondiabetico"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="bg-white p-6 rounded-2xl text-center hover:shadow-lg transition-all duration-300 transform hover:scale-105 group"
-            >
-              <div className="text-4xl mb-4 group-hover:scale-110 transition-transform">📘</div>
-              <h3 className="font-semibold text-gray-900 mb-2">Facebook</h3>
-              <p className="text-gray-600 text-sm">Únete a nuestra comunidad</p>
-              <p className="text-blue-600 font-medium mt-2">Rincón Diabético</p>
-            </a>
+            <Card className="text-center hover:shadow-lg transition-all duration-300 transform hover:scale-105 group border-2 hover:border-blue-200">
+              <CardContent className="p-6">
+                <div className="w-16 h-16 bg-blue-500 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
+                  <Facebook className="h-8 w-8 text-white" />
+                </div>
+                <CardTitle className="font-semibold text-foreground mb-2">Facebook</CardTitle>
+                <CardDescription className="text-sm mb-3">Síguenos en Facebook</CardDescription>
+                <p className="text-blue-600 font-medium">Dulces Pasmiño</p>
+              </CardContent>
+            </Card>
 
-            {/* Ubicación */}
-            <div className="bg-white p-6 rounded-2xl text-center hover:shadow-lg transition-all duration-300 transform hover:scale-105">
-              <div className="text-4xl mb-4">📍</div>
-              <h3 className="font-semibold text-gray-900 mb-2">Ubicación</h3>
-              <p className="text-gray-600 text-sm">Visítanos en nuestra tienda</p>
-              <p className="text-gray-800 font-medium mt-2">
-                Progreso 393<br />
-                Chiguayante
-              </p>
-            </div>
+            {/* Horarios */}
+            <Card className="text-center border-2">
+              <CardContent className="p-6">
+                <div className="w-16 h-16 bg-accent rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Clock className="h-8 w-8 text-accent-foreground" />
+                </div>
+                <CardTitle className="font-semibold text-foreground mb-2">Horarios</CardTitle>
+                <div className="text-muted-foreground text-sm space-y-1">
+                  <p><strong>Lun-Vie:</strong> 9:00-19:00</p>
+                  <p><strong>Sáb:</strong> 9:00-17:00</p>
+                  <p><strong>Dom:</strong> 10:00-15:00</p>
+                </div>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </section>
