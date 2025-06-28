@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Image from 'next/image'
+import Link from 'next/link'
 import { formatPrice } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { ShoppingCart, Package } from 'lucide-react'
@@ -10,6 +11,7 @@ import { ShoppingCart, Package } from 'lucide-react'
 interface Product {
   id: string
   name: string
+  slug: string
   description?: string
   price: number
   images: string[]
@@ -114,57 +116,62 @@ export function ProductsGrid() {
       {/* Products grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {data.products.map((product) => (
-          <div key={product.id} className="bg-white rounded-lg shadow hover:shadow-md transition-shadow">
-            {/* Product image */}
-            <div className="relative h-48 bg-gray-200 rounded-t-lg overflow-hidden">
-              {product.images.length > 0 ? (
-                <Image
-                  src={product.images[0]}
-                  alt={product.name}
-                  fill
-                  className="object-cover"
-                />
-              ) : (
-                <div className="flex items-center justify-center h-full">
-                  <Package className="h-12 w-12 text-gray-400" />
-                </div>
-              )}
-              
-              {/* Category badge */}
-              <div className="absolute top-2 left-2">
-                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-pink-100 text-pink-800">
-                  {product.category.name}
-                </span>
-              </div>
-            </div>
-
-            {/* Product info */}
-            <div className="p-4">
-              <h3 className="text-lg font-medium text-gray-900 mb-2">
-                {product.name}
-              </h3>
-              
-              {product.description && (
-                <p className="text-sm text-gray-600 mb-3 line-clamp-2">
-                  {product.description}
-                </p>
-              )}
-
-              <div className="flex items-center justify-between">
-                <span className="text-xl font-bold text-gray-900">
-                  {formatPrice(product.price)}
-                </span>
+          <div key={product.id} className="bg-white rounded-lg shadow hover:shadow-md transition-shadow group">
+            <Link href={`/productos/${product.slug}`}>
+              {/* Product image */}
+              <div className="relative h-48 bg-gray-200 rounded-t-lg overflow-hidden">
+                {product.images.length > 0 ? (
+                  <Image
+                    src={product.images[0]}
+                    alt={product.name}
+                    fill
+                    className="object-cover group-hover:scale-105 transition-transform duration-300"
+                  />
+                ) : (
+                  <div className="flex items-center justify-center h-full">
+                    <Package className="h-12 w-12 text-gray-400" />
+                  </div>
+                )}
                 
-                <Button
-                  onClick={() => addToCart(product)}
-                  size="sm"
-                  className="flex items-center gap-2"
-                >
-                  <ShoppingCart className="h-4 w-4" />
-                  Agregar
-                </Button>
+                {/* Category badge */}
+                <div className="absolute top-2 left-2">
+                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-pink-100 text-pink-800">
+                    {product.category.name}
+                  </span>
+                </div>
               </div>
-            </div>
+
+              {/* Product info */}
+              <div className="p-4">
+                <h3 className="text-lg font-medium text-gray-900 mb-2 group-hover:text-pink-600 transition-colors">
+                  {product.name}
+                </h3>
+                
+                {product.description && (
+                  <p className="text-sm text-gray-600 mb-3 line-clamp-2">
+                    {product.description}
+                  </p>
+                )}
+
+                <div className="flex items-center justify-between">
+                  <span className="text-xl font-bold text-gray-900">
+                    {formatPrice(product.price)}
+                  </span>
+                  
+                  <Button
+                    onClick={(e) => {
+                      e.preventDefault()
+                      addToCart(product)
+                    }}
+                    size="sm"
+                    className="flex items-center gap-2"
+                  >
+                    <ShoppingCart className="h-4 w-4" />
+                    Agregar
+                  </Button>
+                </div>
+              </div>
+            </Link>
           </div>
         ))}
       </div>
