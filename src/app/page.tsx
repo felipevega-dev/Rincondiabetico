@@ -251,7 +251,7 @@ export default async function Home() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
             {/* WhatsApp */}
             <Card className="text-center hover:shadow-lg transition-all duration-300 transform hover:scale-105 group border-2 hover:border-green-200">
               <CardContent className="p-6">
@@ -285,21 +285,6 @@ export default async function Home() {
                 <CardTitle className="font-semibold text-foreground mb-2">Facebook</CardTitle>
                 <CardDescription className="text-sm mb-3">Síguenos en Facebook</CardDescription>
                 <p className="text-blue-600 font-medium">Dulces Pasmiño</p>
-              </CardContent>
-            </Card>
-
-            {/* Horarios */}
-            <Card className="text-center border-2">
-              <CardContent className="p-6">
-                <div className="w-16 h-16 bg-accent rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Clock className="h-8 w-8 text-accent-foreground" />
-                </div>
-                <CardTitle className="font-semibold text-foreground mb-2">Horarios</CardTitle>
-                <div className="text-muted-foreground text-sm space-y-1">
-                  <p><strong>Lun-Vie:</strong> 9:00-19:00</p>
-                  <p><strong>Sáb:</strong> 9:00-17:00</p>
-                  <p><strong>Dom:</strong> 10:00-15:00</p>
-                </div>
               </CardContent>
             </Card>
           </div>
