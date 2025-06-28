@@ -42,11 +42,11 @@ export type Category = {
 export type Banner = {
   id: string
   title: string
-  subtitle?: string
-  description?: string
+  subtitle?: string | null
+  description?: string | null
   image: string
-  buttonText?: string
-  buttonLink?: string
+  buttonText?: string | null
+  buttonLink?: string | null
   order: number
   isActive: boolean
   createdAt: Date

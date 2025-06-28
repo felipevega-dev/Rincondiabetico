@@ -8,7 +8,10 @@ const bannerSchema = z.object({
   title: z.string().min(1, 'El título es requerido'),
   subtitle: z.string().optional(),
   description: z.string().optional(),
-  image: z.string().url('La imagen debe ser una URL válida'),
+  image: z.string().min(1, 'La imagen es requerida').refine(
+    (val) => val.startsWith('http') || val.startsWith('/'),
+    'La imagen debe ser una URL válida o una ruta relativa'
+  ),
   buttonText: z.string().optional(),
   buttonLink: z.string().optional(),
   order: z.number().int().min(0).default(0),

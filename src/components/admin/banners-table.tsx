@@ -131,7 +131,7 @@ export function BannersTable() {
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold text-gray-900">Gestión de Banners</h1>
         <Button asChild className="bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700">
-          <Link href="/admin/banners/nuevo">
+          <Link href="/admin/cms/banners/nuevo">
             <Plus className="h-4 w-4 mr-2" />
             Nuevo Banner
           </Link>
@@ -148,7 +148,7 @@ export function BannersTable() {
               Comienza creando tu primer banner para el carousel.
             </p>
             <Button asChild>
-              <Link href="/admin/banners/nuevo">
+              <Link href="/admin/cms/banners/nuevo">
                 <Plus className="h-4 w-4 mr-2" />
                 Crear primer banner
               </Link>
@@ -233,7 +233,7 @@ export function BannersTable() {
                         asChild
                         className="text-blue-600 hover:text-blue-700"
                       >
-                        <Link href={`/admin/banners/${banner.id}/editar`}>
+                        <Link href={`/admin/cms/banners/${banner.id}/editar`}>
                           <Edit className="h-4 w-4" />
                         </Link>
                       </Button>

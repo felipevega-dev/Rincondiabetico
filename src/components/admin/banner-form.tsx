@@ -99,7 +99,7 @@ export function BannerForm({ banner, isEditing = false }: BannerFormProps) {
           `Banner ${isEditing ? 'actualizado' : 'creado'} correctamente`,
           'success'
         )
-        router.push('/admin/banners')
+        router.push('/admin/cms/banners')
       } else {
         const error = await response.json()
         throw new Error(error.error || 'Error al guardar banner')
