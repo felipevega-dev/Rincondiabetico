@@ -54,7 +54,7 @@ model Product {
   name        String
   slug        String   @unique
   description String?
-  price       Int      // Precio en centavos (CLP)
+  price       Int      // Precio en pesos chilenos (CLP)
   images      String[] // URLs de Cloudinary
   isActive    Boolean  @default(true)
   isAvailable Boolean  @default(true)
@@ -87,7 +87,7 @@ model Order {
   id            String      @id @default(cuid())
   orderNumber   String      @unique
   status        OrderStatus @default(PENDIENTE)
-  total         Int         // Total en centavos (CLP)
+  total         Int         // Total en pesos chilenos (CLP)
   
   // Información de retiro
   pickupDate    DateTime?   // Fecha programada de retiro
@@ -112,7 +112,7 @@ model Order {
 model OrderItem {
   id        String  @id @default(cuid())
   quantity  Int
-  price     Int     // Precio unitario en centavos
+  price     Int     // Precio unitario en pesos chilenos
   
   // Relaciones
   orderId   String
@@ -135,7 +135,7 @@ enum PaymentStatus {
 model Payment {
   id              String        @id @default(cuid())
   status          PaymentStatus @default(PENDING)
-  amount          Int           // Monto en centavos
+  amount          Int           // Monto en pesos chilenos
   currency        String        @default("CLP")
   
   // WebPay Plus data

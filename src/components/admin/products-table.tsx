@@ -13,7 +13,7 @@ interface Product {
   description?: string
   price: number
   images: string[]
-  available: boolean
+  isAvailable: boolean
   createdAt: string
   category: {
     id: string
@@ -88,7 +88,7 @@ export function ProductsTable() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ available: !currentStatus }),
+        body: JSON.stringify({ isAvailable: !currentStatus }),
       })
 
       if (response.ok) {
@@ -192,22 +192,22 @@ export function ProductsTable() {
               </td>
               <td className="px-6 py-4 whitespace-nowrap">
                 <button
-                  onClick={() => toggleAvailability(product.id, product.available)}
+                  onClick={() => toggleAvailability(product.id, product.isAvailable)}
                   disabled={toggling === product.id}
                   className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium transition-colors ${
-                    product.available
+                    product.isAvailable
                       ? 'bg-green-100 text-green-800 hover:bg-green-200'
                       : 'bg-red-100 text-red-800 hover:bg-red-200'
                   }`}
                 >
                   {toggling === product.id ? (
                     <div className="animate-spin rounded-full h-3 w-3 border border-current border-t-transparent mr-1"></div>
-                  ) : product.available ? (
+                  ) : product.isAvailable ? (
                     <Eye className="h-3 w-3 mr-1" />
                   ) : (
                     <EyeOff className="h-3 w-3 mr-1" />
                   )}
-                  {product.available ? 'Disponible' : 'No disponible'}
+                  {product.isAvailable ? 'Disponible' : 'No disponible'}
                 </button>
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">

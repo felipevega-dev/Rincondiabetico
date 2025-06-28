@@ -13,7 +13,7 @@ interface Product {
   description?: string
   price: number
   images: string[]
-  available: boolean
+  isAvailable: boolean
   category: {
     id: string
     name: string

@@ -46,9 +46,24 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     const validatedData = createCategorySchema.parse(body)
 
-    // Verificar que no existe una categoría con el mismo nombre
-    const existingCategory = await prisma.category.findUnique({
-      where: { name: validatedData.name }
+    // Generar slug único
+    const baseSlug = validatedData.name
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '') // Remover acentos
+      .replace(/[^a-z0-9\s-]/g, '') // Solo letras, números, espacios y guiones
+      .replace(/\s+/g, '-') // Reemplazar espacios con guiones
+      .replace(/-+/g, '-') // Múltiples guiones a uno solo
+      .trim()
+
+    // Verificar que no existe una categoría con el mismo nombre o slug
+    const existingCategory = await prisma.category.findFirst({
+      where: {
+        OR: [
+          { name: validatedData.name },
+          { slug: baseSlug }
+        ]
+      }
     })
 
     if (existingCategory) {
@@ -57,7 +72,10 @@ export async function POST(request: NextRequest) {
 
     // Crear categoría
     const category = await prisma.category.create({
-      data: validatedData,
+      data: {
+        ...validatedData,
+        slug: baseSlug,
+      },
       include: {
         _count: {
           select: { products: true }

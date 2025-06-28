@@ -7,6 +7,12 @@ export type UserRole = 'admin' | 'customer'
 // Verificar si el usuario es admin
 export async function isAdmin(): Promise<boolean> {
   const user = await currentUser()
+  
+  // TEMPORAL: Para desarrollo, permitir acceso a tu email específico
+  if (user?.emailAddresses[0]?.emailAddress === 'felipevega@outlook.cl') {
+    return true
+  }
+  
   return user?.publicMetadata?.role === 'admin'
 }
 

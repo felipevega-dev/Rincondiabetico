@@ -32,7 +32,7 @@ export async function GET(request: NextRequest) {
     }
     
     if (available !== null) {
-      where.available = available === 'true'
+      where.isAvailable = available === 'true'
     }
     
     if (search) {
@@ -103,9 +103,35 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'La categoría especificada no existe' }, { status: 400 })
     }
 
+    // Generar slug único
+    const baseSlug = validatedData.name
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '') // Remover acentos
+      .replace(/[^a-z0-9\s-]/g, '') // Solo letras, números, espacios y guiones
+      .replace(/\s+/g, '-') // Reemplazar espacios con guiones
+      .replace(/-+/g, '-') // Múltiples guiones a uno solo
+      .trim()
+
+    // Verificar que el slug sea único
+    let slug = baseSlug
+    let counter = 1
+    while (await prisma.product.findUnique({ where: { slug } })) {
+      slug = `${baseSlug}-${counter}`
+      counter++
+    }
+
     // Crear producto
     const product = await prisma.product.create({
-      data: validatedData,
+      data: {
+        name: validatedData.name,
+        description: validatedData.description,
+        price: validatedData.price, // Precio en pesos chilenos
+        categoryId: validatedData.categoryId,
+        images: validatedData.images || [],
+        isAvailable: validatedData.available,
+        slug,
+      },
       include: {
         category: {
           select: {
