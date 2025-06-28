@@ -6,18 +6,29 @@ import Link from 'next/link'
 import { ShoppingCart, Settings, User } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useState, useEffect } from 'react'
-import { useCart } from '@/hooks/use-cart'
+import { useCart } from '@/components/providers/cart-provider'
 
 export function Navbar() {
   const { user, isLoaded } = useUser()
   const [isAdmin, setIsAdmin] = useState(false)
   const { itemCount } = useCart()
+  const [prevItemCount, setPrevItemCount] = useState(0)
+  const [isAnimating, setIsAnimating] = useState(false)
 
   useEffect(() => {
     if (user?.publicMetadata?.role === 'admin') {
       setIsAdmin(true)
     }
   }, [user])
+
+  // Animar contador cuando cambie
+  useEffect(() => {
+    if (itemCount !== prevItemCount && itemCount > 0) {
+      setIsAnimating(true)
+      setTimeout(() => setIsAnimating(false), 600)
+    }
+    setPrevItemCount(itemCount)
+  }, [itemCount, prevItemCount])
 
   return (
     <nav className="bg-white shadow-sm border-b sticky top-0 z-50">
@@ -58,7 +69,9 @@ export function Navbar() {
               <Button variant="ghost" size="sm" className="relative p-2">
                 <ShoppingCart className="h-5 w-5" />
                 {itemCount > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-pink-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                  <span className={`absolute -top-1 -right-1 bg-pink-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center transition-all duration-200 ${
+                    isAnimating ? 'animate-bounce-soft scale-110' : ''
+                  }`}>
                     {itemCount > 99 ? '99+' : itemCount}
                   </span>
                 )}

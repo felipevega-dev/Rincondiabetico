@@ -1,6 +1,6 @@
 'use client'
 
-import { useCart } from '@/hooks/use-cart'
+import { useCart } from '@/components/providers/cart-provider'
 import { formatPrice } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'

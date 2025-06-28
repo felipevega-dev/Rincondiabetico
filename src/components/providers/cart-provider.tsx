@@ -1,13 +1,37 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { createContext, useContext, useState, useEffect, ReactNode } from 'react'
 import { CartItem } from '@/types'
+import { useToast } from '@/components/ui/toast'
 
-export function useCart() {
+interface CartContextType {
+  items: CartItem[]
+  isLoaded: boolean
+  addItem: (product: {
+    id: string
+    name: string
+    price: number
+    image?: string
+  }) => void
+  removeItem: (itemId: string) => void
+  updateQuantity: (itemId: string, quantity: number) => void
+  clearCart: () => void
+  itemCount: number
+  subtotal: number
+  total: number
+}
+
+const CartContext = createContext<CartContextType | undefined>(undefined)
+
+interface CartProviderProps {
+  children: ReactNode
+}
+
+export function CartProvider({ children }: CartProviderProps) {
   const [items, setItems] = useState<CartItem[]>([])
   const [isLoaded, setIsLoaded] = useState(false)
+  const { showToast, ToastContainer } = useToast()
 
-  // Cargar carrito desde localStorage al montar
   useEffect(() => {
     const savedCart = localStorage.getItem('rincon-diabetico-cart')
     if (savedCart) {
@@ -20,7 +44,6 @@ export function useCart() {
     setIsLoaded(true)
   }, [])
 
-  // Guardar carrito en localStorage cuando cambie
   useEffect(() => {
     if (isLoaded) {
       localStorage.setItem('rincon-diabetico-cart', JSON.stringify(items))
@@ -37,14 +60,14 @@ export function useCart() {
       const existingItem = currentItems.find(item => item.productId === product.id)
       
       if (existingItem) {
-        // Si ya existe, incrementar cantidad
+        showToast(`${product.name} cantidad actualizada en el carrito`, 'success')
         return currentItems.map(item =>
           item.productId === product.id
             ? { ...item, quantity: item.quantity + 1 }
             : item
         )
       } else {
-        // Si no existe, agregar nuevo item
+        showToast(`${product.name} agregado al carrito`, 'success')
         const newItem: CartItem = {
           id: `${product.id}-${Date.now()}`,
           productId: product.id,
@@ -59,7 +82,13 @@ export function useCart() {
   }
 
   const removeItem = (itemId: string) => {
-    setItems(currentItems => currentItems.filter(item => item.id !== itemId))
+    setItems(currentItems => {
+      const item = currentItems.find(item => item.id === itemId)
+      if (item) {
+        showToast(`${item.name} removido del carrito`, 'info')
+      }
+      return currentItems.filter(item => item.id !== itemId)
+    })
   }
 
   const updateQuantity = (itemId: string, quantity: number) => {
@@ -77,6 +106,7 @@ export function useCart() {
 
   const clearCart = () => {
     setItems([])
+    showToast('Carrito vaciado', 'info')
   }
 
   const getItemCount = () => {
@@ -88,11 +118,10 @@ export function useCart() {
   }
 
   const getTotal = () => {
-    // Por ahora el total es igual al subtotal (sin impuestos ni envío)
     return getSubtotal()
   }
 
-  return {
+  const value: CartContextType = {
     items,
     isLoaded,
     addItem,
@@ -103,4 +132,19 @@ export function useCart() {
     subtotal: getSubtotal(),
     total: getTotal(),
   }
+
+  return (
+    <CartContext.Provider value={value}>
+      {children}
+      <ToastContainer />
+    </CartContext.Provider>
+  )
+}
+
+export function useCart() {
+  const context = useContext(CartContext)
+  if (context === undefined) {
+    throw new Error('useCart must be used within a CartProvider')
+  }
+  return context
 } 

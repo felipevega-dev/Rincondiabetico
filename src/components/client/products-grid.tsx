@@ -6,8 +6,8 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { formatPrice } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
-import { ShoppingCart, Package, Check } from 'lucide-react'
-import { useCart } from '@/hooks/use-cart'
+import { ShoppingCart, Package } from 'lucide-react'
+import { useCart } from '@/components/providers/cart-provider'
 
 interface Product {
   id: string

@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { ClerkProvider } from '@clerk/nextjs'
 import { Navbar } from '@/components/shared/navbar'
+import { CartProvider } from '@/components/providers/cart-provider'
 
 const inter = Inter({ 
   subsets: ["latin"],
@@ -25,8 +26,10 @@ export default function RootLayout({
         <body
           className={`${inter.variable} font-sans antialiased`}
         >
-          <Navbar />
-          {children}
+          <CartProvider>
+            <Navbar />
+            {children}
+          </CartProvider>
         </body>
       </html>
     </ClerkProvider>
