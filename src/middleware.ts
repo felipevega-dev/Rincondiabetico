@@ -28,6 +28,9 @@ export default clerkMiddleware(async (auth, req) => {
       return
     }
     
+    // TEMPORAL: Comentado para desarrollo
+    // TODO: Descomentar cuando el rol de admin esté configurado
+    /*
     // Verificar si el usuario es admin usando metadata
     const { sessionClaims } = await auth()
     const isUserAdmin = sessionClaims?.metadata?.role === 'admin'
@@ -36,6 +39,7 @@ export default clerkMiddleware(async (auth, req) => {
       // Redirigir a dashboard si no es admin
       return Response.redirect(new URL('/dashboard', req.url))
     }
+    */
   }
 })
 
