@@ -10,13 +10,15 @@ interface AddToCartButtonProps {
   productId: string
   productPrice: number
   productImage?: string
+  className?: string
 }
 
 export function AddToCartButton({ 
   productName, 
   productId, 
   productPrice, 
-  productImage 
+  productImage,
+  className 
 }: AddToCartButtonProps) {
   const { addItem } = useCart()
   const [isAdded, setIsAdded] = useState(false)
@@ -36,7 +38,7 @@ export function AddToCartButton({
   return (
     <Button 
       size="lg" 
-      className={`w-full flex items-center justify-center gap-2 transition-all duration-200 ${
+      className={`${className || 'w-full'} flex items-center justify-center gap-2 transition-all duration-200 ${
         isAdded ? 'bg-green-600 hover:bg-green-700' : ''
       }`}
       onClick={handleAddToCart}

@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { ClerkProvider } from '@clerk/nextjs'
 import { Navbar } from '@/components/shared/navbar'
+import { Footer } from '@/components/shared/footer'
 import { CartProvider } from '@/components/providers/cart-provider'
 import { ToastProvider } from '@/components/providers/toast-provider'
 
@@ -31,6 +32,7 @@ export default function RootLayout({
             <CartProvider>
               <Navbar />
               {children}
+              <Footer />
             </CartProvider>
           </ToastProvider>
         </body>
