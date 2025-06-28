@@ -6,6 +6,7 @@ import { formatPrice } from '@/lib/utils'
 import { ArrowLeft, Package } from 'lucide-react'
 import { AddToCartButton } from '@/components/client/add-to-cart-button'
 import { ProductVariationsSelector } from '@/components/client/product-variations-selector'
+import { ProductImageCollage } from '@/components/client/product-image-collage'
 
 interface ProductPageProps {
   params: Promise<{
@@ -87,27 +88,12 @@ export default async function ProductPage({ params }: ProductPageProps) {
 
         <div className="bg-white rounded-lg shadow-lg overflow-hidden">
           <div className="lg:grid lg:grid-cols-2 lg:gap-8">
-            <div className="aspect-square lg:aspect-auto">
-              {product.images && product.images.length > 0 ? (
-                <div className="relative h-96 lg:h-full">
-                  <Image
-                    src={product.images[0]}
-                    alt={product.name}
-                    fill
-                    className="object-cover"
-                    priority
-                  />
-                  {product.images.length > 1 && (
-                    <div className="absolute bottom-4 left-4 bg-black bg-opacity-50 text-white px-2 py-1 rounded text-sm">
-                      +{product.images.length - 1} más
-                    </div>
-                  )}
-                </div>
-              ) : (
-                <div className="h-96 lg:h-full bg-gray-200 flex items-center justify-center">
-                  <Package className="h-16 w-16 text-gray-400" />
-                </div>
-              )}
+            <div className="p-4">
+              <ProductImageCollage
+                images={product.images || []}
+                productName={product.name}
+                className="w-full"
+              />
             </div>
 
             <div className="p-6 lg:p-8">
@@ -211,25 +197,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
             </div>
           </div>
 
-          {product.images && product.images.length > 1 && (
-            <div className="border-t border-gray-200 p-6">
-              <h3 className="text-lg font-medium text-gray-900 mb-4">
-                Más imágenes
-              </h3>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                {product.images.slice(1).map((image: string, index: number) => (
-                  <div key={index} className="aspect-square relative rounded-lg overflow-hidden">
-                    <Image
-                      src={image}
-                      alt={`${product.name} - imagen ${index + 2}`}
-                      fill
-                      className="object-cover hover:scale-105 transition-transform duration-300"
-                    />
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
+
         </div>
 
         <div className="mt-12">

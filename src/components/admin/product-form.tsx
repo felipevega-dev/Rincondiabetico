@@ -11,6 +11,7 @@ import { Upload, X, Package, Loader2, ArrowLeft } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { ProductVariations } from './product-variations'
+import { SortableImageList } from './sortable-image-list'
 import { VariationType, ProductWithVariations } from '@/types'
 
 // Tipo para el formulario (sin campos de BD)
@@ -122,8 +123,24 @@ export function ProductForm({
     const files = Array.from(e.target.files || [])
     if (files.length === 0) return
 
+    // Verificar límite total de imágenes (existentes + nuevas)
+    const totalCurrentImages = existingImages.length + imagePreviews.length
+    const maxImages = 3
+    const availableSlots = maxImages - totalCurrentImages
+
+    if (availableSlots <= 0) {
+      alert(`Solo se permiten máximo ${maxImages} imágenes. Ya tienes ${totalCurrentImages} imágenes.`)
+      return
+    }
+
+    // Limitar archivos a los slots disponibles
+    const filesToProcess = files.slice(0, availableSlots)
+    if (files.length > availableSlots) {
+      alert(`Solo se pueden agregar ${availableSlots} imágenes más. Se procesarán las primeras ${availableSlots}.`)
+    }
+
     // Validar archivos
-    const validFiles = files.filter(file => {
+    const validFiles = filesToProcess.filter(file => {
       const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp']
       const maxSize = 5 * 1024 * 1024 // 5MB
       
@@ -165,6 +182,23 @@ export function ProductForm({
 
   const removeExistingImage = (index: number) => {
     setExistingImages(prev => prev.filter((_, i) => i !== index))
+  }
+
+  const handleExistingImagesReorder = (newOrder: string[]) => {
+    setExistingImages(newOrder)
+  }
+
+  const handleNewImagesReorder = (newOrder: string[]) => {
+    // Necesitamos reordenar tanto los previews como los archivos
+    const newFiles: File[] = []
+    newOrder.forEach(previewUrl => {
+      const index = imagePreviews.indexOf(previewUrl)
+      if (index !== -1 && images[index]) {
+        newFiles.push(images[index])
+      }
+    })
+    setImagePreviews(newOrder)
+    setImages(newFiles)
   }
 
   const uploadImages = async (): Promise<string[]> => {
@@ -382,33 +416,14 @@ export function ProductForm({
           />
         </div>
 
-        {/* Imágenes Existentes */}
+        {/* Imágenes Existentes con Ordenamiento */}
         {isEditing && existingImages.length > 0 && (
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Imágenes Actuales
-            </label>
-            <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 gap-3 mb-4">
-              {existingImages.map((imageUrl, index) => (
-                <div key={index} className="relative">
-                  <Image
-                    src={imageUrl}
-                    alt={`Imagen actual ${index + 1}`}
-                    width={100}
-                    height={100}
-                    className="object-cover rounded-lg w-full aspect-square"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => removeExistingImage(index)}
-                    className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 text-xs"
-                  >
-                    <X className="h-3 w-3" />
-                  </button>
-                </div>
-              ))}
-            </div>
-          </div>
+          <SortableImageList
+            images={existingImages}
+            onReorder={handleExistingImagesReorder}
+            onRemove={removeExistingImage}
+            title="Imágenes Actuales (Máximo 3 se mostrarán en collage)"
+          />
         )}
 
         {/* Nuevas Imágenes */}
@@ -433,35 +448,23 @@ export function ProductForm({
                 Haz clic para seleccionar imágenes o arrastra y suelta
               </p>
               <p className="text-xs text-gray-500 mt-1">
-                PNG, JPG, JPEG, WEBP hasta 5MB cada una
+                PNG, JPG, JPEG, WEBP hasta 5MB cada una (máximo 3 imágenes total)
+              </p>
+              <p className="text-xs text-blue-600 mt-1">
+                💡 Solo las primeras 3 imágenes se mostrarán en el collage
               </p>
             </label>
           </div>
 
-          {/* New image previews */}
+          {/* New image previews with sorting */}
           {imagePreviews.length > 0 && (
             <div className="mt-4">
-              <p className="text-sm font-medium text-gray-700 mb-2">Nuevas imágenes:</p>
-              <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 gap-3">
-                {imagePreviews.map((preview, index) => (
-                  <div key={index} className="relative">
-                    <Image
-                      src={preview}
-                      alt={`Nueva imagen ${index + 1}`}
-                      width={100}
-                      height={100}
-                      className="object-cover rounded-lg w-full aspect-square"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => removeNewImage(index)}
-                      className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 text-xs"
-                    >
-                      <X className="h-3 w-3" />
-                    </button>
-                  </div>
-                ))}
-              </div>
+              <SortableImageList
+                images={imagePreviews}
+                onReorder={handleNewImagesReorder}
+                onRemove={removeNewImage}
+                title="Nuevas Imágenes"
+              />
             </div>
           )}
         </div>
