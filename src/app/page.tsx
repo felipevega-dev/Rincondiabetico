@@ -1,5 +1,6 @@
 import { currentUser } from '@clerk/nextjs/server'
 import { isAdmin, getOrCreateUser } from '@/lib/auth'
+import { prisma } from '@/lib/prisma'
 import Link from 'next/link'
 import { HeroCarousel } from '@/components/client/hero-carousel'
 import { FeaturedProducts } from '@/components/client/featured-products'
@@ -18,6 +19,15 @@ export default async function Home() {
     await getOrCreateUser()
   }
 
+  // Obtener banners activos
+  const banners = await prisma.banner.findMany({
+    where: { isActive: true },
+    orderBy: [
+      { order: 'asc' },
+      { createdAt: 'desc' }
+    ]
+  })
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary-50 via-white to-cream-100">
       {/* Hero Section */}
@@ -28,7 +38,7 @@ export default async function Home() {
           <div className="absolute top-1/2 left-1/3 w-24 h-24 rounded-full bg-gradient-to-br from-secondary-300 to-primary-300 blur-xl"></div>
         </div>
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <HeroCarousel />
+          <HeroCarousel banners={banners} />
         </div>
       </section>
 
