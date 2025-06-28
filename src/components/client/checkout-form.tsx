@@ -69,7 +69,7 @@ export function CheckoutForm() {
         return
       }
 
-      // Crear pedido
+      // Crear pedido temporal (status: DRAFT)
       const orderResponse = await fetch('/api/orders', {
         method: 'POST',
         headers: {
@@ -85,7 +85,8 @@ export function CheckoutForm() {
           pickupDate: orderData.pickupDate,
           pickupTime: orderData.pickupTime,
           customerNotes: orderData.customerNotes,
-          phone: orderData.phone
+          phone: orderData.phone,
+          isDraft: true // Marcar como borrador hasta que se confirme el pago
         }),
       })
 

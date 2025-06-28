@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { MercadoPagoConfig, Payment } from 'mercadopago'
 import { prisma } from '@/lib/prisma'
+import { OrderStatus } from '@prisma/client'
 
 const client = new MercadoPagoConfig({
   accessToken: process.env.MERCADOPAGO_ACCESS_TOKEN!,
@@ -15,9 +16,7 @@ export async function POST(request: NextRequest) {
       token, 
       orderId, 
       paymentMethodId, 
-      installments = 1, 
-      identificationNumber,
-      identificationDocType = 'CI'
+      installments = 1
     } = body
 
     if (!token || !orderId || !paymentMethodId) {
@@ -35,7 +34,8 @@ export async function POST(request: NextRequest) {
           include: {
             product: true
           }
-        }
+        },
+        user: true
       }
     })
 
@@ -46,28 +46,24 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    if (order.status !== 'PENDIENTE') {
+    if (order.status !== OrderStatus.PENDIENTE) {
       return NextResponse.json(
         { error: 'La orden ya fue procesada' },
         { status: 400 }
       )
     }
 
-    // Crear el pago en MercadoPago
+    // Crear el pago en MercadoPago - payload mínimo
     const paymentData = {
       transaction_amount: order.total,
       token,
-      description: `Pedido #${order.id} - Postres Pasmiño`,
+      description: `Pedido #${order.orderNumber} - Postres Pasmiño`,
       installments: Number(installments),
       payment_method_id: paymentMethodId,
       payer: {
-        identification: {
-          type: identificationDocType,
-          number: identificationNumber,
-        },
+        email: order.user.email
       },
-      external_reference: orderId,
-      notification_url: `${process.env.NEXT_PUBLIC_APP_URL}/api/mercadopago/webhook`,
+      external_reference: orderId
     }
 
     console.log('Creating payment with data:', {

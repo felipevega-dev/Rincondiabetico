@@ -42,7 +42,6 @@ export function MercadoPagoPayment({ orderId, amount, onSuccess, onError }: Merc
     expiryYear: '',
     securityCode: '',
     cardholderName: '',
-    identificationNumber: '',
     installments: 1
   })
 
@@ -140,7 +139,7 @@ export function MercadoPagoPayment({ orderId, amount, onSuccess, onError }: Merc
   }
 
   const validateForm = () => {
-    const { cardNumber, expiryMonth, expiryYear, securityCode, cardholderName, identificationNumber } = formData
+    const { cardNumber, expiryMonth, expiryYear, securityCode, cardholderName } = formData
     
     if (!cardNumber || cardNumber.replace(/\s/g, '').length < 13) {
       showToast('Número de tarjeta inválido', 'error')
@@ -159,11 +158,6 @@ export function MercadoPagoPayment({ orderId, amount, onSuccess, onError }: Merc
     
     if (!cardholderName.trim()) {
       showToast('Nombre del titular requerido', 'error')
-      return false
-    }
-    
-    if (!identificationNumber.trim()) {
-      showToast('Número de identificación requerido', 'error')
       return false
     }
 
@@ -187,9 +181,14 @@ export function MercadoPagoPayment({ orderId, amount, onSuccess, onError }: Merc
 
       // Usar la API correcta según la versión del SDK
       if (mp.createCardToken) {
+        console.log('Creating token with card data:', {
+          ...cardData,
+          cardNumber: cardData.cardNumber.slice(0, 4) + '****',
+          securityCode: '***'
+        })
         mp.createCardToken(cardData)
           .then((token: any) => {
-            console.log('Token created:', token)
+            console.log('Token created successfully:', token)
             resolve(token.id)
           })
           .catch((error: any) => {
@@ -238,9 +237,7 @@ export function MercadoPagoPayment({ orderId, amount, onSuccess, onError }: Merc
           token: cardToken,
           orderId,
           paymentMethodId: selectedMethod,
-          installments: formData.installments,
-          identificationNumber: formData.identificationNumber,
-          identificationDocType: 'CI'
+          installments: formData.installments
         }),
       })
 
@@ -281,9 +278,19 @@ export function MercadoPagoPayment({ orderId, amount, onSuccess, onError }: Merc
 
   return (
     <div className="bg-white rounded-lg shadow-lg p-6">
-      <div className="flex items-center mb-6">
-        <CreditCard className="w-6 h-6 text-blue-600 mr-2" />
-        <h2 className="text-xl font-bold text-gray-900">Información de Pago</h2>
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center">
+          <CreditCard className="w-6 h-6 text-blue-600 mr-2" />
+          <h2 className="text-xl font-bold text-gray-900">Información de Pago</h2>
+        </div>
+        <div className="flex items-center space-x-2">
+          <span className="text-sm text-gray-600">Powered by</span>
+          <img 
+            src="https://http2.mlstatic.com/frontend-assets/ml-web-navigation/ui-navigation/6.6.92/mercadolibre/logo_small.png" 
+            alt="MercadoPago" 
+            className="h-6"
+          />
+        </div>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-4">
@@ -394,36 +401,26 @@ export function MercadoPagoPayment({ orderId, amount, onSuccess, onError }: Merc
           />
         </div>
 
-        {/* RUT/CI */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            RUT/CI (sin puntos ni guión)
-          </label>
-          <Input
-            type="text"
-            value={formData.identificationNumber}
-            onChange={(e) => handleInputChange('identificationNumber', e.target.value.replace(/\D/g, ''))}
-            placeholder="12345678"
-            required
-          />
-        </div>
 
-        {/* Cuotas */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Cuotas
-          </label>
-          <select
-            value={formData.installments}
-            onChange={(e) => handleInputChange('installments', e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          >
-            <option value={1}>1 cuota sin interés</option>
-            <option value={3}>3 cuotas</option>
-            <option value={6}>6 cuotas</option>
-            <option value={12}>12 cuotas</option>
-          </select>
-        </div>
+
+        {/* Cuotas - Solo para tarjetas de crédito */}
+        {selectedMethod && !selectedMethod.includes('debit') && (
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Cuotas
+            </label>
+            <select
+              value={formData.installments}
+              onChange={(e) => handleInputChange('installments', e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            >
+              <option value={1}>1 cuota sin interés</option>
+              <option value={3}>3 cuotas</option>
+              <option value={6}>6 cuotas</option>
+              <option value={12}>12 cuotas</option>
+            </select>
+          </div>
+        )}
 
         {/* Información de Seguridad */}
         <div className="bg-green-50 border border-green-200 rounded-lg p-4">
@@ -461,9 +458,9 @@ export function MercadoPagoPayment({ orderId, amount, onSuccess, onError }: Merc
           <span className="font-medium">Tarjetas de Prueba</span>
         </div>
         <div className="text-sm text-yellow-700 space-y-1">
-          <p><strong>Visa (Aprobada):</strong> 4509 9535 6623 3704</p>
+          <p><strong>Visa (Aprobada):</strong> 4168 8188 4444 7115</p>
           <p><strong>Mastercard (Rechazada):</strong> 5031 7557 3453 0604</p>
-          <p><strong>CVV:</strong> 123 | <strong>Fecha:</strong> 11/25 | <strong>Titular:</strong> APRO</p>
+          <p><strong>CVV:</strong> 123 | <strong>Fecha:</strong> 11/30 | <strong>Titular:</strong> APRO</p>
         </div>
       </div>
     </div>

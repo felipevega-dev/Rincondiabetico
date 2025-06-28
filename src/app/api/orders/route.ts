@@ -14,6 +14,7 @@ interface CreateOrderRequest {
   pickupTime: string
   customerNotes?: string
   phone: string
+  isDraft?: boolean
 }
 
 // Generar número de orden único
@@ -160,7 +161,7 @@ export async function POST(request: NextRequest) {
           pickupDate: pickupDateTime,
           pickupTime: body.pickupTime,
           customerNotes: body.customerNotes,
-          status: 'PENDIENTE'
+          status: body.isDraft ? 'DRAFT' : 'PENDIENTE'
         }
       })
 
@@ -174,16 +175,18 @@ export async function POST(request: NextRequest) {
         }))
       })
 
-      // Reducir stock de productos
-      for (const item of body.items) {
-        await tx.product.update({
-          where: { id: item.productId },
-          data: {
-            stock: {
-              decrement: item.quantity
+      // Solo reducir stock si no es borrador
+      if (!body.isDraft) {
+        for (const item of body.items) {
+          await tx.product.update({
+            where: { id: item.productId },
+            data: {
+              stock: {
+                decrement: item.quantity
+              }
             }
-          }
-        })
+          })
+        }
       }
 
       // Actualizar teléfono del usuario si no lo tiene

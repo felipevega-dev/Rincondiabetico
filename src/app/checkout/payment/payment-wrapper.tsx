@@ -1,6 +1,6 @@
 'use client'
 
-import { MercadoPagoPayment } from '@/components/client/mercadopago-payment'
+import { PaymentOptions } from '@/components/client/payment-options'
 
 interface PaymentWrapperProps {
   orderId: string
@@ -17,7 +17,7 @@ export function PaymentWrapper({ orderId, amount }: PaymentWrapperProps) {
   }
 
   return (
-    <MercadoPagoPayment
+    <PaymentOptions
       orderId={orderId}
       amount={amount}
       onSuccess={handleSuccess}

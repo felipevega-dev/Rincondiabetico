@@ -51,7 +51,7 @@ export default function PaymentPage() {
               Pago Seguro
             </h1>
             <p className="text-lg text-gray-600">
-              Completa tu pago de forma segura con MercadoPago
+              Elige tu método de pago preferido
             </p>
           </div>
 

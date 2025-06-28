@@ -74,6 +74,7 @@ model Product {
 
 // Estados de pedidos
 enum OrderStatus {
+  DRAFT       // Borrador (antes del pago)
   PENDIENTE   // Pendiente de pago
   PAGADO      // Pagado, preparando
   PREPARANDO  // En preparación
@@ -86,7 +87,7 @@ enum OrderStatus {
 model Order {
   id            String      @id @default(cuid())
   orderNumber   String      @unique
-  status        OrderStatus @default(PENDIENTE)
+  status        OrderStatus @default(DRAFT)
   total         Int         // Total en pesos chilenos (CLP)
   
   // Información de retiro
