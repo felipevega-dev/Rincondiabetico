@@ -60,16 +60,22 @@ export function CartProvider({ children }: CartProviderProps) {
       const existingItem = currentItems.find(item => item.productId === product.id)
       
       if (existingItem) {
-        showToast(`${product.name} cantidad actualizada en el carrito`, 'success')
+        // Usar setTimeout para evitar setState durante render
+        setTimeout(() => {
+          showToast(`${product.name} cantidad actualizada en el carrito`, 'success')
+        }, 0)
         return currentItems.map(item =>
           item.productId === product.id
             ? { ...item, quantity: item.quantity + 1 }
             : item
         )
       } else {
-        showToast(`${product.name} agregado al carrito`, 'success')
+        // Usar setTimeout para evitar setState durante render
+        setTimeout(() => {
+          showToast(`${product.name} agregado al carrito`, 'success')
+        }, 0)
         const newItem: CartItem = {
-          id: `${product.id}-${Date.now()}`,
+          id: `${product.id}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
           productId: product.id,
           name: product.name,
           price: product.price,
@@ -85,7 +91,10 @@ export function CartProvider({ children }: CartProviderProps) {
     setItems(currentItems => {
       const item = currentItems.find(item => item.id === itemId)
       if (item) {
-        showToast(`${item.name} removido del carrito`, 'info')
+        // Usar setTimeout para evitar setState durante render
+        setTimeout(() => {
+          showToast(`${item.name} removido del carrito`, 'info')
+        }, 0)
       }
       return currentItems.filter(item => item.id !== itemId)
     })
@@ -106,7 +115,10 @@ export function CartProvider({ children }: CartProviderProps) {
 
   const clearCart = () => {
     setItems([])
-    showToast('Carrito vaciado', 'info')
+    // Usar setTimeout para evitar setState durante render
+    setTimeout(() => {
+      showToast('Carrito vaciado', 'info')
+    }, 0)
   }
 
   const getItemCount = () => {
