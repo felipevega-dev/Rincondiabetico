@@ -6,7 +6,8 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { formatPrice } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
-import { ShoppingCart, Package } from 'lucide-react'
+import { ShoppingCart, Package, Check } from 'lucide-react'
+import { useCart } from '@/hooks/use-cart'
 
 interface Product {
   id: string
@@ -63,11 +64,7 @@ export function ProductsGrid() {
     }
   }
 
-  const addToCart = (product: Product) => {
-    // TODO: Implementar lógica del carrito
-    console.log('Agregando al carrito:', product.name)
-    alert(`${product.name} agregado al carrito!`)
-  }
+  const { addItem } = useCart()
 
   if (loading) {
     return (
@@ -161,7 +158,12 @@ export function ProductsGrid() {
                   <Button
                     onClick={(e) => {
                       e.preventDefault()
-                      addToCart(product)
+                      addItem({
+                        id: product.id,
+                        name: product.name,
+                        price: product.price,
+                        image: product.images[0]
+                      })
                     }}
                     size="sm"
                     className="flex items-center gap-2"

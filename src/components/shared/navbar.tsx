@@ -6,10 +6,12 @@ import Link from 'next/link'
 import { ShoppingCart, Settings, User } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useState, useEffect } from 'react'
+import { useCart } from '@/hooks/use-cart'
 
 export function Navbar() {
   const { user, isLoaded } = useUser()
   const [isAdmin, setIsAdmin] = useState(false)
+  const { itemCount } = useCart()
 
   useEffect(() => {
     if (user?.publicMetadata?.role === 'admin') {
@@ -55,9 +57,11 @@ export function Navbar() {
             <Link href="/carrito">
               <Button variant="ghost" size="sm" className="relative p-2">
                 <ShoppingCart className="h-5 w-5" />
-                <span className="absolute -top-1 -right-1 bg-pink-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                  0
-                </span>
+                {itemCount > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-pink-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                    {itemCount > 99 ? '99+' : itemCount}
+                  </span>
+                )}
               </Button>
             </Link>
 
