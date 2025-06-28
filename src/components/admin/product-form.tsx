@@ -11,7 +11,19 @@ import { Upload, X, Package, Loader2, ArrowLeft } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { ProductVariations } from './product-variations'
-import { VariationType } from '@/types'
+import { VariationType, ProductWithVariations } from '@/types'
+
+// Tipo para el formulario (sin campos de BD)
+type FormProductVariation = {
+  id?: string
+  type: VariationType
+  name: string
+  description?: string
+  priceChange: number
+  servingSize?: number
+  order: number
+  isAvailable: boolean
+}
 
 const productSchema = z.object({
   name: z.string().min(1, 'El nombre es requerido'),
@@ -24,37 +36,13 @@ const productSchema = z.object({
 
 type ProductFormData = z.infer<typeof productSchema>
 
-interface ProductVariation {
-  id?: string
-  type: VariationType
-  name: string
-  description?: string
-  priceChange: number
-  servingSize?: number
-  order: number
-  isAvailable: boolean
-}
-
 interface Category {
   id: string
   name: string
 }
 
-interface Product {
-  id: string
-  name: string
-  description?: string | null
-  price: number
-  stock: number
-  images: string[]
-  isAvailable: boolean
-  categoryId: string
-  category: Category
-  variations?: ProductVariation[]
-}
-
 interface ProductFormProps {
-  product?: Product
+  product?: ProductWithVariations
   categories: Category[]
   isEditing?: boolean
   showHeader?: boolean
@@ -71,9 +59,46 @@ export function ProductForm({
   const [images, setImages] = useState<File[]>([])
   const [imagePreviews, setImagePreviews] = useState<string[]>([])
   const [existingImages, setExistingImages] = useState<string[]>(product?.images || [])
-  const [variations, setVariations] = useState<ProductVariation[]>(product?.variations || [])
+  const [variations, setVariations] = useState<FormProductVariation[]>(
+    product?.variations?.map(v => ({
+      id: v.id,
+      type: v.type,
+      name: v.name,
+      description: v.description || '',
+      priceChange: v.priceChange,
+      servingSize: v.servingSize || undefined,
+      order: v.order,
+      isAvailable: v.isAvailable
+    })) || []
+  )
   const [uploading, setUploading] = useState(false)
   const [submitting, setSubmitting] = useState(false)
+
+  // Debug: Log product data when editing
+  useEffect(() => {
+    if (isEditing && product) {
+      console.log('🔍 ProductForm - Product data:', product)
+      console.log('🔍 ProductForm - Product variations:', product.variations)
+      console.log('🔍 ProductForm - Variations state:', variations)
+    }
+  }, [product, isEditing, variations])
+
+  // Update variations when product changes
+  useEffect(() => {
+    if (product?.variations) {
+      const mappedVariations = product.variations.map(v => ({
+        id: v.id,
+        type: v.type,
+        name: v.name,
+        description: v.description || '',
+        priceChange: v.priceChange,
+        servingSize: v.servingSize || undefined,
+        order: v.order,
+        isAvailable: v.isAvailable
+      }))
+      setVariations(mappedVariations)
+    }
+  }, [product])
 
   const {
     register,

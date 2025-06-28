@@ -212,7 +212,9 @@ export function ProductVariationsSelector({
             <span>Precio base:</span>
             <span>{formatPrice(basePrice)}</span>
           </div>
-          {selectedVariations.map((variation) => (
+          {selectedVariations
+            .filter(variation => variation.priceChange !== 0)
+            .map((variation) => (
             <div key={variation.id} className="flex justify-between text-sm">
               <span>{variation.name}:</span>
               <span className={variation.priceChange >= 0 ? 'text-orange-600' : 'text-green-600'}>
@@ -231,17 +233,19 @@ export function ProductVariationsSelector({
       {!canAddMore ? (
         <Button 
           size="lg" 
-          className="w-full flex items-center justify-center gap-2 bg-orange-500 hover:bg-orange-600"
+          className="w-full flex items-center justify-center gap-2 bg-orange-500 hover:bg-orange-600 py-4 text-lg font-semibold text-white"
           disabled
         >
-          <AlertTriangle className="h-5 w-5" />
+          <AlertTriangle className="h-6 w-6" />
           Límite Alcanzado ({currentQuantity}/{productStock})
         </Button>
       ) : (
         <Button 
           size="lg" 
-          className={`w-full flex items-center justify-center gap-2 transition-all duration-200 ${
-            isAdded ? 'bg-green-600 hover:bg-green-700' : ''
+          className={`w-full flex items-center justify-center gap-2 transition-all duration-200 py-4 text-lg font-semibold shadow-lg text-white ${
+            isAdded 
+              ? 'bg-green-600 hover:bg-green-700 shadow-green-200' 
+              : 'bg-gradient-to-r from-pink-500 to-pink-600 hover:from-pink-600 hover:to-pink-700 shadow-pink-200'
           }`}
           onClick={handleAddToCart}
           disabled={isAdded}
@@ -249,15 +253,15 @@ export function ProductVariationsSelector({
           <div className={`flex items-center gap-2 ${isAdded ? 'animate-bounce-soft' : ''}`}>
             {isAdded ? (
               <>
-                <Check className="h-5 w-5" />
+                <Check className="h-6 w-6" />
                 ¡Agregado al Carrito!
               </>
             ) : (
               <>
-                <ShoppingCart className="h-5 w-5" />
+                <ShoppingCart className="h-6 w-6" />
                 Agregar al Carrito - {formatPrice(finalPrice)}
                 {productStock > 0 && (
-                  <span className="text-xs opacity-75">
+                  <span className="text-sm opacity-90 ml-2">
                     ({currentQuantity}/{productStock})
                   </span>
                 )}

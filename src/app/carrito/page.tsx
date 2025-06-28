@@ -5,7 +5,7 @@ import { formatPrice } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { ShoppingCart, Minus, Plus, Trash2, ArrowLeft } from 'lucide-react'
+import { ShoppingCart, Minus, Plus, Trash2, ArrowLeft, Users, Cookie } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useState } from 'react'
@@ -122,6 +122,29 @@ export default function CartPage() {
                               <p className="text-muted-foreground">
                                 {formatPrice(item.price)} c/u
                               </p>
+                              
+                              {/* Mostrar variaciones si existen */}
+                              {item.variations && item.variations.length > 0 && (
+                                <div className="mt-2 space-y-1">
+                                  {item.variations.map((variation, index) => (
+                                    <div key={index} className="flex items-center gap-2 text-sm text-muted-foreground">
+                                      {variation.type === 'SIZE' ? (
+                                        <Users className="h-3 w-3" />
+                                      ) : (
+                                        <Cookie className="h-3 w-3" />
+                                      )}
+                                      <span>{variation.name}</span>
+                                      {variation.priceChange !== 0 && (
+                                        <span className={`text-xs ${
+                                          variation.priceChange > 0 ? 'text-orange-600' : 'text-green-600'
+                                        }`}>
+                                          ({variation.priceChange > 0 ? '+' : ''}{formatPrice(variation.priceChange)})
+                                        </span>
+                                      )}
+                                    </div>
+                                  ))}
+                                </div>
+                              )}
                             </div>
                             
                             <div className="flex items-center gap-4">
