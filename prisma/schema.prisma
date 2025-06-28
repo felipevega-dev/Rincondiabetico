@@ -67,6 +67,46 @@ model Banner {
   @@map("banners")
 }
 
+// Configuración de la tienda
+model StoreSettings {
+  id            String   @id @default(cuid())
+  storeName     String
+  address       String
+  phone         String
+  email         String
+  whatsapp      String
+  description   String?
+  openingHours  Json     // Horarios por día de la semana
+  socialMedia   Json     // URLs de redes sociales
+  isOpen        Boolean  @default(true)
+  
+  // Metadatos
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  @@map("store_settings")
+}
+
+// Páginas de contenido
+model Page {
+  id              String   @id @default(cuid())
+  title           String
+  slug            String   @unique
+  content         String   // Contenido HTML/Markdown
+  excerpt         String?  // Resumen corto
+  metaTitle       String?  // SEO
+  metaDescription String?  // SEO
+  isActive        Boolean  @default(true)
+  showInMenu      Boolean  @default(false) // Mostrar en navegación
+  order           Int      @default(0)
+  
+  // Metadatos
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  @@map("pages")
+}
+
 // Productos
 model Product {
   id          String   @id @default(cuid())

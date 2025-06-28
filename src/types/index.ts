@@ -53,6 +53,47 @@ export type Banner = {
   updatedAt: Date
 }
 
+export type StoreSettings = {
+  id: string
+  storeName: string
+  address: string
+  phone: string
+  email: string
+  whatsapp: string
+  description?: string | null
+  openingHours: {
+    [key: string]: {
+      open: string
+      close: string
+      isOpen: boolean
+    }
+  }
+  socialMedia: {
+    facebook?: string
+    instagram?: string
+    whatsapp?: string
+    email?: string
+  }
+  isOpen: boolean
+  createdAt: Date
+  updatedAt: Date
+}
+
+export type Page = {
+  id: string
+  title: string
+  slug: string
+  content: string
+  excerpt?: string | null
+  metaTitle?: string | null
+  metaDescription?: string | null
+  isActive: boolean
+  showInMenu: boolean
+  order: number
+  createdAt: Date
+  updatedAt: Date
+}
+
 export type Product = {
   id: string
   name: string

@@ -15,7 +15,9 @@ import {
   Image,
   Settings,
   ChevronDown,
-  ChevronRight
+  ChevronRight,
+  FileText,
+  Store
 } from 'lucide-react'
 
 type User = {
@@ -55,8 +57,8 @@ export function AdminSidebar({ user }: AdminSidebarProps) {
       icon: Monitor,
       items: [
         { name: 'Banners', href: '/admin/cms/banners', icon: Image },
-        // { name: 'Páginas', href: '/admin/cms/pages', icon: FileText },
-        // { name: 'Menús', href: '/admin/cms/menus', icon: Menu },
+        { name: 'Páginas', href: '/admin/cms/pages', icon: FileText },
+        { name: 'Configuración', href: '/admin/cms/settings', icon: Store },
       ]
     },
     {
