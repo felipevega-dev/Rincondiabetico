@@ -113,7 +113,7 @@ model Product {
   name        String
   slug        String   @unique
   description String?
-  price       Int      // Precio en pesos chilenos (CLP)
+  price       Int      // Precio base en pesos chilenos (CLP)
   images      String[] // URLs de Cloudinary
   isActive    Boolean  @default(true)
   isAvailable Boolean  @default(true)
@@ -125,10 +125,42 @@ model Product {
   
   // Relaciones
   categoryId  String
-  category    Category    @relation(fields: [categoryId], references: [id])
+  category    Category         @relation(fields: [categoryId], references: [id])
   orderItems  OrderItem[]
+  variations  ProductVariation[]
   
   @@map("products")
+}
+
+// Tipos de variación
+enum VariationType {
+  SIZE        // Tamaño (4, 8, 15 personas)
+  INGREDIENT  // Ingrediente personalizado
+}
+
+// Variaciones de productos
+model ProductVariation {
+  id          String        @id @default(cuid())
+  type        VariationType
+  name        String        // Ej: "4 personas", "Sin azúcar", "Extra chocolate"
+  description String?       // Descripción adicional
+  priceChange Int           @default(0) // Cambio en precio (+/- respecto al precio base)
+  isAvailable Boolean       @default(true)
+  order       Int           @default(0) // Orden de aparición
+  
+  // Para variaciones de tamaño
+  servingSize Int?          // Número de personas (solo para SIZE)
+  
+  // Metadatos
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  
+  // Relaciones
+  productId   String
+  product     Product       @relation(fields: [productId], references: [id], onDelete: Cascade)
+  orderItems  OrderItemVariation[]
+  
+  @@map("product_variations")
 }
 
 // Estados de pedidos
@@ -181,8 +213,23 @@ model OrderItem {
   order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
   productId String
   product   Product @relation(fields: [productId], references: [id])
+  variations OrderItemVariation[]
   
   @@map("order_items")
+}
+
+// Variaciones seleccionadas en items de pedidos
+model OrderItemVariation {
+  id          String           @id @default(cuid())
+  
+  // Relaciones
+  orderItemId String
+  orderItem   OrderItem        @relation(fields: [orderItemId], references: [id], onDelete: Cascade)
+  variationId String
+  variation   ProductVariation @relation(fields: [variationId], references: [id])
+  
+  @@unique([orderItemId, variationId])
+  @@map("order_item_variations")
 }
 
 // Estados de pago

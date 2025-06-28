@@ -4,6 +4,17 @@ import { prisma } from '@/lib/prisma'
 import { isAdmin } from '@/lib/auth'
 import { z } from 'zod'
 
+const variationSchema = z.object({
+  id: z.string().optional(),
+  type: z.enum(['SIZE', 'INGREDIENT']),
+  name: z.string().min(1, 'El nombre de la variación es requerido'),
+  description: z.string().optional(),
+  priceChange: z.number().default(0),
+  servingSize: z.number().optional(),
+  order: z.number().default(0),
+  isAvailable: z.boolean().default(true),
+})
+
 const updateProductSchema = z.object({
   name: z.string().min(1).optional(),
   description: z.string().optional(),
@@ -12,6 +23,7 @@ const updateProductSchema = z.object({
   categoryId: z.string().optional(),
   images: z.array(z.string()).optional(),
   isAvailable: z.boolean().optional(),
+  variations: z.array(variationSchema).optional(),
 })
 
 // GET - Obtener producto individual
@@ -28,6 +40,9 @@ export async function GET(
             id: true,
             name: true,
           }
+        },
+        variations: {
+          orderBy: { order: 'asc' }
         }
       }
     })
@@ -98,16 +113,47 @@ export async function PUT(
       }
     }
 
+    // Preparar datos de actualización
+    const updateData: any = {
+      name: validatedData.name,
+      description: validatedData.description,
+      price: validatedData.price,
+      stock: validatedData.stock,
+      categoryId: validatedData.categoryId,
+      images: validatedData.images,
+      isAvailable: validatedData.isAvailable,
+    }
+
+    // Manejar variaciones si se proporcionan
+    if (validatedData.variations !== undefined) {
+      // Eliminar todas las variaciones existentes y crear las nuevas
+      updateData.variations = {
+        deleteMany: {},
+        create: validatedData.variations.map(variation => ({
+          type: variation.type,
+          name: variation.name,
+          description: variation.description,
+          priceChange: variation.priceChange,
+          servingSize: variation.servingSize,
+          order: variation.order,
+          isAvailable: variation.isAvailable,
+        }))
+      }
+    }
+
     // Actualizar producto
     const updatedProduct = await prisma.product.update({
       where: { id: params.id },
-      data: validatedData,
+      data: updateData,
       include: {
         category: {
           select: {
             id: true,
             name: true,
           }
+        },
+        variations: {
+          orderBy: { order: 'asc' }
         }
       }
     })

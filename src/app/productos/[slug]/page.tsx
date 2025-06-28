@@ -5,11 +5,12 @@ import { prisma } from '@/lib/prisma'
 import { formatPrice } from '@/lib/utils'
 import { ArrowLeft, Package } from 'lucide-react'
 import { AddToCartButton } from '@/components/client/add-to-cart-button'
+import { ProductVariationsSelector } from '@/components/client/product-variations-selector'
 
 interface ProductPageProps {
-  params: {
+  params: Promise<{
     slug: string
-  }
+  }>
 }
 
 async function getProduct(slug: string) {
@@ -26,6 +27,14 @@ async function getProduct(slug: string) {
             name: true,
             slug: true
           }
+        },
+        variations: {
+          where: {
+            isAvailable: true
+          },
+          orderBy: {
+            order: 'asc'
+          }
         }
       }
     })
@@ -38,7 +47,8 @@ async function getProduct(slug: string) {
 }
 
 export default async function ProductPage({ params }: ProductPageProps) {
-  const product = await getProduct(params.slug)
+  const { slug } = await params
+  const product = await getProduct(slug)
 
   if (!product) {
     notFound()
@@ -116,9 +126,16 @@ export default async function ProductPage({ params }: ProductPageProps) {
 
               <div className="mb-6">
                 <div className="flex items-center justify-between">
-                  <span className="text-4xl font-bold text-gray-900">
-                    {formatPrice(product.price)}
-                  </span>
+                  <div>
+                    <span className="text-4xl font-bold text-gray-900">
+                      {formatPrice(product.price)}
+                    </span>
+                    {product.variations && product.variations.length > 0 && (
+                      <div className="text-sm text-gray-600 mt-1">
+                        Precio base - Varía según tamaño y opciones
+                      </div>
+                    )}
+                  </div>
                   <div className="text-right">
                     <div className="text-sm text-gray-600">Stock disponible</div>
                     <div className={`text-lg font-semibold ${
@@ -155,17 +172,29 @@ export default async function ProductPage({ params }: ProductPageProps) {
               </div>
 
               <div className="space-y-4">
-                <AddToCartButton 
-                  productName={product.name}
-                  productId={product.id}
-                  productPrice={product.price}
-                  productImage={product.images?.[0]}
-                  productStock={product.stock}
-                />
-                
-                <p className="text-sm text-gray-600 text-center">
-                  * Solo retiro en tienda física
-                </p>
+                {product.variations && product.variations.length > 0 ? (
+                  <ProductVariationsSelector
+                    productId={product.id}
+                    productName={product.name}
+                    basePrice={product.price}
+                    productImage={product.images?.[0]}
+                    productStock={product.stock}
+                    variations={product.variations as any}
+                  />
+                ) : (
+                  <>
+                    <AddToCartButton 
+                      productName={product.name}
+                      productId={product.id}
+                      productPrice={product.price}
+                      productImage={product.images?.[0]}
+                      productStock={product.stock}
+                    />
+                    <p className="text-sm text-gray-600 text-center">
+                      * Solo retiro en tienda física
+                    </p>
+                  </>
+                )}
               </div>
             </div>
           </div>
@@ -208,7 +237,8 @@ export default async function ProductPage({ params }: ProductPageProps) {
 
 // Generate metadata for SEO
 export async function generateMetadata({ params }: ProductPageProps) {
-  const product = await getProduct(params.slug)
+  const { slug } = await params
+  const product = await getProduct(slug)
 
   if (!product) {
     return {

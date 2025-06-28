@@ -4,6 +4,16 @@ import { prisma } from '@/lib/prisma'
 import { isAdmin } from '@/lib/auth'
 import { z } from 'zod'
 
+const variationSchema = z.object({
+  type: z.enum(['SIZE', 'INGREDIENT']),
+  name: z.string().min(1, 'El nombre de la variación es requerido'),
+  description: z.string().optional(),
+  priceChange: z.number().default(0),
+  servingSize: z.number().optional(),
+  order: z.number().default(0),
+  isAvailable: z.boolean().default(true),
+})
+
 const createProductSchema = z.object({
   name: z.string().min(1, 'El nombre es requerido'),
   description: z.string().optional(),
@@ -12,6 +22,7 @@ const createProductSchema = z.object({
   categoryId: z.string().min(1, 'La categoría es requerida'),
   images: z.array(z.string()).optional(),
   isAvailable: z.boolean(),
+  variations: z.array(variationSchema).optional(),
 })
 
 // GET - Obtener todos los productos (con filtros opcionales)
@@ -53,6 +64,9 @@ export async function GET(request: NextRequest) {
               id: true,
               name: true
             }
+          },
+          variations: {
+            orderBy: { order: 'asc' }
           }
         },
         orderBy: { createdAt: 'desc' },
@@ -122,7 +136,7 @@ export async function POST(request: NextRequest) {
       counter++
     }
 
-    // Crear producto
+    // Crear producto con variaciones
     const product = await prisma.product.create({
       data: {
         name: validatedData.name,
@@ -133,6 +147,17 @@ export async function POST(request: NextRequest) {
         images: validatedData.images || [],
         isAvailable: validatedData.isAvailable,
         slug,
+        variations: validatedData.variations ? {
+          create: validatedData.variations.map(variation => ({
+            type: variation.type,
+            name: variation.name,
+            description: variation.description,
+            priceChange: variation.priceChange,
+            servingSize: variation.servingSize,
+            order: variation.order,
+            isAvailable: variation.isAvailable,
+          }))
+        } : undefined,
       },
       include: {
         category: {
@@ -140,6 +165,9 @@ export async function POST(request: NextRequest) {
             id: true,
             name: true
           }
+        },
+        variations: {
+          orderBy: { order: 'asc' }
         }
       }
     })

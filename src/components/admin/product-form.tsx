@@ -10,6 +10,8 @@ import { Textarea } from '@/components/ui/textarea'
 import { Upload, X, Package, Loader2, ArrowLeft } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
+import { ProductVariations } from './product-variations'
+import { VariationType } from '@/types'
 
 const productSchema = z.object({
   name: z.string().min(1, 'El nombre es requerido'),
@@ -21,6 +23,17 @@ const productSchema = z.object({
 })
 
 type ProductFormData = z.infer<typeof productSchema>
+
+interface ProductVariation {
+  id?: string
+  type: VariationType
+  name: string
+  description?: string
+  priceChange: number
+  servingSize?: number
+  order: number
+  isAvailable: boolean
+}
 
 interface Category {
   id: string
@@ -37,6 +50,7 @@ interface Product {
   isAvailable: boolean
   categoryId: string
   category: Category
+  variations?: ProductVariation[]
 }
 
 interface ProductFormProps {
@@ -57,6 +71,7 @@ export function ProductForm({
   const [images, setImages] = useState<File[]>([])
   const [imagePreviews, setImagePreviews] = useState<string[]>([])
   const [existingImages, setExistingImages] = useState<string[]>(product?.images || [])
+  const [variations, setVariations] = useState<ProductVariation[]>(product?.variations || [])
   const [uploading, setUploading] = useState(false)
   const [submitting, setSubmitting] = useState(false)
 
@@ -170,6 +185,7 @@ export function ProductForm({
       const productData = {
         ...data,
         images: allImages,
+        variations: variations,
       }
 
       const url = isEditing ? `/api/products/${product!.id}` : '/api/products'
@@ -191,6 +207,7 @@ export function ProductForm({
           setImages([])
           setImagePreviews([])
           setExistingImages([])
+          setVariations([])
         }
         
         // Redirigir a la lista de productos
@@ -330,6 +347,14 @@ export function ProductForm({
           {errors.description && (
             <p className="text-red-600 text-sm mt-1">{errors.description.message}</p>
           )}
+        </div>
+
+        {/* Variaciones del Producto */}
+        <div>
+          <ProductVariations
+            variations={variations}
+            onChange={setVariations}
+          />
         </div>
 
         {/* Imágenes Existentes */}

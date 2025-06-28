@@ -16,6 +16,11 @@ export enum PaymentStatus {
   REFUNDED = 'REFUNDED'
 }
 
+export enum VariationType {
+  SIZE = 'SIZE',
+  INGREDIENT = 'INGREDIENT'
+}
+
 // Tipos básicos (se actualizarán cuando tengamos la DB)
 export type User = {
   id: string
@@ -119,18 +124,43 @@ export type Product = {
   updatedAt: Date
 }
 
+export type ProductVariation = {
+  id: string
+  type: VariationType
+  name: string
+  description?: string | null
+  priceChange: number
+  isAvailable: boolean
+  order: number
+  servingSize?: number | null
+  productId: string
+  createdAt: Date
+  updatedAt: Date
+}
+
 // Tipos extendidos con relaciones
 export type ProductWithCategory = Product & {
   category: Category
 }
 
+export type ProductWithVariations = Product & {
+  category: Category
+  variations: ProductVariation[]
+}
+
 export type CartItem = {
   id: string
-  productId: string
+  productId?: string
   name: string
   price: number
   quantity: number
   image?: string
+  variations?: {
+    id: string
+    name: string
+    priceChange: number
+    type: VariationType
+  }[]
 }
 
 export type CartSummary = {
@@ -150,6 +180,14 @@ export type CreateProductForm = {
   stock: number
   isActive: boolean
   isAvailable: boolean
+  variations?: {
+    type: VariationType
+    name: string
+    description?: string
+    priceChange: number
+    servingSize?: number
+    order: number
+  }[]
 }
 
 export type CreateOrderForm = {
@@ -166,6 +204,16 @@ export type CreateOrderForm = {
 export type UpdateOrderStatusForm = {
   status: OrderStatus
   adminNotes?: string
+}
+
+export type CreateVariationForm = {
+  type: VariationType
+  name: string
+  description?: string
+  priceChange: number
+  servingSize?: number
+  order: number
+  isAvailable: boolean
 }
 
 // API Responses
@@ -194,4 +242,16 @@ export const PAYMENT_STATUS_LABELS: Record<PaymentStatus, string> = {
   PAID: 'Pagado',
   FAILED: 'Fallido',
   REFUNDED: 'Reembolsado'
-} 
+}
+
+export const VARIATION_TYPE_LABELS: Record<VariationType, string> = {
+  SIZE: 'Tamaño',
+  INGREDIENT: 'Ingrediente'
+}
+
+// Tamaños predefinidos
+export const DEFAULT_SIZES = [
+  { name: '4 personas', servingSize: 4, priceChange: 0 },
+  { name: '8 personas', servingSize: 8, priceChange: 5000 },
+  { name: '15 personas', servingSize: 15, priceChange: 12000 }
+] 
