@@ -25,7 +25,7 @@ const banners: Banner[] = [
     icon: Cake,
     ctaText: "Ver Productos",
     ctaLink: "/productos",
-    bgGradient: "from-primary via-primary/90 to-accent"
+    bgGradient: "from-pink-600 via-pink-700 to-amber-600"
   },
   {
     id: 2,
@@ -35,7 +35,7 @@ const banners: Banner[] = [
     icon: Heart,
     ctaText: "Hacer Pedido",
     ctaLink: "/contacto",
-    bgGradient: "from-accent via-accent/90 to-primary"
+    bgGradient: "from-amber-600 via-orange-600 to-pink-600"
   },
   {
     id: 3,
@@ -45,7 +45,7 @@ const banners: Banner[] = [
     icon: Store,
     ctaText: "Ubicación",
     ctaLink: "/contacto",
-    bgGradient: "from-primary/80 via-accent/80 to-primary"
+    bgGradient: "from-pink-700 via-rose-700 to-pink-800"
   }
 ]
 

@@ -37,18 +37,18 @@ export async function FeaturedProducts() {
 
   if (products.length === 0) {
     return (
-      <section className="py-16 bg-white">
+      <section className="py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">
+            <h2 className="text-3xl font-bold bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent mb-4">
               Productos Destacados
             </h2>
-            <p className="text-gray-600 mb-8">
+            <p className="text-gray-700 mb-8">
               Próximamente tendremos productos disponibles
             </p>
             <Link
               href="/admin/productos"
-              className="inline-block bg-pink-600 text-white px-6 py-3 rounded-lg hover:bg-pink-700 transition-colors"
+              className="inline-block bg-gradient-to-r from-pink-600 to-purple-600 text-white px-6 py-3 rounded-lg hover:from-pink-700 hover:to-purple-700 transition-all duration-300 shadow-lg"
             >
               Agregar Productos
             </Link>
@@ -59,14 +59,14 @@ export async function FeaturedProducts() {
   }
 
   return (
-    <section className="py-16 bg-white">
+    <section className="py-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+          <h2 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent mb-4">
             Productos Destacados
           </h2>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            Descubre nuestros postres más populares, elaborados con amor y los mejores ingredientes
+          <p className="text-xl text-gray-700 max-w-2xl mx-auto">
+            Descubre nuestros dulces más populares, elaborados especialmente para diabéticos
           </p>
         </div>
 

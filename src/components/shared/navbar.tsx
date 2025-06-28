@@ -3,7 +3,8 @@
 import { useUser } from '@clerk/nextjs'
 import { UserButton } from '@clerk/nextjs'
 import Link from 'next/link'
-import { ShoppingCart, Settings, User, Cake, Menu, X } from 'lucide-react'
+import Image from 'next/image'
+import { ShoppingCart, Settings, User, Cake, Menu, X, Package } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useState, useEffect } from 'react'
 import { useCart } from '@/components/providers/cart-provider'
@@ -22,200 +23,215 @@ export function Navbar() {
     }
   }, [user])
 
-  // Animar contador cuando cambie
   useEffect(() => {
-    if (itemCount !== prevItemCount && itemCount > 0) {
+    if (itemCount > prevItemCount) {
       setIsAnimating(true)
-      setTimeout(() => setIsAnimating(false), 600)
+      const timer = setTimeout(() => setIsAnimating(false), 600)
+      return () => clearTimeout(timer)
     }
     setPrevItemCount(itemCount)
   }, [itemCount, prevItemCount])
 
-  const toggleMobileMenu = () => {
-    setIsMobileMenuOpen(!isMobileMenuOpen)
-  }
-
-  const closeMobileMenu = () => {
-    setIsMobileMenuOpen(false)
-  }
+  const closeMobileMenu = () => setIsMobileMenuOpen(false)
 
   return (
-    <nav className="bg-background/95 backdrop-blur-sm border-b border-border sticky top-0 z-50 shadow-sm">
+    <nav className="sticky top-0 z-50 bg-white/90 backdrop-blur-lg border-b border-primary-100/50 shadow-lg shadow-primary-100/20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-3 group" onClick={closeMobileMenu}>
-            <div className="p-2 bg-primary rounded-lg shadow-lg group-hover:scale-110 transition-transform duration-200">
-              <Cake className="h-6 w-6 text-primary-foreground" />
+          <Link href="/" className="flex items-center group" onClick={closeMobileMenu}>
+            <div className="relative">
+              <Image 
+                src="/logoweb.png" 
+                alt="Postres Pasmiño" 
+                width={200} 
+                height={48}
+                className="object-contain h-12 w-auto group-hover:scale-105 transition-transform duration-300 rounded-lg shadow-sm"
+              />
+              {/* Efecto de brillo */}
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-0 group-hover:opacity-100 group-hover:animate-pulse rounded-lg transition-opacity duration-300"></div>
             </div>
-            <span className="font-bold text-xl text-foreground group-hover:text-primary transition-colors">
-              Dulces Pasmiño
-            </span>
           </Link>
 
-          {/* Navigation Links - Hidden on mobile */}
-          <div className="hidden md:flex items-center space-x-8">
+          {/* Desktop Navigation */}
+          <div className="hidden md:flex items-center space-x-1">
             <Link 
               href="/productos" 
-              className="text-muted-foreground hover:text-primary transition-colors font-medium relative group"
+              className="px-4 py-2 text-gray-700 hover:text-primary-600 hover:bg-primary-50 rounded-xl transition-all duration-300 relative group font-medium"
+              onClick={closeMobileMenu}
             >
               Productos
-              <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary group-hover:w-full transition-all duration-200"></span>
+              <span className="absolute bottom-0 left-1/2 w-0 h-0.5 bg-gradient-to-r from-primary-400 to-primary-600 group-hover:w-full group-hover:left-0 transition-all duration-300"></span>
             </Link>
             <Link 
               href="/sobre-nosotros" 
-              className="text-muted-foreground hover:text-primary transition-colors font-medium relative group"
+              className="px-4 py-2 text-gray-700 hover:text-primary-600 hover:bg-primary-50 rounded-xl transition-all duration-300 relative group font-medium"
+              onClick={closeMobileMenu}
             >
               Sobre Nosotros
-              <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary group-hover:w-full transition-all duration-200"></span>
+              <span className="absolute bottom-0 left-1/2 w-0 h-0.5 bg-gradient-to-r from-primary-400 to-primary-600 group-hover:w-full group-hover:left-0 transition-all duration-300"></span>
             </Link>
             <Link 
               href="/contacto" 
-              className="text-muted-foreground hover:text-primary transition-colors font-medium relative group"
+              className="px-4 py-2 text-gray-700 hover:text-primary-600 hover:bg-primary-50 rounded-xl transition-all duration-300 relative group font-medium"
+              onClick={closeMobileMenu}
             >
               Contacto
-              <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary group-hover:w-full transition-all duration-200"></span>
+              <span className="absolute bottom-0 left-1/2 w-0 h-0.5 bg-gradient-to-r from-primary-400 to-primary-600 group-hover:w-full group-hover:left-0 transition-all duration-300"></span>
             </Link>
           </div>
 
-          {/* Right side */}
-          <div className="flex items-center gap-3">
-            {/* Cart */}
-            <Link href="/carrito" onClick={closeMobileMenu}>
-              <Button variant="ghost" size="sm" className="relative p-3 hover:bg-primary/10">
-                <ShoppingCart className="h-5 w-5 text-muted-foreground" />
+          {/* Right Side Icons */}
+          <div className="flex items-center space-x-3">
+            {/* Cart Icon */}
+            <Link href="/carrito" className="relative group" onClick={closeMobileMenu}>
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="relative p-2 hover:bg-primary-50 hover:text-primary-600 rounded-xl transition-all duration-300"
+              >
+                <ShoppingCart className="h-5 w-5" />
                 {itemCount > 0 && (
-                  <span className={`absolute -top-1 -right-1 bg-primary text-primary-foreground text-xs rounded-full h-5 w-5 flex items-center justify-center transition-all duration-200 shadow-md ${
-                    isAnimating ? 'animate-bounce-soft scale-110' : ''
-                  }`}>
-                    {itemCount > 99 ? '99+' : itemCount}
+                  <span className={`absolute -top-1 -right-1 bg-gradient-to-r from-primary-500 to-primary-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-bold shadow-lg ${
+                    isAnimating ? 'animate-bounce scale-125' : ''
+                  } transition-all duration-300`}>
+                    {itemCount}
                   </span>
                 )}
               </Button>
             </Link>
 
-            {/* Mobile menu button */}
+            {/* User Section */}
+            {isLoaded && (
+              <>
+                {user ? (
+                  <div className="flex items-center space-x-2">
+                    {/* Orders Link for logged users */}
+                    <Link href="/pedidos" onClick={closeMobileMenu}>
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        className="p-2 hover:bg-primary-50 hover:text-primary-600 rounded-xl transition-all duration-300"
+                      >
+                        <Package className="h-5 w-5" />
+                      </Button>
+                    </Link>
+
+                    {/* Admin Panel Link */}
+                    {isAdmin && (
+                      <Link href="/admin" onClick={closeMobileMenu}>
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          className="p-2 hover:bg-primary-50 hover:text-primary-600 rounded-xl transition-all duration-300"
+                        >
+                          <Settings className="h-5 w-5" />
+                        </Button>
+                        </Link>
+                    )}
+                    
+                    {/* User Button */}
+                    <div className="scale-90">
+                    <UserButton 
+                        afterSignOutUrl="/"
+                      appearance={{
+                        elements: {
+                            avatarBox: "w-8 h-8 rounded-xl shadow-md hover:shadow-lg transition-all duration-300",
+                            userButtonPopoverCard: "shadow-xl border-primary-100",
+                            userButtonPopoverActionButton: "hover:bg-primary-50"
+                          }
+                      }}
+                    />
+                    </div>
+                  </div>
+                ) : (
+                  <Link href="/sign-in" onClick={closeMobileMenu}>
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className="p-2 hover:bg-primary-50 hover:text-primary-600 rounded-xl transition-all duration-300"
+                    >
+                      <User className="h-5 w-5" />
+                    </Button>
+                      </Link>
+                )}
+              </>
+            )}
+
+            {/* Mobile Menu Button */}
             <Button
               variant="ghost"
               size="sm"
-              onClick={toggleMobileMenu}
-              className="md:hidden p-2"
+              className="md:hidden p-2 hover:bg-primary-50 hover:text-primary-600 rounded-xl transition-all duration-300"
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             >
               {isMobileMenuOpen ? (
-                <X className="h-6 w-6" />
+                <X className="h-5 w-5" />
               ) : (
-                <Menu className="h-6 w-6" />
-              )}
-            </Button>
-
-            {/* User Authentication - Desktop */}
-            {isLoaded && (
-              <div className="hidden md:flex items-center gap-2">
-                {user ? (
-                  <>
-                    {/* Admin Panel Link */}
-                    {isAdmin && (
-                      <Button asChild variant="ghost" size="sm">
-                        <Link href="/admin">
-                          <Settings className="h-5 w-5 text-accent" />
-                        </Link>
-                      </Button>
-                    )}
-                    
-                    {/* User Orders */}
-                    <Button asChild variant="ghost" size="sm">
-                      <Link href="/pedidos">
-                        <User className="h-5 w-5" />
-                      </Link>
-                    </Button>
-                    
-                    {/* User Button */}
-                    <UserButton 
-                      appearance={{
-                        elements: {
-                          avatarBox: 'w-8 h-8',
-                        },
-                      }}
-                    />
-                  </>
-                ) : (
-                  <>
-                    <Button asChild variant="ghost" size="sm">
-                      <Link href="/sign-in">
-                        Iniciar Sesión
-                      </Link>
-                    </Button>
-                    <Button asChild size="sm">
-                      <Link href="/sign-up">
-                        Registrarse
-                      </Link>
-                    </Button>
-                  </>
-                )}
-              </div>
+                <Menu className="h-5 w-5" />
             )}
-          </div>
+            </Button>
         </div>
       </div>
 
-      {/* Mobile menu */}
-      <div className={`md:hidden border-t border-border bg-background transition-all duration-300 ${
-        isMobileMenuOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0 overflow-hidden'
-      }`}>
-        <div className="px-4 py-4 space-y-2">
-          <Button asChild variant="ghost" className="w-full justify-start" onClick={closeMobileMenu}>
-            <Link href="/productos">
-              Productos
+        {/* Mobile Menu */}
+        {isMobileMenuOpen && (
+          <div className="md:hidden border-t border-primary-100/50 bg-white/95 backdrop-blur-sm">
+            <div className="px-2 pt-2 pb-3 space-y-1">
+              <Link
+                href="/productos"
+                className="block px-4 py-3 text-gray-700 hover:text-primary-600 hover:bg-primary-50 rounded-xl transition-all duration-300 font-medium"
+                onClick={closeMobileMenu}
+              >
+                🍰 Productos
             </Link>
-          </Button>
-          <Button asChild variant="ghost" className="w-full justify-start" onClick={closeMobileMenu}>
-            <Link href="/sobre-nosotros">
-              Sobre Nosotros
+              <Link
+                href="/sobre-nosotros"
+                className="block px-4 py-3 text-gray-700 hover:text-primary-600 hover:bg-primary-50 rounded-xl transition-all duration-300 font-medium"
+                onClick={closeMobileMenu}
+              >
+                ℹ️ Sobre Nosotros
             </Link>
-          </Button>
-          <Button asChild variant="ghost" className="w-full justify-start" onClick={closeMobileMenu}>
-            <Link href="/contacto">
-              Contacto
+              <Link
+                href="/contacto"
+                className="block px-4 py-3 text-gray-700 hover:text-primary-600 hover:bg-primary-50 rounded-xl transition-all duration-300 font-medium"
+                onClick={closeMobileMenu}
+              >
+                📞 Contacto
             </Link>
-          </Button>
-          
-          {/* Mobile User Authentication */}
-          {isLoaded && (
-            <div className="pt-4 border-t border-border space-y-2">
-              {user ? (
-                <>
-                  <Button asChild variant="ghost" className="w-full justify-start" onClick={closeMobileMenu}>
-                    <Link href="/pedidos">
-                      <User className="h-5 w-5 mr-2" />
-                      Mis Pedidos
+              
+              {user && (
+                <Link
+                  href="/pedidos"
+                  className="block px-4 py-3 text-gray-700 hover:text-primary-600 hover:bg-primary-50 rounded-xl transition-all duration-300 font-medium"
+                  onClick={closeMobileMenu}
+                >
+                  📦 Mis Pedidos
                     </Link>
-                  </Button>
+              )}
+
                   {isAdmin && (
-                    <Button asChild variant="ghost" className="w-full justify-start" onClick={closeMobileMenu}>
-                      <Link href="/admin">
-                        <Settings className="h-5 w-5 mr-2 text-accent" />
-                        Panel Admin
+                <Link
+                  href="/admin"
+                  className="block px-4 py-3 text-gray-700 hover:text-primary-600 hover:bg-primary-50 rounded-xl transition-all duration-300 font-medium"
+                  onClick={closeMobileMenu}
+                >
+                  ⚙️ Panel Admin
                       </Link>
-                    </Button>
                   )}
-                </>
-              ) : (
-                <div className="flex flex-col gap-2">
-                  <Button asChild variant="ghost" className="w-full justify-start" onClick={closeMobileMenu}>
-                    <Link href="/sign-in">
-                      Iniciar Sesión
+
+              {!user && (
+                <Link
+                  href="/sign-in"
+                  className="block px-4 py-3 text-gray-700 hover:text-primary-600 hover:bg-primary-50 rounded-xl transition-all duration-300 font-medium"
+                  onClick={closeMobileMenu}
+                >
+                  👤 Iniciar Sesión
                     </Link>
-                  </Button>
-                  <Button asChild className="w-full" onClick={closeMobileMenu}>
-                    <Link href="/sign-up">
-                      Registrarse
-                    </Link>
-                  </Button>
-                </div>
               )}
             </div>
+            </div>
           )}
-        </div>
       </div>
     </nav>
   )
