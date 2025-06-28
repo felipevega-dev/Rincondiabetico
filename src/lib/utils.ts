@@ -13,3 +13,32 @@ export function formatPrice(price: number): string {
     maximumFractionDigits: 0,
   }).format(price)
 }
+
+export function formatOpeningHours(openingHours: any) {
+  if (!openingHours) return []
+
+  const hours = []
+  
+  // Lunes a Viernes
+  if (openingHours.weekdays?.isOpen) {
+    hours.push(`Lunes a Viernes: ${openingHours.weekdays.open} - ${openingHours.weekdays.close}`)
+  } else {
+    hours.push('Lunes a Viernes: Cerrado')
+  }
+  
+  // Sábado
+  if (openingHours.saturday?.isOpen) {
+    hours.push(`Sábados: ${openingHours.saturday.open} - ${openingHours.saturday.close}`)
+  } else {
+    hours.push('Sábados: Cerrado')
+  }
+  
+  // Domingo
+  if (openingHours.sunday?.isOpen) {
+    hours.push(`Domingos: ${openingHours.sunday.open} - ${openingHours.sunday.close}`)
+  } else {
+    hours.push('Domingos: Cerrado')
+  }
+  
+  return hours
+}

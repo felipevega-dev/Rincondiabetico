@@ -12,27 +12,7 @@ const storeSettingsSchema = z.object({
   whatsapp: z.string().min(1, 'WhatsApp es requerido'),
   description: z.string().optional(),
   openingHours: z.object({
-    monday: z.object({
-      open: z.string(),
-      close: z.string(),
-      isOpen: z.boolean()
-    }),
-    tuesday: z.object({
-      open: z.string(),
-      close: z.string(),
-      isOpen: z.boolean()
-    }),
-    wednesday: z.object({
-      open: z.string(),
-      close: z.string(),
-      isOpen: z.boolean()
-    }),
-    thursday: z.object({
-      open: z.string(),
-      close: z.string(),
-      isOpen: z.boolean()
-    }),
-    friday: z.object({
+    weekdays: z.object({
       open: z.string(),
       close: z.string(),
       isOpen: z.boolean()
@@ -75,11 +55,7 @@ export async function GET() {
           whatsapp: '+56 9 1234 5678',
           description: 'Dulces especiales para diabéticos',
           openingHours: {
-            monday: { open: '09:00', close: '19:00', isOpen: true },
-            tuesday: { open: '09:00', close: '19:00', isOpen: true },
-            wednesday: { open: '09:00', close: '19:00', isOpen: true },
-            thursday: { open: '09:00', close: '19:00', isOpen: true },
-            friday: { open: '09:00', close: '19:00', isOpen: true },
+            weekdays: { open: '09:00', close: '19:00', isOpen: true },
             saturday: { open: '09:00', close: '17:00', isOpen: true },
             sunday: { open: '10:00', close: '15:00', isOpen: true }
           },

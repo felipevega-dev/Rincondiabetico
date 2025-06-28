@@ -2,6 +2,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { MessageCircle, Instagram, Facebook, MapPin, Mail, Clock, Heart } from 'lucide-react'
 import { prisma } from '@/lib/prisma'
+import { formatOpeningHours } from '@/lib/utils'
 
 async function getStoreBasicInfo() {
   try {
@@ -14,6 +15,7 @@ async function getStoreBasicInfo() {
         email: true,
         whatsapp: true,
         description: true,
+        openingHours: true,
         isOpen: true
       }
     })
@@ -55,6 +57,15 @@ export async function Footer() {
   const email = storeInfo?.email || 'dulcespasmino@gmail.com'
   const whatsapp = storeInfo?.whatsapp || '+56 9 8687 4406'
   const description = storeInfo?.description || 'Dulces artesanales especialmente diseñados para personas con diabetes. Sin azúcar refinada, con todo el sabor que mereces.'
+  
+  // Formatear horarios dinámicos
+  const formattedHours = storeInfo?.openingHours 
+    ? formatOpeningHours(storeInfo.openingHours)
+    : [
+        'Lunes a Viernes: 9:00 - 19:00',
+        'Sábados: 9:00 - 17:00', 
+        'Domingos: 10:00 - 15:00'
+      ]
 
   return (
     <footer className="bg-gradient-to-br from-primary-50 via-cream-50 to-accent-50 border-t border-primary-100">
@@ -194,9 +205,9 @@ export async function Footer() {
                 Horarios de Atención
               </h4>
               <div className="text-gray-600 space-y-1 text-sm">
-                <p><span className="font-medium text-gray-800">Lunes a Viernes:</span> 9:00 - 19:00</p>
-                <p><span className="font-medium text-gray-800">Sábados:</span> 9:00 - 17:00</p>
-                <p><span className="font-medium text-gray-800">Domingos:</span> 10:00 - 15:00</p>
+                {formattedHours.map((hour, index) => (
+                  <p key={index}>{hour}</p>
+                ))}
               </div>
             </div>
             

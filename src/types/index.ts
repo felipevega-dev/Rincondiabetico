@@ -62,7 +62,17 @@ export type StoreSettings = {
   whatsapp: string
   description?: string | null
   openingHours: {
-    [key: string]: {
+    weekdays: {
+      open: string
+      close: string
+      isOpen: boolean
+    }
+    saturday: {
+      open: string
+      close: string
+      isOpen: boolean
+    }
+    sunday: {
       open: string
       close: string
       isOpen: boolean

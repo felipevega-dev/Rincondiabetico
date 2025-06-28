@@ -10,12 +10,8 @@ import { Save, Clock, Globe, Phone, Mail } from 'lucide-react'
 import { StoreSettings } from '@/types'
 import { useToast } from '@/components/providers/toast-provider'
 
-const DAYS = [
-  { key: 'monday', label: 'Lunes' },
-  { key: 'tuesday', label: 'Martes' },
-  { key: 'wednesday', label: 'Miércoles' },
-  { key: 'thursday', label: 'Jueves' },
-  { key: 'friday', label: 'Viernes' },
+const SCHEDULE_PERIODS = [
+  { key: 'weekdays', label: 'Lunes a Viernes' },
   { key: 'saturday', label: 'Sábado' },
   { key: 'sunday', label: 'Domingo' }
 ]
@@ -34,11 +30,7 @@ export function StoreSettingsForm() {
     whatsapp: '',
     description: '',
     openingHours: {
-      monday: { open: '09:00', close: '19:00', isOpen: true },
-      tuesday: { open: '09:00', close: '19:00', isOpen: true },
-      wednesday: { open: '09:00', close: '19:00', isOpen: true },
-      thursday: { open: '09:00', close: '19:00', isOpen: true },
-      friday: { open: '09:00', close: '19:00', isOpen: true },
+      weekdays: { open: '09:00', close: '19:00', isOpen: true },
       saturday: { open: '09:00', close: '17:00', isOpen: true },
       sunday: { open: '10:00', close: '15:00', isOpen: true }
     },
@@ -84,14 +76,16 @@ export function StoreSettingsForm() {
     setFormData(prev => ({ ...prev, [field]: value }))
   }
 
-  const handleHoursChange = (day: string, field: string, value: any) => {
+  const handleHoursChange = (period: string, field: string, value: any) => {
     setFormData(prev => ({
       ...prev,
       openingHours: {
         ...prev.openingHours,
-        [day]: {
-          ...prev.openingHours[day as keyof typeof prev.openingHours],
-          [field]: value
+        [period]: {
+          ...prev.openingHours[period as keyof typeof prev.openingHours],
+          [field]: value,
+          // Ensure open and close are always strings
+          ...(field === 'isOpen' && !value ? { open: '09:00', close: '19:00' } : {})
         }
       }
     }))
@@ -112,12 +106,34 @@ export function StoreSettingsForm() {
     setSaving(true)
 
     try {
+      // Ensure all opening hours have proper string values
+      const sanitizedData = {
+        ...formData,
+        openingHours: {
+          weekdays: {
+            open: formData.openingHours.weekdays?.open || '09:00',
+            close: formData.openingHours.weekdays?.close || '19:00',
+            isOpen: formData.openingHours.weekdays?.isOpen ?? true
+          },
+          saturday: {
+            open: formData.openingHours.saturday?.open || '09:00',
+            close: formData.openingHours.saturday?.close || '17:00',
+            isOpen: formData.openingHours.saturday?.isOpen ?? true
+          },
+          sunday: {
+            open: formData.openingHours.sunday?.open || '10:00',
+            close: formData.openingHours.sunday?.close || '15:00',
+            isOpen: formData.openingHours.sunday?.isOpen ?? true
+          }
+        }
+      }
+
       const response = await fetch('/api/store-settings', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(sanitizedData),
       })
 
       if (response.ok) {
@@ -265,34 +281,36 @@ export function StoreSettingsForm() {
             Horarios de Atención
           </h2>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {DAYS.map(({ key, label }) => (
+          <div className="space-y-4">
+            {SCHEDULE_PERIODS.map(({ key, label }) => (
               <div key={key} className="space-y-2">
                 <label className="block text-sm font-medium text-gray-700">
                   {label}
                 </label>
-                <div className="flex items-center space-x-2">
+                <div className="flex items-center space-x-3">
                   <input
                     type="checkbox"
                     checked={formData.openingHours[key as keyof typeof formData.openingHours]?.isOpen || false}
                     onChange={(e) => handleHoursChange(key, 'isOpen', e.target.checked)}
                     className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
                   />
-                  <Input
-                    type="time"
-                    value={formData.openingHours[key as keyof typeof formData.openingHours]?.open || '09:00'}
-                    onChange={(e) => handleHoursChange(key, 'open', e.target.value)}
-                    disabled={!formData.openingHours[key as keyof typeof formData.openingHours]?.isOpen}
-                    className="text-xs"
-                  />
-                  <span className="text-gray-500">-</span>
-                  <Input
-                    type="time"
-                    value={formData.openingHours[key as keyof typeof formData.openingHours]?.close || '19:00'}
-                    onChange={(e) => handleHoursChange(key, 'close', e.target.value)}
-                    disabled={!formData.openingHours[key as keyof typeof formData.openingHours]?.isOpen}
-                    className="text-xs"
-                  />
+                  <div className="flex items-center space-x-2">
+                    <Input
+                      type="time"
+                      value={formData.openingHours[key as keyof typeof formData.openingHours]?.open || '09:00'}
+                      onChange={(e) => handleHoursChange(key, 'open', e.target.value || '09:00')}
+                      disabled={!formData.openingHours[key as keyof typeof formData.openingHours]?.isOpen}
+                      className="w-24"
+                    />
+                    <span className="text-gray-500">-</span>
+                    <Input
+                      type="time"
+                      value={formData.openingHours[key as keyof typeof formData.openingHours]?.close || '19:00'}
+                      onChange={(e) => handleHoursChange(key, 'close', e.target.value || '19:00')}
+                      disabled={!formData.openingHours[key as keyof typeof formData.openingHours]?.isOpen}
+                      className="w-24"
+                    />
+                  </div>
                 </div>
               </div>
             ))}

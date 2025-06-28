@@ -1,11 +1,43 @@
 import { Metadata } from 'next'
+import { prisma } from '@/lib/prisma'
+import { formatOpeningHours } from '@/lib/utils'
 
 export const metadata: Metadata = {
-  title: 'Contacto - Rincón Diabético',
+  title: 'Contacto - Postres Pasmiño',
   description: 'Contáctanos para consultas, pedidos especiales o visítanos en nuestra tienda en Chiguayante, Chile.',
 }
 
-export default function ContactoPage() {
+async function getStoreSettings() {
+  try {
+    const settings = await prisma.storeSettings.findFirst({
+      orderBy: { createdAt: 'desc' }
+    })
+    return settings
+  } catch (error) {
+    console.error('Error fetching store settings:', error)
+    return null
+  }
+}
+
+export default async function ContactoPage() {
+  const storeSettings = await getStoreSettings()
+
+  // Valores por defecto si no hay configuración
+  const storeName = storeSettings?.storeName || 'Postres Pasmiño'
+  const address = storeSettings?.address || 'Progreso 393, Chiguayante, Región del Biobío, Chile'
+  const phone = storeSettings?.phone || '+56 9 8687 4406'
+  const email = storeSettings?.email || 'dulcespasmino@gmail.com'
+  const whatsapp = storeSettings?.whatsapp || '+56 9 8687 4406'
+  
+  // Formatear horarios dinámicos
+  const formattedHours = storeSettings?.openingHours 
+    ? formatOpeningHours(storeSettings.openingHours)
+    : [
+        'Lunes a Viernes: 9:00 - 19:00',
+        'Sábados: 9:00 - 17:00', 
+        'Domingos: 10:00 - 15:00'
+      ]
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50">
       <div className="container mx-auto px-4 py-12">
@@ -27,17 +59,15 @@ export default function ContactoPage() {
             <div className="bg-white rounded-lg shadow-lg p-8">
               <h2 className="text-2xl font-bold text-gray-800 mb-6 flex items-center">
                 <span className="text-2xl mr-3">🏪</span>
-                Nuestra Tienda
+                {storeName}
               </h2>
               <div className="space-y-4">
                 <div className="flex items-start">
                   <span className="text-blue-500 mt-1 mr-3">📍</span>
                   <div>
                     <h3 className="font-semibold text-gray-800">Dirección</h3>
-                    <p className="text-gray-600">
-                      Avenida Principal 123<br />
-                      Chiguayante, Región del Biobío<br />
-                      Chile
+                    <p className="text-gray-600 whitespace-pre-line">
+                      {address}
                     </p>
                   </div>
                 </div>
@@ -47,9 +77,9 @@ export default function ContactoPage() {
                   <div>
                     <h3 className="font-semibold text-gray-800">Horarios de Atención</h3>
                     <div className="text-gray-600">
-                      <p><strong>Lunes a Viernes:</strong> 9:00 - 19:00</p>
-                      <p><strong>Sábados:</strong> 9:00 - 17:00</p>
-                      <p><strong>Domingos:</strong> 10:00 - 15:00</p>
+                      {formattedHours.map((hour, index) => (
+                        <p key={index}><strong>{hour.split(':')[0]}:</strong> {hour.split(': ')[1]}</p>
+                      ))}
                     </div>
                   </div>
                 </div>
@@ -67,8 +97,18 @@ export default function ContactoPage() {
                   <span className="text-green-500 mr-3">📱</span>
                   <div>
                     <h3 className="font-semibold text-gray-800">WhatsApp</h3>
-                    <a href="https://wa.me/56912345678" className="text-blue-600 hover:underline">
-                      +56 9 1234 5678
+                    <a href={`https://wa.me/${whatsapp.replace(/[^0-9]/g, '')}`} className="text-blue-600 hover:underline">
+                      {whatsapp}
+                    </a>
+                  </div>
+                </div>
+                
+                <div className="flex items-center">
+                  <span className="text-blue-500 mr-3">📞</span>
+                  <div>
+                    <h3 className="font-semibold text-gray-800">Teléfono</h3>
+                    <a href={`tel:${phone}`} className="text-blue-600 hover:underline">
+                      {phone}
                     </a>
                   </div>
                 </div>
@@ -77,8 +117,8 @@ export default function ContactoPage() {
                   <span className="text-blue-500 mr-3">📧</span>
                   <div>
                     <h3 className="font-semibold text-gray-800">Email</h3>
-                    <a href="mailto:contacto@rincondiabetico.cl" className="text-blue-600 hover:underline">
-                      contacto@rincondiabetico.cl
+                    <a href={`mailto:${email}`} className="text-blue-600 hover:underline">
+                      {email}
                     </a>
                   </div>
                 </div>
@@ -88,8 +128,8 @@ export default function ContactoPage() {
                   <div>
                     <h3 className="font-semibold text-gray-800">Redes Sociales</h3>
                     <div className="space-x-4">
-                      <a href="#" className="text-blue-600 hover:underline">Facebook</a>
-                      <a href="#" className="text-pink-600 hover:underline">Instagram</a>
+                      <a href="https://facebook.com/dulcespasmino" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">Facebook</a>
+                      <a href="https://instagram.com/dulcespasmino" target="_blank" rel="noopener noreferrer" className="text-pink-600 hover:underline">Instagram</a>
                     </div>
                   </div>
                 </div>
@@ -169,7 +209,7 @@ export default function ContactoPage() {
                   id="telefono"
                   name="telefono"
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="+56 9 1234 5678"
+                  placeholder={phone}
                 />
               </div>
 
@@ -199,58 +239,52 @@ export default function ContactoPage() {
                 <textarea
                   id="mensaje"
                   name="mensaje"
-                  rows={5}
+                  rows={6}
                   required
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
-                  placeholder="Cuéntanos en qué podemos ayudarte..."
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="Escribe tu mensaje aquí..."
                 ></textarea>
-              </div>
-
-              <div className="flex items-center">
-                <input
-                  id="acepto-privacidad"
-                  name="acepto-privacidad"
-                  type="checkbox"
-                  required
-                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                />
-                <label htmlFor="acepto-privacidad" className="ml-2 block text-sm text-gray-700">
-                  Acepto la política de privacidad y el tratamiento de mis datos *
-                </label>
               </div>
 
               <button
                 type="submit"
-                className="w-full bg-blue-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-blue-700 transition-colors focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                className="w-full bg-blue-600 text-white py-3 px-6 rounded-lg hover:bg-blue-700 transition duration-300 font-semibold"
               >
                 Enviar Mensaje
               </button>
             </form>
+
+            {/* Acceso Directo a WhatsApp */}
+            <div className="mt-8 p-4 bg-green-50 border border-green-200 rounded-lg">
+              <h3 className="font-semibold text-green-800 mb-2">¿Prefieres WhatsApp?</h3>
+              <p className="text-green-700 text-sm mb-3">
+                Para una respuesta más rápida, puedes escribirnos directamente por WhatsApp
+              </p>
+              <a
+                href={`https://wa.me/${whatsapp.replace(/[^0-9]/g, '')}?text=Hola, me gustaría hacer una consulta sobre los productos de ${storeName}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition duration-300"
+              >
+                <span className="mr-2">📱</span>
+                Escribir por WhatsApp
+              </a>
+            </div>
           </div>
         </div>
 
-        {/* Mapa o Imagen de Ubicación */}
+        {/* Mapa Placeholder */}
         <div className="mt-16">
           <div className="bg-white rounded-lg shadow-lg p-8">
-            <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">
-              Encuéntranos en Chiguayante
+            <h2 className="text-2xl font-bold text-gray-800 mb-6">
+              Ubicación
             </h2>
-            <div className="bg-gray-100 h-64 rounded-lg flex items-center justify-center">
-              <div className="text-center text-gray-500">
-                <span className="text-4xl mb-4 block">🗺️</span>
-                <p>Mapa de ubicación</p>
-                <p className="text-sm">Avenida Principal 123, Chiguayante</p>
+            <div className="bg-gray-200 h-64 rounded-lg flex items-center justify-center">
+              <div className="text-center">
+                <span className="text-4xl mb-2 block">📍</span>
+                <p className="text-gray-600">Mapa de ubicación</p>
+                <p className="text-sm text-gray-500 whitespace-pre-line">{address}</p>
               </div>
-            </div>
-            <div className="mt-4 text-center">
-              <a
-                href="https://maps.google.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-block bg-green-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-green-700 transition-colors"
-              >
-                Ver en Google Maps
-              </a>
             </div>
           </div>
         </div>
