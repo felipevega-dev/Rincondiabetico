@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useEffect } from 'react'
 import { CheckCircle, X } from 'lucide-react'
 import { Button } from './button'
 
@@ -44,7 +44,7 @@ export function Toast({
   }[type]
 
   return (
-    <div className="fixed top-4 right-4 z-[9999] animate-slide-up">
+    <div className="fixed bottom-4 right-4 z-[9999] animate-slide-up">
       <div className={`${bgColor} text-white px-4 py-3 rounded-lg shadow-lg flex items-center gap-3 min-w-[300px] max-w-[400px]`}>
         <div className="animate-bounce-soft">
           {icon}
@@ -63,39 +63,4 @@ export function Toast({
   )
 }
 
-// Hook para manejar toasts
-export function useToast() {
-  const [toasts, setToasts] = useState<Array<{
-    id: string
-    message: string
-    type: 'success' | 'error' | 'info'
-  }>>([])
-
-  const showToast = (message: string, type: 'success' | 'error' | 'info' = 'success') => {
-    const id = Date.now().toString()
-    setToasts(prev => [...prev, { id, message, type }])
-  }
-
-  const removeToast = (id: string) => {
-    setToasts(prev => prev.filter(toast => toast.id !== id))
-  }
-
-  const ToastContainer = () => (
-    <div className="fixed top-4 right-4 z-[9999] space-y-2">
-      {toasts.map(toast => (
-        <Toast
-          key={toast.id}
-          message={toast.message}
-          type={toast.type}
-          isVisible={true}
-          onClose={() => removeToast(toast.id)}
-        />
-      ))}
-    </div>
-  )
-
-  return {
-    showToast,
-    ToastContainer
-  }
-} 
+ 

@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react'
 import { CartItem } from '@/types'
-import { useToast } from '@/components/ui/toast'
+import { useToast } from '@/components/providers/toast-provider'
 
 interface CartContextType {
   items: CartItem[]
@@ -30,7 +30,7 @@ interface CartProviderProps {
 export function CartProvider({ children }: CartProviderProps) {
   const [items, setItems] = useState<CartItem[]>([])
   const [isLoaded, setIsLoaded] = useState(false)
-  const { showToast, ToastContainer } = useToast()
+  const { showToast } = useToast()
 
   useEffect(() => {
     const savedCart = localStorage.getItem('rincon-diabetico-cart')
@@ -136,7 +136,6 @@ export function CartProvider({ children }: CartProviderProps) {
   return (
     <CartContext.Provider value={value}>
       {children}
-      <ToastContainer />
     </CartContext.Provider>
   )
 }
