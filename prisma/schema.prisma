@@ -74,13 +74,14 @@ model Product {
 
 // Estados de pedidos
 enum OrderStatus {
-  DRAFT       // Borrador (antes del pago)
-  PENDIENTE   // Pendiente de pago
-  PAGADO      // Pagado, preparando
-  PREPARANDO  // En preparación
-  LISTO       // Listo para retiro
-  RETIRADO    // Retirado por cliente
-  CANCELADO   // Cancelado
+  DRAFT                    // Borrador (antes del pago)
+  PENDIENTE               // Pendiente de pago
+  ESPERANDO_CONFIRMACION  // Transferencia enviada, esperando confirmación
+  PAGADO                  // Pagado, preparando
+  PREPARANDO              // En preparación
+  LISTO                   // Listo para retiro
+  RETIRADO                // Retirado por cliente
+  CANCELADO               // Cancelado
 }
 
 // Pedidos
@@ -89,6 +90,7 @@ model Order {
   orderNumber   String      @unique
   status        OrderStatus @default(DRAFT)
   total         Int         // Total en pesos chilenos (CLP)
+  paymentMethod String?     // MERCADOPAGO, TRANSFER
   
   // Información de retiro
   pickupDate    DateTime?   // Fecha programada de retiro

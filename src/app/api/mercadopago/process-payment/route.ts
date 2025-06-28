@@ -107,6 +107,7 @@ export async function POST(request: NextRequest) {
       where: { id: orderId },
       data: {
         status: orderStatus,
+        paymentMethod: 'MERCADOPAGO',
         updatedAt: new Date()
       }
     })

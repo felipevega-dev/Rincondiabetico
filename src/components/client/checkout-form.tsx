@@ -9,13 +9,14 @@ import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import Link from 'next/link'
 import Image from 'next/image'
-import { Calendar, Clock, ShoppingBag, User, Phone, MessageSquare } from 'lucide-react'
+import { Calendar, Clock, ShoppingBag, User, Phone, MessageSquare, CreditCard, Building2 } from 'lucide-react'
 
 interface OrderData {
   pickupDate: string
   pickupTime: string
   customerNotes: string
   phone: string
+  paymentMethod: 'MERCADOPAGO' | 'TRANSFER'
 }
 
 export function CheckoutForm() {
@@ -27,7 +28,8 @@ export function CheckoutForm() {
     pickupDate: '',
     pickupTime: '',
     customerNotes: '',
-    phone: user?.phoneNumbers?.[0]?.phoneNumber || ''
+    phone: user?.phoneNumbers?.[0]?.phoneNumber || '',
+    paymentMethod: 'MERCADOPAGO'
   })
 
   // Generar horarios disponibles
@@ -86,7 +88,8 @@ export function CheckoutForm() {
           pickupTime: orderData.pickupTime,
           customerNotes: orderData.customerNotes,
           phone: orderData.phone,
-          isDraft: true // Marcar como borrador hasta que se confirme el pago
+          paymentMethod: orderData.paymentMethod,
+          isDraft: orderData.paymentMethod === 'MERCADOPAGO' // Solo MercadoPago es borrador
         }),
       })
 
@@ -96,8 +99,13 @@ export function CheckoutForm() {
 
       const order = await orderResponse.json()
       
-      // Redirigir a la página de pago integrada
-      window.location.href = `/checkout/payment?orderId=${order.id}&amount=${total}`
+      // Redirigir según el método de pago elegido
+      if (orderData.paymentMethod === 'MERCADOPAGO') {
+        window.location.href = `/checkout/payment?orderId=${order.id}&amount=${total}`
+      } else {
+        // Para transferencia, crear el pedido directamente y redirigir a confirmación
+        window.location.href = `/checkout/transfer?orderId=${order.id}&amount=${total}`
+      }
       
     } catch (error) {
       console.error('Error creating order:', error)
@@ -275,6 +283,53 @@ export function CheckoutForm() {
             />
           </div>
 
+          {/* Método de Pago */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-3">
+              Método de Pago *
+            </label>
+            <div className="grid md:grid-cols-2 gap-3">
+              <div 
+                className={`border-2 rounded-lg p-4 cursor-pointer transition-all ${
+                  orderData.paymentMethod === 'MERCADOPAGO' 
+                    ? 'border-blue-500 bg-blue-50' 
+                    : 'border-gray-200 hover:border-blue-300'
+                }`}
+                onClick={() => handleInputChange('paymentMethod', 'MERCADOPAGO')}
+              >
+                <div className="flex items-center mb-2">
+                  <CreditCard className="w-5 h-5 text-blue-600 mr-2" />
+                  <span className="font-medium">Tarjeta</span>
+                </div>
+                <p className="text-sm text-gray-600">Pago inmediato y seguro</p>
+                <div className="flex items-center justify-between mt-2">
+                  <span className="text-xs text-gray-500">Powered by</span>
+                  <img 
+                    src="https://http2.mlstatic.com/frontend-assets/ml-web-navigation/ui-navigation/6.6.92/mercadolibre/logo_small.png" 
+                    alt="MercadoPago" 
+                    className="h-4"
+                  />
+                </div>
+              </div>
+
+              <div 
+                className={`border-2 rounded-lg p-4 cursor-pointer transition-all ${
+                  orderData.paymentMethod === 'TRANSFER' 
+                    ? 'border-green-500 bg-green-50' 
+                    : 'border-gray-200 hover:border-green-300'
+                }`}
+                onClick={() => handleInputChange('paymentMethod', 'TRANSFER')}
+              >
+                <div className="flex items-center mb-2">
+                  <Building2 className="w-5 h-5 text-green-600 mr-2" />
+                  <span className="font-medium">Transferencia</span>
+                </div>
+                <p className="text-sm text-gray-600">Desde tu banco</p>
+                <p className="text-xs text-green-600 mt-1">Sin comisiones</p>
+              </div>
+            </div>
+          </div>
+
           {/* Información Importante */}
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
             <h4 className="font-medium text-blue-800 mb-2">Información del Pedido:</h4>
@@ -302,7 +357,8 @@ export function CheckoutForm() {
             disabled={isSubmitting}
             className="w-full bg-pink-600 hover:bg-pink-700 text-white py-3 text-lg font-semibold"
           >
-            {isSubmitting ? 'Creando pedido...' : 'Continuar al Pago'}
+            {isSubmitting ? 'Creando pedido...' : 
+             orderData.paymentMethod === 'MERCADOPAGO' ? 'Continuar al Pago' : 'Crear Pedido'}
           </Button>
         </form>
       </div>

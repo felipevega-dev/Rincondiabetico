@@ -161,7 +161,8 @@ export async function POST(request: NextRequest) {
           pickupDate: pickupDateTime,
           pickupTime: body.pickupTime,
           customerNotes: body.customerNotes,
-          status: body.isDraft ? 'DRAFT' : 'PENDIENTE'
+          status: body.isDraft ? 'DRAFT' : 'PENDIENTE',
+          paymentMethod: body.paymentMethod || null
         }
       })
 

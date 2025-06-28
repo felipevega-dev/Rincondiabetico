@@ -103,10 +103,29 @@ Referencia: #${orderId.slice(-8).toUpperCase()}`
               </Button>
               
               <Button
-                onClick={() => {
+                onClick={async () => {
+                  // Marcar pedido como "esperando confirmación"
+                  try {
+                    await fetch(`/api/orders/${orderId}`, {
+                      method: 'PATCH',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({ 
+                        status: 'ESPERANDO_CONFIRMACION',
+                        paymentMethod: 'TRANSFER' 
+                      })
+                    })
+                  } catch (error) {
+                    console.error('Error updating order:', error)
+                  }
+
                   const message = `Hola! Realicé una transferencia para el pedido #${orderId.slice(-8).toUpperCase()} por $${amount.toLocaleString('es-CL')}. Adjunto el comprobante.`
                   const whatsappUrl = `https://wa.me/56986874406?text=${encodeURIComponent(message)}`
                   window.open(whatsappUrl, '_blank')
+                  
+                  // Redirigir a página de confirmación
+                  setTimeout(() => {
+                    onSuccess('transfer-pending')
+                  }, 1000)
                 }}
                 className="flex-1 bg-green-500 hover:bg-green-600"
               >

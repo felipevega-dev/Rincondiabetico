@@ -1,6 +1,7 @@
 // Enums
 export enum OrderStatus {
   PENDIENTE = 'PENDIENTE',
+  ESPERANDO_CONFIRMACION = 'ESPERANDO_CONFIRMACION',
   PAGADO = 'PAGADO',
   PREPARANDO = 'PREPARANDO',
   LISTO = 'LISTO',
@@ -115,6 +116,7 @@ export type ApiResponse<T = any> = {
 // Constantes
 export const ORDER_STATUS_LABELS: Record<OrderStatus, string> = {
   PENDIENTE: 'Pendiente de pago',
+  ESPERANDO_CONFIRMACION: 'Esperando confirmación',
   PAGADO: 'Pagado',
   PREPARANDO: 'En preparación',
   LISTO: 'Listo para retiro',
