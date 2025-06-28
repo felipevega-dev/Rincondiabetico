@@ -1,7 +1,7 @@
 'use client'
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react'
-import { CartItem } from '@/types'
+import { CartItem, VariationType } from '@/types'
 import { useToast } from '@/components/providers/toast-provider'
 
 interface CartContextType {
@@ -9,9 +9,16 @@ interface CartContextType {
   isLoaded: boolean
   addItem: (product: {
     id: string
+    productId?: string
     name: string
     price: number
     image?: string
+    variations?: {
+      id: string
+      name: string
+      priceChange: number
+      type: VariationType
+    }[]
   }) => void
   removeItem: (itemId: string) => void
   updateQuantity: (itemId: string, quantity: number) => void
@@ -53,12 +60,19 @@ export function CartProvider({ children }: CartProviderProps) {
 
   const addItem = (product: {
     id: string
+    productId?: string
     name: string
     price: number
     image?: string
+    variations?: {
+      id: string
+      name: string
+      priceChange: number
+      type: VariationType
+    }[]
   }) => {
     setItems(currentItems => {
-      const existingItem = currentItems.find(item => item.productId === product.id)
+      const existingItem = currentItems.find(item => item.id === product.id)
       
       if (existingItem) {
         // Usar setTimeout para evitar setState durante render
@@ -66,7 +80,7 @@ export function CartProvider({ children }: CartProviderProps) {
           showToast(`${product.name} cantidad actualizada en el carrito`, 'success')
         }, 0)
         return currentItems.map(item =>
-          item.productId === product.id
+          item.id === product.id
             ? { ...item, quantity: item.quantity + 1 }
             : item
         )
@@ -76,12 +90,13 @@ export function CartProvider({ children }: CartProviderProps) {
           showToast(`${product.name} agregado al carrito`, 'success')
         }, 0)
         const newItem: CartItem = {
-          id: `${product.id}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-          productId: product.id,
+          id: product.id,
+          productId: product.productId || product.id,
           name: product.name,
           price: product.price,
           quantity: 1,
-          image: product.image
+          image: product.image,
+          variations: product.variations
         }
         return [...currentItems, newItem]
       }

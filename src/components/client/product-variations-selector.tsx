@@ -118,45 +118,37 @@ export function ProductVariationsSelector({
       {/* Size Selection */}
       {sizeVariations.length > 0 && (
         <div>
-          <h3 className="text-lg font-medium text-gray-900 mb-3 flex items-center gap-2">
+          <h3 className="text-lg font-medium text-gray-900 mb-2 flex items-center gap-2">
             <Users className="h-5 w-5" />
             Tamaño
           </h3>
-          <div className="grid grid-cols-1 gap-3">
+          <p className="text-sm text-gray-600 mb-3">Selecciona el tamaño ideal para tu ocasión</p>
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
             {sizeVariations.map((variation) => {
               const isSelected = selectedSize?.id === variation.id
               return (
                 <button
                   key={variation.id}
                   onClick={() => handleVariationSelect(variation, VariationType.SIZE)}
-                  className={`p-4 border-2 rounded-lg text-left transition-all ${
+                  className={`p-3 border-2 rounded-lg text-center transition-all ${
                     isSelected 
                       ? 'border-pink-500 bg-pink-50 ring-2 ring-pink-200' 
                       : 'border-gray-200 hover:border-gray-300'
                   }`}
                 >
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <div className="font-medium text-gray-900">{variation.name}</div>
-                      {variation.description && (
-                        <div className="text-sm text-gray-600 mt-1">{variation.description}</div>
-                      )}
-                      {variation.servingSize && (
-                        <div className="text-sm text-gray-500 mt-1">
-                          Para {variation.servingSize} personas
-                        </div>
-                      )}
+                  <div className="font-medium text-gray-900 mb-1">{variation.name}</div>
+                  {variation.servingSize && (
+                    <div className="text-xs text-gray-500 mb-2">
+                      {variation.servingSize} personas
                     </div>
-                    <div className="text-right">
-                      {variation.priceChange !== 0 && (
-                        <div className={`text-sm font-medium ${
-                          variation.priceChange > 0 ? 'text-orange-600' : 'text-green-600'
-                        }`}>
-                          {variation.priceChange > 0 ? '+' : ''}{formatPrice(variation.priceChange)}
-                        </div>
-                      )}
+                  )}
+                  {variation.priceChange !== 0 && (
+                    <div className={`text-sm font-medium ${
+                      variation.priceChange > 0 ? 'text-orange-600' : 'text-green-600'
+                    }`}>
+                      {variation.priceChange > 0 ? '+' : ''}{formatPrice(variation.priceChange)}
                     </div>
-                  </div>
+                  )}
                 </button>
               )
             })}

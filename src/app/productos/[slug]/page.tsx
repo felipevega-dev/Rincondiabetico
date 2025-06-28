@@ -127,13 +127,25 @@ export default async function ProductPage({ params }: ProductPageProps) {
               <div className="mb-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <span className="text-4xl font-bold text-gray-900">
-                      {formatPrice(product.price)}
-                    </span>
-                    {product.variations && product.variations.length > 0 && (
-                      <div className="text-sm text-gray-600 mt-1">
-                        Precio base - Varía según tamaño y opciones
-                      </div>
+                    {product.variations && product.variations.length > 0 ? (
+                      <>
+                        <span className="text-4xl font-bold text-gray-900">
+                          {(() => {
+                            const minPrice = product.price + Math.min(...product.variations.map(v => v.priceChange), 0)
+                            const maxPrice = product.price + Math.max(...product.variations.map(v => v.priceChange), 0)
+                            return minPrice === maxPrice 
+                              ? formatPrice(minPrice)
+                              : `${formatPrice(minPrice)} - ${formatPrice(maxPrice)}`
+                          })()}
+                        </span>
+                        <div className="text-sm text-gray-600 mt-1">
+                          Varía según tamaño y opciones
+                        </div>
+                      </>
+                    ) : (
+                      <span className="text-4xl font-bold text-gray-900">
+                        {formatPrice(product.price)}
+                      </span>
                     )}
                   </div>
                   <div className="text-right">
