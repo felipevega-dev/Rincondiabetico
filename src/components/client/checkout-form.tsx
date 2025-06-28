@@ -70,7 +70,7 @@ export function CheckoutForm() {
       }
 
       // Crear pedido
-      const response = await fetch('/api/orders', {
+      const orderResponse = await fetch('/api/orders', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -89,20 +89,14 @@ export function CheckoutForm() {
         }),
       })
 
-      if (!response.ok) {
+      if (!orderResponse.ok) {
         throw new Error('Error al crear el pedido')
       }
 
-      const order = await response.json()
+      const order = await orderResponse.json()
       
-      // Limpiar carrito
-      clearCart()
-      
-      // Mostrar éxito y redirigir
-      showToast('¡Pedido creado exitosamente!', 'success')
-      
-      // Redirigir a página de confirmación
-      window.location.href = `/pedidos/${order.id}`
+      // Redirigir a la página de pago integrada
+      window.location.href = `/checkout/payment?orderId=${order.id}&amount=${total}`
       
     } catch (error) {
       console.error('Error creating order:', error)
@@ -281,13 +275,23 @@ export function CheckoutForm() {
           </div>
 
           {/* Información Importante */}
-          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-            <h4 className="font-medium text-yellow-800 mb-2">Información Importante:</h4>
-            <ul className="text-sm text-yellow-700 space-y-1">
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+            <h4 className="font-medium text-blue-800 mb-2">Información del Pedido:</h4>
+            <ul className="text-sm text-blue-700 space-y-1">
               <li>• Solo retiro en tienda: Progreso 393, Chiguayante</li>
               <li>• Horario de atención: Lun-Vie 9:00-19:00, Sáb 9:00-17:00, Dom 10:00-15:00</li>
               <li>• El pedido se reservará por 24 horas después de la hora programada</li>
-              <li>• Pago en efectivo o tarjeta al momento del retiro</li>
+            </ul>
+          </div>
+
+          {/* Información de Pago */}
+          <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+            <h4 className="font-medium text-green-800 mb-2">💳 Pago Seguro con MercadoPago:</h4>
+            <ul className="text-sm text-green-700 space-y-1">
+              <li>• Pago con tarjeta de crédito, débito o transferencia</li>
+              <li>• Transacción 100% segura y encriptada</li>
+              <li>• Recibirás confirmación inmediata por email</li>
+              <li>• Tu pedido se preparará una vez confirmado el pago</li>
             </ul>
           </div>
 
@@ -297,7 +301,7 @@ export function CheckoutForm() {
             disabled={isSubmitting}
             className="w-full bg-pink-600 hover:bg-pink-700 text-white py-3 text-lg font-semibold"
           >
-            {isSubmitting ? 'Procesando...' : 'Confirmar Pedido'}
+            {isSubmitting ? 'Creando pedido...' : 'Continuar al Pago'}
           </Button>
         </form>
       </div>
