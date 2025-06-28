@@ -12,7 +12,12 @@ export async function POST(request: NextRequest) {
 
     // Obtener FormData
     const formData = await request.formData()
-    const files = formData.getAll('files') as File[]
+    
+    // Intentar obtener archivos con diferentes nombres de campo
+    let files = formData.getAll('files') as File[]
+    if (!files || files.length === 0) {
+      files = formData.getAll('file') as File[]
+    }
     
     if (!files || files.length === 0) {
       return NextResponse.json({ error: 'No se enviaron archivos' }, { status: 400 })
@@ -38,9 +43,18 @@ export async function POST(request: NextRequest) {
     // Retornar URLs exitosas
     const urls = results.map(r => r.url).filter(Boolean)
     
+    // Para un solo archivo, retornar directamente la URL
+    if (urls.length === 1) {
+      return NextResponse.json({ 
+        success: true,
+        url: urls[0]
+      })
+    }
+    
+    // Para múltiples archivos, retornar array
     return NextResponse.json({ 
       success: true,
-      urls: urls.length === 1 ? urls[0] : urls
+      urls: urls
     })
 
   } catch (error) {

@@ -15,7 +15,7 @@ const productSchema = z.object({
   description: z.string().optional(),
   price: z.number().min(1, 'El precio debe ser mayor a 0'),
   categoryId: z.string().min(1, 'La categoría es requerida'),
-  available: z.boolean().default(true),
+  available: z.boolean(),
 })
 
 type ProductFormData = z.infer<typeof productSchema>
@@ -132,18 +132,34 @@ export function ProductForm() {
   }
 
   const onSubmit = async (data: ProductFormData) => {
+    console.log('Form submitted!')
+    console.log('Form data:', data)
+    console.log('Form errors:', errors)
+    
+    // Validar manualmente
+    if (!data.name || !data.price || !data.categoryId) {
+      console.log('Validation failed')
+      alert('Por favor completa todos los campos requeridos')
+      return
+    }
+    
     setSubmitting(true)
     try {
-      // Subir imágenes primero
-      setUploading(true)
-      const imageUrls = await uploadImages()
-      setUploading(false)
+      // Subir imágenes primero (si hay)
+      let imageUrls: string[] = []
+      if (images.length > 0) {
+        setUploading(true)
+        imageUrls = await uploadImages()
+        setUploading(false)
+      }
 
       // Crear producto
       const productData = {
         ...data,
         images: imageUrls,
       }
+
+      console.log('Product data to send:', productData)
 
       const response = await fetch('/api/products', {
         method: 'POST',
@@ -230,29 +246,17 @@ export function ProductForm() {
 
         {/* Disponibilidad */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Estado
+          <label className="flex items-center">
+            <input
+              type="checkbox"
+              {...register('available')}
+              defaultChecked
+              className="mr-2"
+            />
+            <span className="text-sm font-medium text-gray-700">
+              Producto disponible
+            </span>
           </label>
-          <div className="flex items-center space-x-3">
-            <label className="flex items-center">
-              <input
-                type="radio"
-                {...register('available')}
-                value="true"
-                className="mr-2"
-              />
-              Disponible
-            </label>
-            <label className="flex items-center">
-              <input
-                type="radio"
-                {...register('available')}
-                value="false"
-                className="mr-2"
-              />
-              No disponible
-            </label>
-          </div>
         </div>
       </div>
 
@@ -329,6 +333,11 @@ export function ProductForm() {
           type="submit"
           disabled={submitting || uploading}
           className="flex items-center gap-2"
+          onClick={(e) => {
+            console.log('Submit button clicked!')
+            console.log('Submitting:', submitting)
+            console.log('Uploading:', uploading)
+          }}
         >
           {(submitting || uploading) && (
             <Loader2 className="h-4 w-4 animate-spin" />

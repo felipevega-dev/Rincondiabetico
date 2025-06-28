@@ -10,7 +10,7 @@ const createProductSchema = z.object({
   price: z.number().positive('El precio debe ser mayor a 0'),
   categoryId: z.string().min(1, 'La categoría es requerida'),
   images: z.array(z.string()).optional(),
-  available: z.boolean().default(true),
+  available: z.boolean(),
 })
 
 // GET - Obtener todos los productos (con filtros opcionales)
