@@ -9,7 +9,7 @@ export function Footer() {
           <div className="col-span-1 md:col-span-2">
             <div className="flex items-center gap-2 mb-4">
               <span className="text-3xl">🧁</span>
-              <span className="font-bold text-2xl">Rincón Diabético</span>
+              <span className="font-bold text-2xl">Postres Pasmiño</span>
             </div>
             <p className="text-gray-300 mb-6 max-w-md">
               Postres artesanales especialmente diseñados para personas con diabetes. 
@@ -143,7 +143,7 @@ export function Footer() {
 
         {/* Bottom Bar */}
         <div className="border-t border-gray-700 mt-8 pt-8 text-center text-gray-400">
-          <p>&copy; 2024 Rincón Diabético. Todos los derechos reservados.</p>
+          <p>&copy; 2024 Postres Pasmiño. Todos los derechos reservados.</p>
           <p className="text-sm mt-2">
             Hecho con ❤️ en Chiguayante, Chile
           </p>

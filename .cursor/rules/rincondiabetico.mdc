@@ -9,6 +9,8 @@ alwaysApply: true
 Ecommerce de postres y dulces para tienda física en Chiguayante, Chile.
 Solo retiro en tienda, sin delivery.
 
+## Nombre del negocio: Postres Pasmiño
+
 ## Stack Tecnológico
 - **Frontend/Backend**: Next.js 15 App Router + TypeScript
 - **Styling**: Tailwind CSS v4

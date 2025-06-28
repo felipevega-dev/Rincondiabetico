@@ -1,0 +1,143 @@
+import { NextRequest, NextResponse } from 'next/server'
+import { currentUser } from '@clerk/nextjs/server'
+import { prisma } from '@/lib/prisma'
+import { isAdmin } from '@/lib/auth'
+
+interface UpdateOrderRequest {
+  status?: string
+  adminNotes?: string
+}
+
+const validStatuses = ['PENDIENTE', 'PAGADO', 'PREPARANDO', 'LISTO', 'RETIRADO', 'CANCELADO']
+
+export async function PATCH(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  try {
+    const user = await currentUser()
+    
+    if (!user) {
+      return NextResponse.json(
+        { error: 'No autorizado' },
+        { status: 401 }
+      )
+    }
+
+    // Verificar que es admin
+    const userIsAdmin = await isAdmin()
+    
+    if (!userIsAdmin) {
+      return NextResponse.json(
+        { error: 'Acceso denegado' },
+        { status: 403 }
+      )
+    }
+
+    const body: UpdateOrderRequest = await request.json()
+    
+    // Validar estado si se proporciona
+    if (body.status && !validStatuses.includes(body.status)) {
+      return NextResponse.json(
+        { error: 'Estado inválido' },
+        { status: 400 }
+      )
+    }
+
+    // Verificar que el pedido existe
+    const existingOrder = await prisma.order.findUnique({
+      where: { id: params.id }
+    })
+
+    if (!existingOrder) {
+      return NextResponse.json(
+        { error: 'Pedido no encontrado' },
+        { status: 404 }
+      )
+    }
+
+    // Actualizar el pedido
+    const updatedOrder = await prisma.order.update({
+      where: { id: params.id },
+      data: {
+        ...(body.status && { status: body.status }),
+        ...(body.adminNotes !== undefined && { adminNotes: body.adminNotes }),
+        updatedAt: new Date()
+      },
+      include: {
+        user: true,
+        items: {
+          include: {
+            product: true
+          }
+        },
+        payment: true
+      }
+    })
+
+    return NextResponse.json(updatedOrder)
+
+  } catch (error) {
+    console.error('Error updating order:', error)
+    return NextResponse.json(
+      { error: 'Error interno del servidor' },
+      { status: 500 }
+    )
+  }
+}
+
+export async function GET(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  try {
+    const user = await currentUser()
+    
+    if (!user) {
+      return NextResponse.json(
+        { error: 'No autorizado' },
+        { status: 401 }
+      )
+    }
+
+    // Verificar que es admin
+    const userIsAdmin = await isAdmin()
+    
+    if (!userIsAdmin) {
+      return NextResponse.json(
+        { error: 'Acceso denegado' },
+        { status: 403 }
+      )
+    }
+
+    // Obtener el pedido con toda la información
+    const order = await prisma.order.findUnique({
+      where: { id: params.id },
+      include: {
+        user: true,
+        items: {
+          include: {
+            product: true
+          }
+        },
+        payment: true
+      }
+    })
+
+    if (!order) {
+      return NextResponse.json(
+        { error: 'Pedido no encontrado' },
+        { status: 404 }
+      )
+    }
+
+    return NextResponse.json(order)
+
+  } catch (error) {
+    console.error('Error fetching order:', error)
+    return NextResponse.json(
+      { error: 'Error interno del servidor' },
+      { status: 500 }
+    )
+  }
+} 

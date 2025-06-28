@@ -25,12 +25,8 @@ export default function CartPage() {
     updateQuantity(itemId, newQuantity)
   }
 
-  const handleCheckout = async () => {
-    setIsProcessing(true)
-    setTimeout(() => {
-      alert('Función de checkout en desarrollo')
-      setIsProcessing(false)
-    }, 1000)
+  const handleCheckout = () => {
+    window.location.href = '/checkout'
   }
 
   if (items.length === 0) {

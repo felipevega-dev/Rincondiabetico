@@ -37,7 +37,7 @@ export function Navbar() {
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2">
             <span className="text-2xl">🧁</span>
-            <span className="font-bold text-xl text-gray-900">Rincón Diabético</span>
+            <span className="font-bold text-xl text-gray-900">Postres Pasmiño</span>
           </Link>
 
           {/* Navigation Links - Hidden on mobile */}
@@ -97,15 +97,15 @@ export function Navbar() {
                       </Link>
                     )}
 
-                    {/* Dashboard Access */}
-                    <Link href="/dashboard">
+                    {/* Orders Access */}
+                    <Link href="/pedidos">
                       <Button 
                         variant="ghost" 
                         size="sm" 
                         className="flex items-center gap-2 text-gray-700 hover:text-pink-600 hover:bg-pink-50"
                       >
                         <User className="h-4 w-4" />
-                        <span className="hidden sm:inline">Mi Cuenta</span>
+                        <span className="hidden sm:inline">Mis Pedidos</span>
                       </Button>
                     </Link>
 
