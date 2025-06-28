@@ -14,6 +14,7 @@ interface Product {
   price: number
   images: string[]
   isAvailable: boolean
+  stock: number
   createdAt: string
   category: {
     id: string
@@ -128,26 +129,29 @@ export function ProductsTable() {
   }
 
   return (
-    <div className="overflow-hidden">
+    <div className="overflow-x-auto">
       <table className="min-w-full divide-y divide-gray-200">
         <thead className="bg-gray-50">
           <tr>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-64">
               Producto
             </th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-32">
               Categoría
             </th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-24">
               Precio
             </th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-32">
+              Stock
+            </th>
+            <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-36">
               Estado
             </th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-28">
               Fecha
             </th>
-            <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+            <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider w-32">
               Acciones
             </th>
           </tr>
@@ -155,42 +159,48 @@ export function ProductsTable() {
         <tbody className="bg-white divide-y divide-gray-200">
           {data.products.map((product) => (
             <tr key={product.id} className="hover:bg-gray-50">
-              <td className="px-6 py-4 whitespace-nowrap">
+              <td className="px-4 py-4 whitespace-nowrap">
                 <div className="flex items-center">
-                  <div className="flex-shrink-0 h-12 w-12">
+                  <div className="flex-shrink-0 h-10 w-10">
                     {product.images.length > 0 ? (
                       <Image
                         src={product.images[0]}
                         alt={product.name}
-                        width={48}
-                        height={48}
-                        className="h-12 w-12 rounded-md object-cover"
+                        width={40}
+                        height={40}
+                        className="h-10 w-10 rounded-md object-cover"
                       />
                     ) : (
-                      <div className="h-12 w-12 rounded-md bg-gray-200 flex items-center justify-center">
-                        <Package className="h-6 w-6 text-gray-400" />
+                      <div className="h-10 w-10 rounded-md bg-gray-200 flex items-center justify-center">
+                        <Package className="h-5 w-5 text-gray-400" />
                       </div>
                     )}
                   </div>
-                  <div className="ml-4">
+                  <div className="ml-3">
                     <div className="text-sm font-medium text-gray-900">
                       {product.name}
-                    </div>
-                    <div className="text-sm text-gray-500 max-w-xs truncate">
-                      {product.description}
                     </div>
                   </div>
                 </div>
               </td>
-              <td className="px-6 py-4 whitespace-nowrap">
+              <td className="px-4 py-4 whitespace-nowrap">
                 <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
                   {product.category.name}
                 </span>
               </td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+              <td className="px-4 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                 {formatPrice(product.price)}
               </td>
-              <td className="px-6 py-4 whitespace-nowrap">
+              <td className="px-4 py-4 whitespace-nowrap">
+                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                  product.stock > 10 ? 'bg-green-100 text-green-800' :
+                  product.stock > 0 ? 'bg-orange-100 text-orange-800' :
+                  'bg-red-100 text-red-800'
+                }`}>
+                  {product.stock} unidades
+                </span>
+              </td>
+              <td className="px-4 py-4 whitespace-nowrap">
                 <button
                   onClick={() => toggleAvailability(product.id, product.isAvailable)}
                   disabled={toggling === product.id}
@@ -210,10 +220,10 @@ export function ProductsTable() {
                   {product.isAvailable ? 'Disponible' : 'No disponible'}
                 </button>
               </td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+              <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-600">
                 {new Date(product.createdAt).toLocaleDateString('es-CL')}
               </td>
-              <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+              <td className="px-4 py-4 whitespace-nowrap text-right text-sm font-medium">
                 <div className="flex items-center justify-end gap-2">
                   <Link href={`/admin/productos/${product.id}/editar`}>
                     <Button variant="ghost" size="sm">

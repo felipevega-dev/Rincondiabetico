@@ -65,7 +65,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Validar que los productos existan y estén disponibles
+    // Validar que los productos existan, estén disponibles y tengan stock
     const productIds = body.items.map(item => item.productId)
     const products = await prisma.product.findMany({
       where: {
@@ -80,6 +80,19 @@ export async function POST(request: NextRequest) {
         { error: 'Algunos productos no están disponibles' },
         { status: 400 }
       )
+    }
+
+    // Validar stock disponible
+    const stockMap = new Map(products.map(p => [p.id, p.stock]))
+    for (const item of body.items) {
+      const availableStock = stockMap.get(item.productId)
+      if (availableStock === undefined || availableStock < item.quantity) {
+        const product = products.find(p => p.id === item.productId)
+        return NextResponse.json(
+          { error: `Stock insuficiente para ${product?.name}. Disponible: ${availableStock || 0}` },
+          { status: 400 }
+        )
+      }
     }
 
     // Validar precios
@@ -142,7 +155,7 @@ export async function POST(request: NextRequest) {
       const newOrder = await tx.order.create({
         data: {
           orderNumber,
-          userId: dbUser.id,
+          userId: dbUser!.id,
           total: calculatedTotal,
           pickupDate: pickupDateTime,
           pickupTime: body.pickupTime,
@@ -161,10 +174,22 @@ export async function POST(request: NextRequest) {
         }))
       })
 
+      // Reducir stock de productos
+      for (const item of body.items) {
+        await tx.product.update({
+          where: { id: item.productId },
+          data: {
+            stock: {
+              decrement: item.quantity
+            }
+          }
+        })
+      }
+
       // Actualizar teléfono del usuario si no lo tiene
-      if (!dbUser.phone && body.phone) {
+      if (!dbUser!.phone && body.phone) {
         await tx.user.update({
-          where: { id: dbUser.id },
+          where: { id: dbUser!.id },
           data: { phone: body.phone }
         })
       }
@@ -211,7 +236,7 @@ export async function GET(request: NextRequest) {
 
     // Obtener pedidos del usuario
     const orders = await prisma.order.findMany({
-      where: { userId: dbUser.id },
+      where: { userId: dbUser!.id },
       include: {
         items: {
           include: {

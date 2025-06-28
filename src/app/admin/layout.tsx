@@ -32,7 +32,7 @@ export default async function AdminLayout({
   return (
     <div className="min-h-screen bg-gray-50 flex">
       {/* Sidebar */}
-      <div className="w-64 bg-white shadow-lg">
+      <div className="w-64 bg-white shadow-lg flex-shrink-0">
         <div className="flex flex-col h-full">
           {/* Logo */}
           <div className="flex items-center h-16 px-6 border-b">
@@ -88,8 +88,8 @@ export default async function AdminLayout({
       </div>
 
       {/* Main content */}
-      <div className="flex-1">
-        <main className="p-8">
+      <div className="flex-1 min-w-0 overflow-hidden">
+        <main className="p-8 max-w-7xl mx-auto">
           {children}
         </main>
       </div>

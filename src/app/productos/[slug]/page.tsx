@@ -115,9 +115,20 @@ export default async function ProductPage({ params }: ProductPageProps) {
               </h1>
 
               <div className="mb-6">
-                <span className="text-4xl font-bold text-gray-900">
-                  {formatPrice(product.price)}
-                </span>
+                <div className="flex items-center justify-between">
+                  <span className="text-4xl font-bold text-gray-900">
+                    {formatPrice(product.price)}
+                  </span>
+                  <div className="text-right">
+                    <div className="text-sm text-gray-600">Stock disponible</div>
+                    <div className={`text-lg font-semibold ${
+                      product.stock > 10 ? 'text-green-600' : 
+                      product.stock > 0 ? 'text-orange-600' : 'text-red-600'
+                    }`}>
+                      {product.stock > 0 ? `${product.stock} unidades` : 'Agotado'}
+                    </div>
+                  </div>
+                </div>
               </div>
 
               {product.description && (
@@ -149,6 +160,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
                   productId={product.id}
                   productPrice={product.price}
                   productImage={product.images?.[0]}
+                  productStock={product.stock}
                 />
                 
                 <p className="text-sm text-gray-600 text-center">

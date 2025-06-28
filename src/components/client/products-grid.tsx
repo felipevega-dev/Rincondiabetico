@@ -5,9 +5,8 @@ import { useSearchParams } from 'next/navigation'
 import Image from 'next/image'
 import Link from 'next/link'
 import { formatPrice } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
-import { ShoppingCart, Package } from 'lucide-react'
-import { useCart } from '@/components/providers/cart-provider'
+import { AddToCartButton } from '@/components/client/add-to-cart-button'
+import { Package } from 'lucide-react'
 
 interface Product {
   id: string
@@ -17,6 +16,7 @@ interface Product {
   price: number
   images: string[]
   isAvailable: boolean
+  stock: number
   category: {
     id: string
     name: string
@@ -64,7 +64,7 @@ export function ProductsGrid() {
     }
   }
 
-  const { addItem } = useCart()
+
 
   if (loading) {
     return (
@@ -150,27 +150,28 @@ export function ProductsGrid() {
                   </p>
                 )}
 
-                <div className="flex items-center justify-between">
-                  <span className="text-xl font-bold text-gray-900">
-                    {formatPrice(product.price)}
-                  </span>
+                <div className="flex flex-col gap-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xl font-bold text-gray-900">
+                      {formatPrice(product.price)}
+                    </span>
+                    {product.stock > 0 && (
+                      <span className="text-sm text-gray-600">
+                        Stock: {product.stock}
+                      </span>
+                    )}
+                  </div>
                   
-                  <Button
-                    onClick={(e) => {
-                      e.preventDefault()
-                      addItem({
-                        id: product.id,
-                        name: product.name,
-                        price: product.price,
-                        image: product.images[0]
-                      })
-                    }}
-                    size="sm"
-                    className="flex items-center gap-2"
-                  >
-                    <ShoppingCart className="h-4 w-4" />
-                    Agregar
-                  </Button>
+                  <div onClick={(e) => e.preventDefault()}>
+                    <AddToCartButton
+                      productId={product.id}
+                      productName={product.name}
+                      productPrice={product.price}
+                      productImage={product.images[0]}
+                      productStock={product.stock}
+                      className="w-full"
+                    />
+                  </div>
                 </div>
               </div>
             </Link>

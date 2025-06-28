@@ -2,7 +2,26 @@ import { Suspense } from 'react'
 import { ProductsTable } from '@/components/admin/products-table'
 import { ProductForm } from '@/components/admin/product-form'
 
-export default function AdminProductsPage() {
+async function getCategories() {
+  try {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/categories`, {
+      cache: 'no-store'
+    })
+    
+    if (!response.ok) {
+      throw new Error('Failed to fetch categories')
+    }
+    
+    return await response.json()
+  } catch (error) {
+    console.error('Error fetching categories:', error)
+    return []
+  }
+}
+
+export default async function AdminProductsPage() {
+  const categories = await getCategories()
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -21,7 +40,11 @@ export default function AdminProductsPage() {
           <h2 className="text-lg font-medium text-gray-900">Agregar Nuevo Producto</h2>
         </div>
         <div className="p-6">
-          <ProductForm />
+          <ProductForm 
+            categories={categories} 
+            embedded={true}
+            showHeader={false}
+          />
         </div>
       </div>
 

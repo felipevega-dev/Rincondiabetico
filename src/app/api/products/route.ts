@@ -8,9 +8,10 @@ const createProductSchema = z.object({
   name: z.string().min(1, 'El nombre es requerido'),
   description: z.string().optional(),
   price: z.number().positive('El precio debe ser mayor a 0'),
+  stock: z.number().min(0, 'El stock no puede ser negativo').default(0),
   categoryId: z.string().min(1, 'La categoría es requerida'),
   images: z.array(z.string()).optional(),
-  available: z.boolean(),
+  isAvailable: z.boolean(),
 })
 
 // GET - Obtener todos los productos (con filtros opcionales)
@@ -127,9 +128,10 @@ export async function POST(request: NextRequest) {
         name: validatedData.name,
         description: validatedData.description,
         price: validatedData.price, // Precio en pesos chilenos
+        stock: validatedData.stock,
         categoryId: validatedData.categoryId,
         images: validatedData.images || [],
-        isAvailable: validatedData.available,
+        isAvailable: validatedData.isAvailable,
         slug,
       },
       include: {

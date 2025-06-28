@@ -16,6 +16,7 @@ interface CartContextType {
   removeItem: (itemId: string) => void
   updateQuantity: (itemId: string, quantity: number) => void
   clearCart: () => void
+  getItemQuantity: (productId: string) => number
   itemCount: number
   subtotal: number
   total: number
@@ -133,6 +134,11 @@ export function CartProvider({ children }: CartProviderProps) {
     return getSubtotal()
   }
 
+  const getItemQuantity = (productId: string) => {
+    const item = items.find(item => item.productId === productId)
+    return item ? item.quantity : 0
+  }
+
   const value: CartContextType = {
     items,
     isLoaded,
@@ -140,6 +146,7 @@ export function CartProvider({ children }: CartProviderProps) {
     removeItem,
     updateQuantity,
     clearCart,
+    getItemQuantity,
     itemCount: getItemCount(),
     subtotal: getSubtotal(),
     total: getTotal(),

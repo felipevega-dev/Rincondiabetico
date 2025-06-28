@@ -8,9 +8,10 @@ const updateProductSchema = z.object({
   name: z.string().min(1).optional(),
   description: z.string().optional(),
   price: z.number().min(1).optional(),
+  stock: z.number().min(0).optional(),
   categoryId: z.string().optional(),
   images: z.array(z.string()).optional(),
-  available: z.boolean().optional(),
+  isAvailable: z.boolean().optional(),
 })
 
 // GET - Obtener producto individual

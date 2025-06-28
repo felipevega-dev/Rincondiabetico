@@ -56,23 +56,46 @@ export async function PATCH(
       )
     }
 
-    // Actualizar el pedido
-    const updatedOrder = await prisma.order.update({
-      where: { id: params.id },
-      data: {
-        ...(body.status && { status: body.status }),
-        ...(body.adminNotes !== undefined && { adminNotes: body.adminNotes }),
-        updatedAt: new Date()
-      },
-      include: {
-        user: true,
-        items: {
-          include: {
-            product: true
-          }
-        },
-        payment: true
+    // Actualizar el pedido con manejo de stock
+    const updatedOrder = await prisma.$transaction(async (tx) => {
+      // Si se está cancelando el pedido, restaurar stock
+      if (body.status === 'CANCELADO' && existingOrder.status !== 'CANCELADO') {
+        const orderItems = await tx.orderItem.findMany({
+          where: { orderId: params.id },
+          include: { product: true }
+        })
+
+        // Restaurar stock de cada producto
+        for (const item of orderItems) {
+          await tx.product.update({
+            where: { id: item.productId },
+            data: {
+              stock: {
+                increment: item.quantity
+              }
+            }
+          })
+        }
       }
+
+      // Actualizar el pedido
+      return await tx.order.update({
+        where: { id: params.id },
+        data: {
+          ...(body.status && { status: body.status as any }),
+          ...(body.adminNotes !== undefined && { adminNotes: body.adminNotes }),
+          updatedAt: new Date()
+        },
+        include: {
+          user: true,
+          items: {
+            include: {
+              product: true
+            }
+          },
+          payment: true
+        }
+      })
     })
 
     return NextResponse.json(updatedOrder)
