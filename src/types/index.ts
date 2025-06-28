@@ -39,6 +39,20 @@ export type Category = {
   updatedAt: Date
 }
 
+export type Banner = {
+  id: string
+  title: string
+  subtitle?: string
+  description?: string
+  image: string
+  buttonText?: string
+  buttonLink?: string
+  order: number
+  isActive: boolean
+  createdAt: Date
+  updatedAt: Date
+}
+
 export type Product = {
   id: string
   name: string

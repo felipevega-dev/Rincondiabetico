@@ -48,6 +48,25 @@ model Category {
   @@map("categories")
 }
 
+// Banners del carousel
+model Banner {
+  id          String   @id @default(cuid())
+  title       String
+  subtitle    String?
+  description String?
+  image       String   // URL de Cloudinary
+  buttonText  String?
+  buttonLink  String?
+  order       Int      @default(0) // Orden de aparición
+  isActive    Boolean  @default(true)
+  
+  // Metadatos
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@map("banners")
+}
+
 // Productos
 model Product {
   id          String   @id @default(cuid())
