@@ -58,7 +58,7 @@ export function CartProvider({ children }: CartProviderProps) {
     }
   }, [items, isLoaded])
 
-  const addItem = (product: {
+  const addItem = async (product: {
     id: string
     productId?: string
     name: string
@@ -71,36 +71,48 @@ export function CartProvider({ children }: CartProviderProps) {
       type: VariationType
     }[]
   }) => {
-    setItems(currentItems => {
-      const existingItem = currentItems.find(item => item.id === product.id)
-      
-      if (existingItem) {
-        // Usar setTimeout para evitar setState durante render
-        setTimeout(() => {
-          showToast(`${product.name} cantidad actualizada en el carrito`, 'success')
-        }, 0)
-        return currentItems.map(item =>
-          item.id === product.id
-            ? { ...item, quantity: item.quantity + 1 }
-            : item
-        )
-      } else {
-        // Usar setTimeout para evitar setState durante render
-        setTimeout(() => {
-          showToast(`${product.name} agregado al carrito`, 'success')
-        }, 0)
-        const newItem: CartItem = {
-          id: product.id,
-          productId: product.productId || product.id,
-          name: product.name,
-          price: product.price,
-          quantity: 1,
-          image: product.image,
-          variations: product.variations
+    try {
+      const productId = product.productId || product.id
+      const response = await fetch(`/api/products/${productId}/stock`)
+      const { stock } = await response.json()
+
+      setItems(currentItems => {
+        const existingItem = currentItems.find(item => item.id === product.id)
+        
+        if (existingItem) {
+          if (existingItem.quantity >= stock) {
+            showToast(`No hay más stock disponible de ${product.name}`, 'error')
+            return currentItems
+          }
+
+          setTimeout(() => {
+            showToast(`${product.name} cantidad actualizada en el carrito`, 'success')
+          }, 0)
+          return currentItems.map(item =>
+            item.id === product.id
+              ? { ...item, quantity: item.quantity + 1 }
+              : item
+          )
+        } else {
+          setTimeout(() => {
+            showToast(`${product.name} agregado al carrito`, 'success')
+          }, 0)
+          const newItem: CartItem = {
+            id: product.id,
+            productId: product.productId || product.id,
+            name: product.name,
+            price: product.price,
+            quantity: 1,
+            image: product.image,
+            variations: product.variations
+          }
+          return [...currentItems, newItem]
         }
-        return [...currentItems, newItem]
-      }
-    })
+      })
+    } catch (error) {
+      console.error('Error checking stock:', error)
+      showToast('Error al verificar stock disponible', 'error')
+    }
   }
 
   const removeItem = (itemId: string) => {
@@ -116,10 +128,26 @@ export function CartProvider({ children }: CartProviderProps) {
     })
   }
 
-  const updateQuantity = (itemId: string, quantity: number) => {
+  const updateQuantity = async (itemId: string, quantity: number) => {
     if (quantity <= 0) {
       removeItem(itemId)
       return
+    }
+
+    // Validar stock antes de actualizar
+    const item = items.find(item => item.id === itemId)
+    if (!item) return
+
+    try {
+      const response = await fetch(`/api/products/${item.productId}/stock`)
+      const { stock } = await response.json()
+      
+      if (quantity > stock) {
+        showToast(`Solo hay ${stock} unidades disponibles`, 'error')
+        quantity = stock
+      }
+    } catch (error) {
+      console.error('Error checking stock:', error)
     }
 
     setItems(currentItems =>

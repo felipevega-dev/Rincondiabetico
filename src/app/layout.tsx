@@ -14,8 +14,11 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Rincón Diabético - Postres Artesanales",
-  description: "Deliciosos postres artesanales en Chiguayante, Chile. Solo retiro en tienda.",
+  title: {
+    default: 'Dulces Pasmiño - Postres Artesanales Sin Azúcar',
+    template: '%s | Dulces Pasmiño'
+  },
+  description: 'Postres artesanales sin azúcar refinada, especialmente diseñados para personas con diabetes. Ubicados en Chiguayante, Chile.',
 };
 
 export default function RootLayout({

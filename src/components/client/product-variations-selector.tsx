@@ -137,11 +137,6 @@ export function ProductVariationsSelector({
                   }`}
                 >
                   <div className="font-medium text-gray-900 mb-1">{variation.name}</div>
-                  {variation.servingSize && (
-                    <div className="text-xs text-gray-500 mb-2">
-                      {variation.servingSize} personas
-                    </div>
-                  )}
                   {variation.priceChange !== 0 && (
                     <div className={`text-sm font-medium ${
                       variation.priceChange > 0 ? 'text-orange-600' : 'text-green-600'

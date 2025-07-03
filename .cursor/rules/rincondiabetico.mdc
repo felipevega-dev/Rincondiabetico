@@ -3,7 +3,7 @@ description:
 globs: 
 alwaysApply: true
 ---
-# Rincón Diabético - Ecommerce de Postres
+# Dulces Pasmiño - Ecommerce de Postres
 
 ## Contexto del Proyecto
 Ecommerce de postres y dulces para tienda física en Chiguayante, Chile.
@@ -77,7 +77,7 @@ src/
 ## Información de la Tienda
 - **Dirección**: Progreso 393, Chiguayante, Región del Biobío, Chile
 - **WhatsApp**: +56 9 1234 5678
-- **Email**: contacto@rincondiabetico.cl
+- **Email**: contacto@dulcespasmiño.cl
 - **Horarios**: 
   - Lunes a Viernes: 9:00 - 19:00
   - Sábados: 9:00 - 17:00
