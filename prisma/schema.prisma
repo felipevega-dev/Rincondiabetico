@@ -12,19 +12,27 @@ datasource db {
 
 // Usuarios (sincronizado con Clerk)
 model User {
-  id        String   @id @default(cuid())
-  clerkId   String   @unique
-  email     String   @unique
-  firstName String?
-  lastName  String?
-  phone     String?
+  id            String   @id @default(cuid())
+  clerkId       String   @unique
+  email         String   @unique
+  firstName     String?
+  lastName      String?
+  phone         String?
+  birthDate     DateTime?
+  address       String?
+  city          String?
+  region        String?
+  
+  // Preferencias
+  notifyEmail   Boolean  @default(true)
+  notifyWhatsapp Boolean @default(true)
   
   // Metadatos
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
   
   // Relaciones
-  orders    Order[]
+  orders        Order[]
   
   @@map("users")
 }

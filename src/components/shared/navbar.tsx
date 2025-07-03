@@ -193,7 +193,7 @@ export function Navbar() {
                           }
                         }}
                         userProfileMode="navigation"
-                        userProfileUrl="/pedidos"
+                        userProfileUrl="/cuenta"
                       />
                     </div>
                   ) : (

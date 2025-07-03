@@ -6,6 +6,7 @@ import { ClerkProvider } from '@clerk/nextjs'
 import { CartProvider } from '@/components/providers/cart-provider'
 import { Toaster } from 'sonner'
 import { clerkTranslations } from '@/lib/clerk-localization'
+import { clerkConfig } from '@/lib/clerk-config'
 import { Footer } from '@/components/shared/footer'
 import { FloatingWhatsAppButton } from '@/components/client/whatsapp-buttons'
 
@@ -24,6 +25,7 @@ export default function RootLayout({
   return (
     <ClerkProvider 
       localization={clerkTranslations}
+      {...clerkConfig}
       appearance={{
         variables: {
           colorPrimary: '#ec4899',
