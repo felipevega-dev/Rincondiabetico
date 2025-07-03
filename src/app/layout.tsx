@@ -6,6 +6,7 @@ import { Navbar } from '@/components/shared/navbar'
 import { Footer } from '@/components/shared/footer'
 import { CartProvider } from '@/components/providers/cart-provider'
 import { ToastProvider } from '@/components/providers/toast-provider'
+import { FloatingWhatsAppButton } from '@/components/client/whatsapp-buttons'
 
 const inter = Inter({ 
   subsets: ["latin"],
@@ -33,6 +34,7 @@ export default function RootLayout({
               <Navbar />
               {children}
               <Footer />
+              <FloatingWhatsAppButton />
             </CartProvider>
           </ToastProvider>
         </body>

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { currentUser } from '@clerk/nextjs/server'
 import { prisma } from '@/lib/prisma'
 import { getOrCreateUser } from '@/lib/auth'
+import { sendOrderConfirmationEmail } from '@/lib/email'
 
 interface CreateOrderRequest {
   items: Array<{
@@ -15,6 +16,7 @@ interface CreateOrderRequest {
   customerNotes?: string
   phone: string
   isDraft?: boolean
+  paymentMethod?: string
 }
 
 // Generar número de orden único
@@ -213,6 +215,34 @@ export async function POST(request: NextRequest) {
         user: true
       }
     })
+
+    // Enviar email de confirmación si no es borrador
+    if (!body.isDraft && completeOrder && user.emailAddresses?.[0]?.emailAddress && completeOrder.pickupDate) {
+      try {
+        await sendOrderConfirmationEmail({
+          orderNumber: completeOrder.orderNumber,
+          customerName: (user.firstName && user.lastName) 
+            ? `${user.firstName} ${user.lastName}` 
+            : user.username || 'Cliente',
+          customerEmail: user.emailAddresses[0].emailAddress,
+          items: completeOrder.items.map(item => ({
+            name: item.product.name,
+            quantity: item.quantity,
+            price: item.price
+          })),
+          total: completeOrder.total,
+          pickupDate: completeOrder.pickupDate.toLocaleDateString('es-CL'),
+          pickupTime: completeOrder.pickupTime || '',
+          customerNotes: completeOrder.customerNotes || undefined,
+          status: completeOrder.status
+        })
+        
+        console.log(`Email de confirmación enviado para pedido ${completeOrder.orderNumber}`)
+      } catch (emailError) {
+        console.error('Error enviando email de confirmación:', emailError)
+        // No fallar la creación del pedido por error de email
+      }
+    }
 
     return NextResponse.json(completeOrder, { status: 201 })
 
