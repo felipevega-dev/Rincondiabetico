@@ -1,11 +1,11 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useToast } from '@/components/providers/toast-provider'
 import { useCart } from '@/components/providers/cart-provider'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { CreditCard, Lock, AlertCircle } from 'lucide-react'
+import { toast } from 'sonner'
 
 // Declarar MercadoPago global
 declare global {
@@ -29,7 +29,6 @@ interface MercadoPagoPaymentProps {
 }
 
 export function MercadoPagoPayment({ orderId, amount, onSuccess, onError }: MercadoPagoPaymentProps) {
-  const { showToast } = useToast()
   const { clearCart } = useCart()
   const [loading, setLoading] = useState(false)
   const [sdkLoaded, setSdkLoaded] = useState(false)
@@ -66,7 +65,7 @@ export function MercadoPagoPayment({ orderId, amount, onSuccess, onError }: Merc
     }
     script.onerror = () => {
       console.error('Error loading MercadoPago SDK')
-      showToast('Error al cargar MercadoPago. Recarga la página.', 'error')
+      toast.error('Error al cargar MercadoPago. Recarga la página.')
     }
     document.head.appendChild(script)
   }
@@ -76,7 +75,7 @@ export function MercadoPagoPayment({ orderId, amount, onSuccess, onError }: Merc
     
     if (!publicKey) {
       console.error('MercadoPago public key not found')
-      showToast('Configuración de MercadoPago no encontrada', 'error')
+      toast.error('Configuración de MercadoPago no encontrada')
       return
     }
 
@@ -111,7 +110,7 @@ export function MercadoPagoPayment({ orderId, amount, onSuccess, onError }: Merc
       console.log('MercadoPago initialized successfully')
     } catch (error) {
       console.error('Error initializing MercadoPago:', error)
-      showToast('Error al inicializar MercadoPago', 'error')
+      toast.error('Error al inicializar MercadoPago')
     }
   }
 
@@ -142,22 +141,22 @@ export function MercadoPagoPayment({ orderId, amount, onSuccess, onError }: Merc
     const { cardNumber, expiryMonth, expiryYear, securityCode, cardholderName } = formData
     
     if (!cardNumber || cardNumber.replace(/\s/g, '').length < 13) {
-      showToast('Número de tarjeta inválido', 'error')
+      toast.error('Número de tarjeta inválido')
       return false
     }
     
     if (!expiryMonth || !expiryYear) {
-      showToast('Fecha de vencimiento requerida', 'error')
+      toast.error('Fecha de vencimiento requerida')
       return false
     }
     
     if (!securityCode || securityCode.length < 3) {
-      showToast('Código de seguridad inválido', 'error')
+      toast.error('Código de seguridad inválido')
       return false
     }
     
     if (!cardholderName.trim()) {
-      showToast('Nombre del titular requerido', 'error')
+      toast.error('Nombre del titular requerido')
       return false
     }
 
@@ -217,7 +216,7 @@ export function MercadoPagoPayment({ orderId, amount, onSuccess, onError }: Merc
     if (!validateForm()) return
     
     if (!sdkLoaded || !mp) {
-      showToast('SDK de MercadoPago no cargado. Intenta nuevamente.', 'error')
+      toast.error('SDK de MercadoPago no cargado. Intenta nuevamente.')
       return
     }
     
@@ -245,14 +244,14 @@ export function MercadoPagoPayment({ orderId, amount, onSuccess, onError }: Merc
 
       if (response.ok) {
         if (result.status === 'approved') {
-          showToast('¡Pago aprobado exitosamente!', 'success')
+          toast.success('¡Pago aprobado exitosamente!')
           clearCart()
           onSuccess(result.id)
         } else if (result.status === 'pending') {
-          showToast('Pago en proceso de verificación', 'info')
+          toast.info('Pago en proceso de verificación')
           onSuccess(result.id)
         } else {
-          showToast(`Pago rechazado: ${result.detail}`, 'error')
+          toast.error(`Pago rechazado: ${result.detail}`)
           onError(result.detail || 'Pago rechazado')
         }
       } else {
@@ -260,7 +259,7 @@ export function MercadoPagoPayment({ orderId, amount, onSuccess, onError }: Merc
       }
     } catch (error) {
       console.error('Payment error:', error)
-      showToast(error instanceof Error ? error.message : 'Error al procesar el pago', 'error')
+      toast.error(error instanceof Error ? error.message : 'Error al procesar el pago')
       onError(error instanceof Error ? error.message : 'Error desconocido')
     } finally {
       setLoading(false)
@@ -400,8 +399,6 @@ export function MercadoPagoPayment({ orderId, amount, onSuccess, onError }: Merc
             required
           />
         </div>
-
-
 
         {/* Cuotas - Solo para tarjetas de crédito */}
         {selectedMethod && !selectedMethod.includes('debit') && (

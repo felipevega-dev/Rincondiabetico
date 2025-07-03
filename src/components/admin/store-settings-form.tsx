@@ -8,7 +8,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { Card } from '@/components/ui/card'
 import { Save, Clock, Globe, Phone, Mail } from 'lucide-react'
 import { StoreSettings } from '@/types'
-import { useToast } from '@/components/providers/toast-provider'
+import { toast } from 'sonner'
 
 const SCHEDULE_PERIODS = [
   { key: 'weekdays', label: 'Lunes a Viernes' },
@@ -18,7 +18,6 @@ const SCHEDULE_PERIODS = [
 
 export function StoreSettingsForm() {
   const router = useRouter()
-  const { showToast } = useToast()
 
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
@@ -66,7 +65,7 @@ export function StoreSettingsForm() {
       }
     } catch (error) {
       console.error('Error fetching settings:', error)
-      showToast('Error al cargar configuración', 'error')
+      toast.error('Error al cargar configuración')
     } finally {
       setLoading(false)
     }
@@ -137,16 +136,15 @@ export function StoreSettingsForm() {
       })
 
       if (response.ok) {
-        showToast('Configuración guardada correctamente', 'success')
+        toast.success('Configuración guardada correctamente')
       } else {
         const error = await response.json()
         throw new Error(error.error || 'Error al guardar configuración')
       }
     } catch (error) {
       console.error('Error saving settings:', error)
-      showToast(
-        error instanceof Error ? error.message : 'Error al guardar configuración',
-        'error'
+      toast.error(
+        error instanceof Error ? error.message : 'Error al guardar configuración'
       )
     } finally {
       setSaving(false)

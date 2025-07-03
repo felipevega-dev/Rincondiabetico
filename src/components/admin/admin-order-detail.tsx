@@ -1,7 +1,6 @@
 'use client'
 
 import { useState } from 'react'
-import { useToast } from '@/components/providers/toast-provider'
 import Link from 'next/link'
 import Image from 'next/image'
 import { 
@@ -22,6 +21,7 @@ import {
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
+import { toast } from 'sonner'
 
 interface AdminOrderDetailProps {
   order: {
@@ -104,7 +104,6 @@ export function AdminOrderDetail({ order }: AdminOrderDetailProps) {
   const [isUpdating, setIsUpdating] = useState(false)
   const [isEditingNotes, setIsEditingNotes] = useState(false)
   const [adminNotes, setAdminNotes] = useState(order.adminNotes || '')
-  const { showToast } = useToast()
 
   const status = statusConfig[order.status as keyof typeof statusConfig] || statusConfig.PENDIENTE
   const StatusIcon = status.icon
@@ -151,14 +150,14 @@ export function AdminOrderDetail({ order }: AdminOrderDetailProps) {
         throw new Error('Error al actualizar el estado')
       }
 
-      showToast(`Pedido actualizado a ${statusConfig[newStatus as keyof typeof statusConfig]?.label}`, 'success')
+      toast.success(`Pedido actualizado a ${statusConfig[newStatus as keyof typeof statusConfig]?.label}`)
       
       // Recargar la página para mostrar los cambios
       window.location.reload()
       
     } catch (error) {
       console.error('Error updating order:', error)
-      showToast('Error al actualizar el pedido', 'error')
+      toast.error('Error al actualizar el pedido')
     } finally {
       setIsUpdating(false)
     }
@@ -180,7 +179,7 @@ export function AdminOrderDetail({ order }: AdminOrderDetailProps) {
         throw new Error('Error al guardar las notas')
       }
 
-      showToast('Notas guardadas exitosamente', 'success')
+      toast.success('Notas guardadas exitosamente')
       setIsEditingNotes(false)
       
       // Recargar la página para mostrar los cambios
@@ -188,7 +187,7 @@ export function AdminOrderDetail({ order }: AdminOrderDetailProps) {
       
     } catch (error) {
       console.error('Error saving notes:', error)
-      showToast('Error al guardar las notas', 'error')
+      toast.error('Error al guardar las notas')
     } finally {
       setIsUpdating(false)
     }

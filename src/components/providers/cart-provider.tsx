@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react'
 import { CartItem, VariationType } from '@/types'
-import { useToast } from '@/components/providers/toast-provider'
+import { toast } from 'sonner'
 
 interface CartContextType {
   items: CartItem[]
@@ -38,7 +38,6 @@ interface CartProviderProps {
 export function CartProvider({ children }: CartProviderProps) {
   const [items, setItems] = useState<CartItem[]>([])
   const [isLoaded, setIsLoaded] = useState(false)
-  const { showToast } = useToast()
 
   useEffect(() => {
     const savedCart = localStorage.getItem('rincon-diabetico-cart')
@@ -81,12 +80,12 @@ export function CartProvider({ children }: CartProviderProps) {
         
         if (existingItem) {
           if (existingItem.quantity >= stock) {
-            showToast(`No hay más stock disponible de ${product.name}`, 'error')
+            toast.error(`No hay más stock disponible de ${product.name}`)
             return currentItems
           }
 
           setTimeout(() => {
-            showToast(`${product.name} cantidad actualizada en el carrito`, 'success')
+            toast.success(`${product.name} cantidad actualizada en el carrito`)
           }, 0)
           return currentItems.map(item =>
             item.id === product.id
@@ -95,7 +94,7 @@ export function CartProvider({ children }: CartProviderProps) {
           )
         } else {
           setTimeout(() => {
-            showToast(`${product.name} agregado al carrito`, 'success')
+            toast.success(`${product.name} agregado al carrito`)
           }, 0)
           const newItem: CartItem = {
             id: product.id,
@@ -111,7 +110,7 @@ export function CartProvider({ children }: CartProviderProps) {
       })
     } catch (error) {
       console.error('Error checking stock:', error)
-      showToast('Error al verificar stock disponible', 'error')
+      toast.error('Error al verificar stock disponible')
     }
   }
 
@@ -119,9 +118,8 @@ export function CartProvider({ children }: CartProviderProps) {
     setItems(currentItems => {
       const item = currentItems.find(item => item.id === itemId)
       if (item) {
-        // Usar setTimeout para evitar setState durante render
         setTimeout(() => {
-          showToast(`${item.name} removido del carrito`, 'info')
+          toast.info(`${item.name} removido del carrito`)
         }, 0)
       }
       return currentItems.filter(item => item.id !== itemId)
@@ -134,7 +132,6 @@ export function CartProvider({ children }: CartProviderProps) {
       return
     }
 
-    // Validar stock antes de actualizar
     const item = items.find(item => item.id === itemId)
     if (!item) return
 
@@ -143,7 +140,7 @@ export function CartProvider({ children }: CartProviderProps) {
       const { stock } = await response.json()
       
       if (quantity > stock) {
-        showToast(`Solo hay ${stock} unidades disponibles`, 'error')
+        toast.error(`Solo hay ${stock} unidades disponibles`)
         quantity = stock
       }
     } catch (error) {
@@ -159,9 +156,8 @@ export function CartProvider({ children }: CartProviderProps) {
 
   const clearCart = () => {
     setItems([])
-    // Usar setTimeout para evitar setState durante render
     setTimeout(() => {
-      showToast('Carrito vaciado', 'info')
+      toast.info('Carrito vaciado')
     }, 0)
   }
 

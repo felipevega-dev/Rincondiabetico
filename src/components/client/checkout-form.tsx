@@ -2,7 +2,6 @@
 
 import { useState } from 'react'
 import { useCart } from '@/components/providers/cart-provider'
-import { useToast } from '@/components/providers/toast-provider'
 import { useUser } from '@clerk/nextjs'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -10,6 +9,7 @@ import { Textarea } from '@/components/ui/textarea'
 import Link from 'next/link'
 import Image from 'next/image'
 import { Calendar, Clock, ShoppingBag, User, Phone, MessageSquare, CreditCard, Building2 } from 'lucide-react'
+import { toast } from 'sonner'
 
 interface OrderData {
   pickupDate: string
@@ -21,7 +21,6 @@ interface OrderData {
 
 export function CheckoutForm() {
   const { items, total, clearCart } = useCart()
-  const { showToast } = useToast()
   const { user } = useUser()
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [orderData, setOrderData] = useState<OrderData>({
@@ -62,12 +61,12 @@ export function CheckoutForm() {
     try {
       // Validaciones
       if (!orderData.pickupDate || !orderData.pickupTime) {
-        showToast('Por favor selecciona fecha y hora de retiro', 'error')
+        toast.error('Por favor selecciona fecha y hora de retiro')
         return
       }
 
       if (!orderData.phone) {
-        showToast('Por favor ingresa tu número de teléfono', 'error')
+        toast.error('Por favor ingresa tu número de teléfono')
         return
       }
 
@@ -109,7 +108,7 @@ export function CheckoutForm() {
       
     } catch (error) {
       console.error('Error creating order:', error)
-      showToast('Error al procesar el pedido. Inténtalo nuevamente.', 'error')
+      toast.error('Error al procesar el pedido. Inténtalo nuevamente.')
     } finally {
       setIsSubmitting(false)
     }

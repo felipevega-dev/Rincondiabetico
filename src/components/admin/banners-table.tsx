@@ -8,12 +8,11 @@ import { Badge } from '@/components/ui/badge'
 import { Card } from '@/components/ui/card'
 import { Edit, Trash2, Plus, Eye, EyeOff, ArrowUp, ArrowDown } from 'lucide-react'
 import { Banner } from '@/types'
-import { useToast } from '@/components/providers/toast-provider'
+import { toast } from 'sonner'
 
 export function BannersTable() {
   const [banners, setBanners] = useState<Banner[]>([])
   const [loading, setLoading] = useState(true)
-  const { showToast } = useToast()
 
   useEffect(() => {
     fetchBanners()
@@ -28,7 +27,7 @@ export function BannersTable() {
       }
     } catch (error) {
       console.error('Error fetching banners:', error)
-      showToast('Error al cargar banners', 'error')
+      toast.error('Error al cargar banners')
     } finally {
       setLoading(false)
     }
@@ -56,14 +55,13 @@ export function BannersTable() {
             b.id === id ? { ...b, isActive: !isActive } : b
           )
         )
-        showToast(
-          `Banner ${!isActive ? 'activado' : 'desactivado'} correctamente`,
-          'success'
+        toast.success(
+          `Banner ${!isActive ? 'activado' : 'desactivado'} correctamente`
         )
       }
     } catch (error) {
       console.error('Error toggling banner:', error)
-      showToast('Error al cambiar estado del banner', 'error')
+      toast.error('Error al cambiar estado del banner')
     }
   }
 
@@ -77,11 +75,11 @@ export function BannersTable() {
 
       if (response.ok) {
         setBanners(prev => prev.filter(b => b.id !== id))
-        showToast('Banner eliminado correctamente', 'success')
+        toast.success('Banner eliminado correctamente')
       }
     } catch (error) {
       console.error('Error deleting banner:', error)
-      showToast('Error al eliminar banner', 'error')
+      toast.error('Error al eliminar banner')
     }
   }
 
@@ -111,10 +109,10 @@ export function BannersTable() {
 
       // Recargar banners
       fetchBanners()
-      showToast('Orden actualizado correctamente', 'success')
+      toast.success('Orden actualizado correctamente')
     } catch (error) {
       console.error('Error reordering banner:', error)
-      showToast('Error al reordenar banner', 'error')
+      toast.error('Error al reordenar banner')
     }
   }
 

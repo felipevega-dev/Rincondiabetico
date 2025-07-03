@@ -45,13 +45,15 @@ export function CategoriesFilter() {
     }
   }
 
-  const handleCategoryFilter = (categoryId: string | null) => {
+  const handleCategoryFilter = (categoryId: string | null, categoryName: string | null) => {
     const params = new URLSearchParams(searchParams)
     
     if (categoryId) {
       params.set('categoryId', categoryId)
+      params.set('categoria', categoryName?.toLowerCase() || '')
     } else {
       params.delete('categoryId')
+      params.delete('categoria')
     }
     
     router.push(`/productos?${params.toString()}`)
@@ -124,7 +126,7 @@ export function CategoriesFilter() {
           <div className="space-y-2">
             {/* All products */}
             <button
-              onClick={() => handleCategoryFilter(null)}
+              onClick={() => handleCategoryFilter(null, null)}
               className={`w-full text-left px-3 py-2 rounded-md transition-colors ${
                 !currentCategoryId
                   ? 'bg-pink-100 text-pink-700 font-medium'
@@ -143,7 +145,7 @@ export function CategoriesFilter() {
             {categories.map((category) => (
               <button
                 key={category.id}
-                onClick={() => handleCategoryFilter(category.id)}
+                onClick={() => handleCategoryFilter(category.id, category.name)}
                 className={`w-full text-left px-3 py-2 rounded-md transition-colors ${
                   currentCategoryId === category.id
                     ? 'bg-pink-100 text-pink-700 font-medium'

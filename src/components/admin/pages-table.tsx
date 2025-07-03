@@ -7,10 +7,9 @@ import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Plus, Edit, Trash2, Eye, Globe } from 'lucide-react'
 import { Page } from '@/types'
-import { useToast } from '@/components/providers/toast-provider'
+import { toast } from 'sonner'
 
 export function PagesTable() {
-  const { showToast } = useToast()
   const [pages, setPages] = useState<Page[]>([])
   const [loading, setLoading] = useState(true)
 
@@ -29,7 +28,7 @@ export function PagesTable() {
       }
     } catch (error) {
       console.error('Error fetching pages:', error)
-      showToast('Error al cargar páginas', 'error')
+      toast.error('Error al cargar páginas')
     } finally {
       setLoading(false)
     }
@@ -46,14 +45,14 @@ export function PagesTable() {
       })
 
       if (response.ok) {
-        showToast('Página eliminada correctamente', 'success')
+        toast.success('Página eliminada correctamente')
         fetchPages()
       } else {
         throw new Error('Error al eliminar página')
       }
     } catch (error) {
       console.error('Error deleting page:', error)
-      showToast('Error al eliminar página', 'error')
+      toast.error('Error al eliminar página')
     }
   }
 

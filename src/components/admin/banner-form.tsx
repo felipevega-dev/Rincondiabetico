@@ -9,7 +9,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { Card } from '@/components/ui/card'
 import { Upload, X, Save, ArrowLeft } from 'lucide-react'
 import { Banner } from '@/types'
-import { useToast } from '@/components/providers/toast-provider'
+import { toast } from 'sonner'
 
 type BannerFormProps = {
   banner?: Banner
@@ -18,7 +18,6 @@ type BannerFormProps = {
 
 export function BannerForm({ banner, isEditing = false }: BannerFormProps) {
   const router = useRouter()
-  const { showToast } = useToast()
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const [formData, setFormData] = useState({
@@ -55,13 +54,13 @@ export function BannerForm({ banner, isEditing = false }: BannerFormProps) {
       if (response.ok) {
         const { url } = await response.json()
         setFormData(prev => ({ ...prev, image: url }))
-        showToast('Imagen subida correctamente', 'success')
+        toast.success('Imagen subida correctamente')
       } else {
         throw new Error('Error al subir imagen')
       }
     } catch (error) {
       console.error('Error uploading image:', error)
-      showToast('Error al subir imagen', 'error')
+      toast.error('Error al subir imagen')
     } finally {
       setUploading(false)
     }
@@ -71,12 +70,12 @@ export function BannerForm({ banner, isEditing = false }: BannerFormProps) {
     e.preventDefault()
     
     if (!formData.title.trim()) {
-      showToast('El título es requerido', 'error')
+      toast.error('El título es requerido')
       return
     }
 
     if (!formData.image) {
-      showToast('La imagen es requerida', 'error')
+      toast.error('La imagen es requerida')
       return
     }
 
@@ -95,9 +94,8 @@ export function BannerForm({ banner, isEditing = false }: BannerFormProps) {
       })
 
       if (response.ok) {
-        showToast(
-          `Banner ${isEditing ? 'actualizado' : 'creado'} correctamente`,
-          'success'
+        toast.success(
+          `Banner ${isEditing ? 'actualizado' : 'creado'} correctamente`
         )
         router.push('/admin/cms/banners')
       } else {
@@ -106,9 +104,8 @@ export function BannerForm({ banner, isEditing = false }: BannerFormProps) {
       }
     } catch (error) {
       console.error('Error saving banner:', error)
-      showToast(
-        error instanceof Error ? error.message : 'Error al guardar banner',
-        'error'
+      toast.error(
+        error instanceof Error ? error.message : 'Error al guardar banner'
       )
     } finally {
       setSaving(false)

@@ -1,7 +1,6 @@
 'use client'
 
 import { useState } from 'react'
-import { useToast } from '@/components/providers/toast-provider'
 import Link from 'next/link'
 import Image from 'next/image'
 import { 
@@ -18,6 +17,7 @@ import {
   Edit
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { toast } from 'sonner'
 
 interface AdminOrdersListProps {
   orders: Array<{
@@ -92,7 +92,6 @@ export function AdminOrdersList({ orders }: AdminOrdersListProps) {
   const [statusFilter, setStatusFilter] = useState<string>('TODOS')
   const [dateFilter, setDateFilter] = useState<string>('TODOS')
   const [isUpdating, setIsUpdating] = useState<string | null>(null)
-  const { showToast } = useToast()
 
   const filteredOrders = orders.filter(order => {
     const statusMatch = statusFilter === 'TODOS' || order.status === statusFilter
@@ -147,14 +146,14 @@ export function AdminOrdersList({ orders }: AdminOrdersListProps) {
         throw new Error('Error al actualizar el estado')
       }
 
-      showToast(`Pedido actualizado a ${statusConfig[newStatus as keyof typeof statusConfig]?.label}`, 'success')
+      toast.success(`Pedido actualizado a ${statusConfig[newStatus as keyof typeof statusConfig]?.label}`)
       
       // Recargar la página para mostrar los cambios
       window.location.reload()
       
     } catch (error) {
       console.error('Error updating order:', error)
-      showToast('Error al actualizar el pedido', 'error')
+      toast.error('Error al actualizar el pedido')
     } finally {
       setIsUpdating(null)
     }

@@ -8,7 +8,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { Card } from '@/components/ui/card'
 import { Save, ArrowLeft, FileText } from 'lucide-react'
 import { Page } from '@/types'
-import { useToast } from '@/components/providers/toast-provider'
+import { toast } from 'sonner'
 
 type PageFormProps = {
   page?: Page
@@ -17,7 +17,6 @@ type PageFormProps = {
 
 export function PageForm({ page, isEditing = false }: PageFormProps) {
   const router = useRouter()
-  const { showToast } = useToast()
 
   const [formData, setFormData] = useState({
     title: page?.title || '',
@@ -38,8 +37,8 @@ export function PageForm({ page, isEditing = false }: PageFormProps) {
   }
 
   // Generar slug automáticamente desde el título
-  const generateSlug = (title: string) => {
-    return title
+  const generateSlug = () => {
+    return formData.title
       .toLowerCase()
       .replace(/[áàäâ]/g, 'a')
       .replace(/[éèëê]/g, 'e')
@@ -50,7 +49,7 @@ export function PageForm({ page, isEditing = false }: PageFormProps) {
       .replace(/[^a-z0-9\s-]/g, '')
       .replace(/\s+/g, '-')
       .replace(/-+/g, '-')
-      .trim('-')
+      .trim()
   }
 
   const handleTitleChange = (title: string) => {
@@ -58,7 +57,7 @@ export function PageForm({ page, isEditing = false }: PageFormProps) {
       ...prev,
       title,
       // Solo generar slug automáticamente si no estamos editando o si el slug está vacío
-      slug: (!isEditing || !prev.slug) ? generateSlug(title) : prev.slug
+      slug: (!isEditing || !prev.slug) ? generateSlug() : prev.slug
     }))
   }
 
@@ -66,17 +65,17 @@ export function PageForm({ page, isEditing = false }: PageFormProps) {
     e.preventDefault()
     
     if (!formData.title.trim()) {
-      showToast('El título es requerido', 'error')
+      toast.error('El título es requerido')
       return
     }
 
     if (!formData.slug.trim()) {
-      showToast('El slug es requerido', 'error')
+      toast.error('El slug es requerido')
       return
     }
 
     if (!formData.content.trim()) {
-      showToast('El contenido es requerido', 'error')
+      toast.error('El contenido es requerido')
       return
     }
 
@@ -95,9 +94,8 @@ export function PageForm({ page, isEditing = false }: PageFormProps) {
       })
 
       if (response.ok) {
-        showToast(
-          `Página ${isEditing ? 'actualizada' : 'creada'} correctamente`,
-          'success'
+        toast.success(
+          `Página ${isEditing ? 'actualizada' : 'creada'} correctamente`
         )
         router.push('/admin/cms/pages')
       } else {
@@ -106,9 +104,8 @@ export function PageForm({ page, isEditing = false }: PageFormProps) {
       }
     } catch (error) {
       console.error('Error saving page:', error)
-      showToast(
-        error instanceof Error ? error.message : 'Error al guardar página',
-        'error'
+      toast.error(
+        error instanceof Error ? error.message : 'Error al guardar página'
       )
     } finally {
       setSaving(false)

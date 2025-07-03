@@ -68,13 +68,15 @@ const calculatePriceRange = (basePrice: number, variations?: Product['variations
 export function ProductsGrid() {
   const [data, setData] = useState<ProductsResponse | null>(null)
   const [loading, setLoading] = useState(true)
+  const [currentPage, setCurrentPage] = useState(1)
   const searchParams = useSearchParams()
   const categoryId = searchParams.get('categoryId')
   const search = searchParams.get('search')
+  const ITEMS_PER_PAGE = 9
 
   useEffect(() => {
     fetchProducts()
-  }, [categoryId, search])
+  }, [categoryId, search, currentPage])
 
   const fetchProducts = async () => {
     setLoading(true)
@@ -82,7 +84,9 @@ export function ProductsGrid() {
       const params = new URLSearchParams()
       if (categoryId) params.append('categoryId', categoryId)
       if (search) params.append('search', search)
-      params.append('available', 'true') // Solo productos disponibles
+      params.append('available', 'true')
+      params.append('page', currentPage.toString())
+      params.append('limit', ITEMS_PER_PAGE.toString())
 
       const response = await fetch(`/api/products?${params}`)
       if (response.ok) {
@@ -95,8 +99,6 @@ export function ProductsGrid() {
       setLoading(false)
     }
   }
-
-
 
   if (loading) {
     return (
@@ -139,14 +141,14 @@ export function ProductsGrid() {
         <p className="text-gray-600">
           Mostrando {data.products.length} de {data.pagination.total} productos
         </p>
-        {/* TODO: Add sorting options */}
+        {/* Sorting dropdown - TODO */}
       </div>
 
       {/* Products grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {data.products.map((product) => (
-          <div key={product.id} className="bg-white rounded-lg shadow hover:shadow-md transition-shadow group">
-            <Link href={`/productos/${product.slug}`}>
+          <div key={product.id} className="bg-white rounded-lg shadow hover:shadow-md transition-shadow group flex flex-col h-full">
+            <Link href={`/productos/${product.slug}`} className="flex-1 flex flex-col">
               {/* Product image */}
               <div className="relative h-48 bg-gray-200 rounded-t-lg overflow-hidden">
                 {product.images.length > 0 ? (
@@ -171,19 +173,19 @@ export function ProductsGrid() {
               </div>
 
               {/* Product info */}
-              <div className="p-4">
-                <h3 className="text-lg font-medium text-gray-900 mb-2 group-hover:text-pink-600 transition-colors">
+              <div className="p-4 flex-1 flex flex-col">
+                <h3 className="text-lg font-medium text-gray-900 mb-2 group-hover:text-pink-600 transition-colors line-clamp-2">
                   {product.name}
                 </h3>
                 
                 {product.description && (
-                  <p className="text-sm text-gray-600 mb-3 line-clamp-2">
+                  <p className="text-sm text-gray-600 mb-3 line-clamp-2 flex-1">
                     {product.description}
                   </p>
                 )}
 
-                <div className="flex flex-col gap-3">
-                  <div className="flex items-center justify-between">
+                <div className="mt-auto">
+                  <div className="flex items-center justify-between mb-3">
                     <span className="text-xl font-bold text-gray-900">
                       {calculatePriceRange(product.price, product.variations)}
                     </span>
@@ -198,7 +200,6 @@ export function ProductsGrid() {
                     {product.variations && product.variations.length > 0 ? (
                       <Link href={`/productos/${product.slug}`}>
                         <Button className="w-full bg-gradient-to-r from-pink-500 to-pink-600 hover:from-pink-600 hover:to-pink-700 text-white py-4 text-lg font-semibold shadow-lg shadow-pink-200">
-                          <Package className="h-6 w-6 mr-2" />
                           Ver Opciones
                         </Button>
                       </Link>
@@ -209,7 +210,7 @@ export function ProductsGrid() {
                         productPrice={product.price}
                         productImage={product.images[0]}
                         productStock={product.stock}
-                        className="w-full"
+                        className="w-full bg-gradient-to-r from-pink-500 to-pink-600 hover:from-pink-600 hover:to-pink-700 text-white py-4 text-lg font-semibold shadow-lg shadow-pink-200"
                       />
                     )}
                   </div>
@@ -222,13 +223,30 @@ export function ProductsGrid() {
 
       {/* Pagination */}
       {data.pagination.pages > 1 && (
-        <div className="mt-8 flex justify-center">
-          <div className="flex items-center gap-2">
-            {/* TODO: Implement pagination */}
-            <span className="text-sm text-gray-600">
-              Página {data.pagination.page} de {data.pagination.pages}
-            </span>
-          </div>
+        <div className="mt-8 flex justify-center gap-2">
+          <Button
+            variant="outline"
+            onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+            disabled={currentPage === 1}
+          >
+            Anterior
+          </Button>
+          {[...Array(data.pagination.pages)].map((_, i) => (
+            <Button
+              key={i}
+              variant={currentPage === i + 1 ? "default" : "outline"}
+              onClick={() => setCurrentPage(i + 1)}
+            >
+              {i + 1}
+            </Button>
+          ))}
+          <Button
+            variant="outline"
+            onClick={() => setCurrentPage(p => Math.min(data.pagination.pages, p + 1))}
+            disabled={currentPage === data.pagination.pages}
+          >
+            Siguiente
+          </Button>
         </div>
       )}
     </div>
