@@ -1,0 +1,216 @@
+---
+description: Plan de mejoras y roadmap para Rincón Diabético
+globs: 
+alwaysApply: true
+---
+
+# Plan de Mejoras - Rincón Diabético 🚀
+
+## Estado Actual del Análisis ✅
+- ✅ **Análisis completo realizado** (Enero 2025)
+- ✅ **Problemas críticos identificados**
+- ✅ **Plan de acción definido**
+- ❌ **WebPay Plus descartado** (requiere contrato pagado)
+
+## 🚨 PROBLEMAS CRÍTICOS IDENTIFICADOS
+
+### 1. Sistema de Pagos
+- ❌ WebPay Plus no implementado (requiere pago)
+- ✅ MercadoPago funcional
+- 🔄 **ACCIÓN**: Mejorar flujo de transferencia bancaria
+
+### 2. Gestión de Stock
+- ❌ Sin control de stock en tiempo real
+- ❌ Productos sin stock siguen vendibles
+- 🔄 **ACCIÓN**: Implementar validación en tiempo real
+
+### 3. Sistema de Notificaciones
+- ❌ Sin emails de confirmación
+- ❌ Sin notificaciones WhatsApp automáticas
+- 🔄 **ACCIÓN**: Implementar Resend para emails
+
+### 4. Dashboard Admin
+- ⚠️ Solo estadísticas básicas
+- ❌ Sin reportes de ventas
+- ❌ Sin métricas de conversión
+- 🔄 **ACCIÓN**: Dashboard avanzado
+
+## 📋 PLAN DE ACCIÓN PRIORIZADO
+
+### **FASE 1: Crítico para Ventas (Semana 1-2)**
+```typescript
+// Prioridad: CRÍTICA 🔴
+```
+
+#### 1.1 Sistema de Emails (Resend)
+- **Archivo**: `src/lib/email.ts`
+- **API**: `src/app/api/emails/`
+- **Templates**: Confirmación pedidos, cambios estado
+- **Costo**: GRATIS (100 emails/mes)
+
+#### 1.2 Control de Stock Real
+- **Archivo**: `src/components/client/add-to-cart-button.tsx`
+- **Validación**: Tiempo real en carrito
+- **Reserva**: Temporal durante checkout (15min)
+- **Costo**: GRATIS
+
+#### 1.3 Transferencia Bancaria Mejorada
+- **QR**: Generar QR de cuenta bancaria
+- **Instrucciones**: Más claras y paso a paso
+- **Confirmación**: Subir comprobante
+- **Costo**: GRATIS
+
+#### 1.4 WhatsApp Manual Optimizado
+- **Enlaces**: wa.me automáticos
+- **Templates**: Mensajes predefinidos
+- **Admin**: Copy/paste optimizado
+- **Costo**: GRATIS
+
+### **FASE 2: Administración (Semana 3-4)**
+```typescript
+// Prioridad: ALTA 🟡
+```
+
+#### 2.1 Dashboard Avanzado
+- **Reportes**: Ventas por período
+- **Métricas**: Productos más vendidos
+- **Alertas**: Stock bajo, pedidos pendientes
+- **Gráficos**: Charts.js o Recharts
+
+#### 2.2 Gestión de Horarios
+- **Horarios especiales**: Feriados, vacaciones
+- **Slots**: Disponibilidad por hora
+- **Capacidad**: Límite de pedidos por slot
+
+#### 2.3 Sistema de Reservas
+- **Calendario**: Selección fecha/hora
+- **Validación**: Horarios disponibles
+- **Confirmación**: Automática con límites
+
+### **FASE 3: UX y Funcionalidades (Mes 2)**
+```typescript
+// Prioridad: MEDIA 🟢
+```
+
+#### 3.1 Búsqueda Avanzada
+- **Filtros**: Precio, ingredientes, categoría
+- **Ordenamiento**: Precio, popularidad, fecha
+- **Autocompletado**: Sugerencias dinámicas
+
+#### 3.2 Calculadora Nutricional
+- **Información**: Carbohidratos, azúcares
+- **Porciones**: Por tamaño de torta
+- **Alertas**: Recomendaciones para diabéticos
+
+#### 3.3 Sistema de Favoritos
+- **Wishlist**: Productos favoritos
+- **Compartir**: Enlaces de listas
+- **Notificaciones**: Productos en oferta
+
+## 🛠️ IMPLEMENTACIÓN TÉCNICA
+
+### Estructura de Archivos Nuevos
+```
+src/
+├── lib/
+│   ├── email.ts              # ✅ Resend integration
+│   ├── stock.ts              # ✅ Stock validation
+│   └── whatsapp.ts           # ✅ WhatsApp helpers
+├── app/api/
+│   ├── emails/               # ✅ Email endpoints
+│   ├── stock/                # ✅ Stock management
+│   └── reports/              # ✅ Admin reports
+├── components/
+│   ├── admin/
+│   │   ├── reports-chart.tsx # ✅ Dashboard charts
+│   │   ├── stock-alerts.tsx  # ✅ Stock notifications
+│   │   └── schedule-manager.tsx # ✅ Horarios
+│   └── client/
+│       ├── stock-indicator.tsx # ✅ Stock display
+│       └── favorites-button.tsx # ✅ Wishlist
+└── hooks/
+    ├── use-stock.ts          # ✅ Stock management
+    └── use-favorites.ts      # ✅ Favorites logic
+```
+
+### Dependencies Nuevas
+```json
+{
+  "resend": "^3.0.0",           // Emails
+  "recharts": "^2.8.0",        // Charts
+  "date-fns": "^3.0.0",        // Date handling
+  "qrcode": "^1.5.3"           // QR generation
+}
+```
+
+## 📊 MÉTRICAS DE ÉXITO
+
+### KPIs Fase 1
+- ✅ **Emails enviados**: >95% entregados
+- ✅ **Stock accuracy**: 0 sobreventas
+- ✅ **Transferencias**: +50% conversión
+- ✅ **WhatsApp**: <2min respuesta admin
+
+### KPIs Fase 2
+- ✅ **Dashboard usage**: Admin usa reportes diarios
+- ✅ **Horarios**: 0 conflictos de reserva
+- ✅ **Eficiencia**: -30% tiempo gestión pedidos
+
+### KPIs Fase 3
+- ✅ **Búsqueda**: +40% productos encontrados
+- ✅ **Calculadora**: +25% conversión diabéticos
+- ✅ **Favoritos**: +20% repeat customers
+
+## 🚫 FUNCIONALIDADES DESCARTADAS (Por Ahora)
+
+### WebPay Plus
+- **Razón**: Requiere contrato pagado con Transbank
+- **Alternativa**: MercadoPago + Transferencia mejorada
+- **Futuro**: Implementar cuando facturación justifique costo
+
+### WhatsApp Business API
+- **Razón**: Costo mensual + setup complejo
+- **Alternativa**: Enlaces wa.me optimizados
+- **Futuro**: Cuando >100 pedidos/mes
+
+### Analytics Avanzado
+- **Razón**: Complejidad vs beneficio actual
+- **Alternativa**: Google Analytics básico
+- **Futuro**: Cuando >1000 usuarios/mes
+
+## 🔄 PROCESO DE DESARROLLO
+
+### Workflow
+1. **Branch**: `feature/fase-1-emails`
+2. **Testing**: Cada funcionalidad en staging
+3. **Deploy**: Incremental, sin downtime
+4. **Monitoring**: Logs y métricas en producción
+
+### Quality Gates
+- ✅ **TypeScript**: Strict mode, 0 errores
+- ✅ **Testing**: Unit tests críticos
+- ✅ **Performance**: Lighthouse >90
+- ✅ **Mobile**: Responsive en 3 dispositivos
+
+## 📅 TIMELINE REALISTA
+
+```
+Semana 1: Emails + Stock control
+Semana 2: Transferencia + WhatsApp
+Semana 3: Dashboard reports
+Semana 4: Horarios + Reservas
+Mes 2: UX improvements
+```
+
+## 🎯 PRÓXIMOS PASOS INMEDIATOS
+
+1. **Instalar Resend**: `npm install resend`
+2. **Setup email templates**
+3. **Implementar stock validation**
+4. **Mejorar transferencia flow**
+
+---
+
+**Última actualización**: Enero 2025
+**Responsable**: Desarrollo
+**Review**: Semanal 
