@@ -1,5 +1,4 @@
 import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server'
-import { isAdmin } from '@/lib/auth'
 
 // Rutas que requieren autenticación
 const isProtectedRoute = createRouteMatcher([
@@ -8,6 +7,7 @@ const isProtectedRoute = createRouteMatcher([
   '/pedidos(.*)',
   '/perfil(.*)',
   '/carrito(.*)',
+  '/favoritos(.*)',
 ])
 
 // Rutas solo para administradores
@@ -23,16 +23,16 @@ export default clerkMiddleware(async (auth, req) => {
   
   // Proteger rutas de administrador
   if (isAdminRoute(req)) {
-    const { userId } = await auth()
+    const { userId, user } = await auth()
     if (!userId) {
       await auth.protect()
       return
     }
     
-    // Verificar si el usuario es admin
-    const userIsAdmin = await isAdmin()
+    // Verificar si el usuario es admin usando metadata de Clerk
+    const isUserAdmin = user?.publicMetadata?.role === 'admin'
     
-    if (!userIsAdmin) {
+    if (!isUserAdmin) {
       // Redirigir a dashboard si no es admin
       return Response.redirect(new URL('/dashboard', req.url))
     }
