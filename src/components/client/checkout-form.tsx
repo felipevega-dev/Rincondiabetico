@@ -20,7 +20,7 @@ interface OrderData {
 }
 
 export function CheckoutForm() {
-  const { items, total, clearCart } = useCart()
+  const { items, total, clearCart, sessionId } = useCart()
   const { user } = useUser()
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [orderData, setOrderData] = useState<OrderData>({
@@ -88,7 +88,8 @@ export function CheckoutForm() {
           customerNotes: orderData.customerNotes,
           phone: orderData.phone,
           paymentMethod: orderData.paymentMethod,
-          isDraft: orderData.paymentMethod === 'MERCADOPAGO' // Solo MercadoPago es borrador
+          isDraft: orderData.paymentMethod === 'MERCADOPAGO', // Solo MercadoPago es borrador
+          sessionId
         }),
       })
 

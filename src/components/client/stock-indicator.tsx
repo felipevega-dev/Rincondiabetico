@@ -17,14 +17,14 @@ export default function StockIndicator({
   const [stock, setStock] = useState(currentStock)
   const [isLoading, setIsLoading] = useState(false)
 
-  // Función para obtener stock actualizado
+  // Función para obtener stock actualizado (considerando reservas)
   const refreshStock = async () => {
     setIsLoading(true)
     try {
-      const response = await fetch(`/api/products/${productId}/stock`)
+      const response = await fetch(`/api/stock/available?productId=${productId}`)
       if (response.ok) {
         const data = await response.json()
-        setStock(data.stock)
+        setStock(data.availableStock)
       }
     } catch (error) {
       console.error('Error obteniendo stock:', error)

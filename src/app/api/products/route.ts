@@ -32,6 +32,10 @@ export async function GET(request: NextRequest) {
     const categoryId = searchParams.get('categoryId')
     const available = searchParams.get('available')
     const search = searchParams.get('search')
+    const sortBy = searchParams.get('sortBy') || 'newest'
+    const minPrice = searchParams.get('minPrice')
+    const maxPrice = searchParams.get('maxPrice')
+    const inStock = searchParams.get('inStock')
     const page = parseInt(searchParams.get('page') || '1')
     const limit = parseInt(searchParams.get('limit') || '12')
     const skip = (page - 1) * limit
@@ -54,6 +58,47 @@ export async function GET(request: NextRequest) {
       ]
     }
 
+    // Filtro por precio
+    if (minPrice || maxPrice) {
+      where.price = {}
+      if (minPrice) {
+        where.price.gte = parseInt(minPrice)
+      }
+      if (maxPrice) {
+        where.price.lte = parseInt(maxPrice)
+      }
+    }
+
+    // Filtro por stock
+    if (inStock === 'true') {
+      where.stock = { gt: 0 }
+    }
+
+    // Configurar ordenamiento
+    let orderBy: any = { createdAt: 'desc' } // Default: newest
+    
+    switch (sortBy) {
+      case 'price-asc':
+        orderBy = { price: 'asc' }
+        break
+      case 'price-desc':
+        orderBy = { price: 'desc' }
+        break
+      case 'name-asc':
+        orderBy = { name: 'asc' }
+        break
+      case 'name-desc':
+        orderBy = { name: 'desc' }
+        break
+      case 'oldest':
+        orderBy = { createdAt: 'asc' }
+        break
+      case 'newest':
+      default:
+        orderBy = { createdAt: 'desc' }
+        break
+    }
+
     // Obtener productos con paginación
     const [products, total] = await Promise.all([
       prisma.product.findMany({
@@ -69,7 +114,7 @@ export async function GET(request: NextRequest) {
             orderBy: { order: 'asc' }
           }
         },
-        orderBy: { createdAt: 'desc' },
+        orderBy,
         skip,
         take: limit
       }),

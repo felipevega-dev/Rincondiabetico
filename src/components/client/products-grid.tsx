@@ -1,11 +1,13 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useSearchParams } from 'next/navigation'
+import { useSearchParams, useRouter, usePathname } from 'next/navigation'
 import Image from 'next/image'
 import Link from 'next/link'
 import { formatPrice } from '@/lib/utils'
 import { AddToCartButton } from '@/components/client/add-to-cart-button'
+import { ProductsSort } from '@/components/client/products-sort'
+import { WishlistHeartIcon } from '@/components/client/wishlist-button'
 import { Package } from 'lucide-react'
 import { VariationType } from '@/types'
 import { Button } from '@/components/ui/button'
@@ -69,14 +71,26 @@ export function ProductsGrid() {
   const [data, setData] = useState<ProductsResponse | null>(null)
   const [loading, setLoading] = useState(true)
   const [currentPage, setCurrentPage] = useState(1)
+  const [sortBy, setSortBy] = useState('newest')
   const searchParams = useSearchParams()
+  const router = useRouter()
+  const pathname = usePathname()
   const categoryId = searchParams.get('categoryId')
   const search = searchParams.get('search')
+  const minPrice = searchParams.get('minPrice')
+  const maxPrice = searchParams.get('maxPrice')
+  const inStock = searchParams.get('inStock')
   const ITEMS_PER_PAGE = 9
 
   useEffect(() => {
+    // Initialize sortBy from URL params
+    const sortParam = searchParams.get('sortBy') || 'newest'
+    setSortBy(sortParam)
+  }, [searchParams])
+
+  useEffect(() => {
     fetchProducts()
-  }, [categoryId, search, currentPage])
+  }, [categoryId, search, minPrice, maxPrice, inStock, currentPage, sortBy])
 
   const fetchProducts = async () => {
     setLoading(true)
@@ -84,9 +98,13 @@ export function ProductsGrid() {
       const params = new URLSearchParams()
       if (categoryId) params.append('categoryId', categoryId)
       if (search) params.append('search', search)
+      if (minPrice) params.append('minPrice', minPrice)
+      if (maxPrice) params.append('maxPrice', maxPrice)
+      if (inStock) params.append('inStock', inStock)
       params.append('available', 'true')
       params.append('page', currentPage.toString())
       params.append('limit', ITEMS_PER_PAGE.toString())
+      params.append('sortBy', sortBy)
 
       const response = await fetch(`/api/products?${params}`)
       if (response.ok) {
@@ -98,6 +116,17 @@ export function ProductsGrid() {
     } finally {
       setLoading(false)
     }
+  }
+
+  const handleSortChange = (newSortBy: string) => {
+    setSortBy(newSortBy)
+    setCurrentPage(1) // Reset to first page when sorting changes
+    
+    // Update URL with new sorting
+    const params = new URLSearchParams(searchParams.toString())
+    params.set('sortBy', newSortBy)
+    params.delete('page') // Remove page param to go back to page 1
+    router.push(`${pathname}?${params.toString()}`)
   }
 
   if (loading) {
@@ -137,17 +166,23 @@ export function ProductsGrid() {
   return (
     <div>
       {/* Results header */}
-      <div className="flex justify-between items-center mb-6">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
         <p className="text-gray-600">
           Mostrando {data.products.length} de {data.pagination.total} productos
         </p>
-        {/* Sorting dropdown - TODO */}
+        <ProductsSort 
+          value={sortBy}
+          onValueChange={handleSortChange}
+        />
       </div>
 
       {/* Products grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {data.products.map((product) => (
-          <div key={product.id} className="bg-white rounded-lg shadow hover:shadow-md transition-shadow group flex flex-col h-full">
+          <div key={product.id} className="bg-white rounded-lg shadow hover:shadow-md transition-shadow group flex flex-col h-full relative">
+            {/* Wishlist Heart */}
+            <WishlistHeartIcon productId={product.id} />
+            
             <Link href={`/productos/${product.slug}`} className="flex-1 flex flex-col">
               {/* Product image */}
               <div className="relative h-48 bg-gray-200 rounded-t-lg overflow-hidden">

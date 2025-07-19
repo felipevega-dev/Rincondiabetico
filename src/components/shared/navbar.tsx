@@ -4,10 +4,11 @@ import { useUser } from '@clerk/nextjs'
 import { UserButton } from '@clerk/nextjs'
 import Link from 'next/link'
 import Image from 'next/image'
-import { ShoppingCart, Settings, Search, Package, Menu, X, ChevronDown } from 'lucide-react'
+import { ShoppingCart, Settings, Search, Package, Menu, X, ChevronDown, Heart } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useState, useEffect } from 'react'
 import { useCart } from '@/components/providers/cart-provider'
+import { useWishlist } from '@/hooks/use-wishlist'
 import { useRouter } from 'next/navigation'
 
 export function Navbar() {
@@ -15,6 +16,7 @@ export function Navbar() {
   const { user, isLoaded } = useUser()
   const [isAdmin, setIsAdmin] = useState(false)
   const { itemCount } = useCart()
+  const { itemCount: wishlistCount } = useWishlist()
   const [prevItemCount, setPrevItemCount] = useState(0)
   const [isAnimating, setIsAnimating] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
@@ -147,6 +149,24 @@ export function Navbar() {
                 <Search className="h-5 w-5" />
               </Button>
 
+              {/* Wishlist */}
+              {user && (
+                <Link href="/favoritos" className="relative group">
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    className="relative p-2 hover:bg-primary-50 hover:text-primary-600 rounded-xl"
+                  >
+                    <Heart className="h-5 w-5" />
+                    {wishlistCount > 0 && (
+                      <span className="absolute -top-1 -right-1 bg-gradient-to-r from-red-500 to-red-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-bold">
+                        {wishlistCount}
+                      </span>
+                    )}
+                  </Button>
+                </Link>
+              )}
+
               {/* Cart */}
               <Link href="/carrito" className="relative group">
                 <Button 
@@ -271,6 +291,22 @@ export function Navbar() {
               >
                 Contacto
               </Link>
+              
+              {user && (
+                <Link
+                  href="/favoritos"
+                  className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:text-primary-600 hover:bg-primary-50 rounded-xl transition-all duration-300 font-medium"
+                  onClick={closeMobileMenu}
+                >
+                  <Heart className="h-5 w-5" />
+                  Mis Favoritos
+                  {wishlistCount > 0 && (
+                    <span className="bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-bold">
+                      {wishlistCount}
+                    </span>
+                  )}
+                </Link>
+              )}
             </div>
           </div>
         )}

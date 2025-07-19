@@ -68,6 +68,23 @@ export default async function DashboardPage() {
             </div>
           </Link>
 
+          {/* Mis favoritos */}
+          <Link href="/favoritos" className="group">
+            <div className="bg-white p-6 rounded-lg shadow hover:shadow-md transition-shadow">
+              <div className="flex items-center">
+                <div className="flex-shrink-0">
+                  <span className="text-2xl">❤️</span>
+                </div>
+                <div className="ml-4">
+                  <h3 className="text-lg font-medium text-gray-900 group-hover:text-pink-600">
+                    Mis Favoritos
+                  </h3>
+                  <p className="text-gray-500">Productos guardados</p>
+                </div>
+              </div>
+            </div>
+          </Link>
+
           {/* Carrito */}
           <Link href="/carrito" className="group">
             <div className="bg-white p-6 rounded-lg shadow hover:shadow-md transition-shadow">

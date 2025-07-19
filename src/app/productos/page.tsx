@@ -1,8 +1,15 @@
 import { Suspense } from 'react'
 import { ProductsGrid } from '@/components/client/products-grid'
-import { CategoriesFilter } from '@/components/client/categories-filter'
+import { AdvancedFilters } from '@/components/client/advanced-filters'
+import { prisma } from '@/lib/prisma'
 
-export default function ProductsPage() {
+export default async function ProductsPage() {
+  // Obtener categorías para los filtros
+  const categories = await prisma.category.findMany({
+    where: { isActive: true },
+    select: { id: true, name: true },
+    orderBy: { name: 'asc' }
+  })
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -19,21 +26,8 @@ export default function ProductsPage() {
 
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Sidebar - Filtros */}
-          <div className="lg:w-64">
-            <Suspense fallback={
-              <div className="bg-white rounded-lg shadow p-6">
-                <div className="animate-pulse">
-                  <div className="h-4 bg-gray-200 rounded w-3/4 mb-4"></div>
-                  <div className="space-y-2">
-                    <div className="h-3 bg-gray-200 rounded"></div>
-                    <div className="h-3 bg-gray-200 rounded"></div>
-                    <div className="h-3 bg-gray-200 rounded"></div>
-                  </div>
-                </div>
-              </div>
-            }>
-              <CategoriesFilter />
-            </Suspense>
+          <div className="lg:w-80">
+            <AdvancedFilters categories={categories} />
           </div>
 
           {/* Main Content - Products Grid */}

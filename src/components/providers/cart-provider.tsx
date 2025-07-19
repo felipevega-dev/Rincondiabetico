@@ -7,6 +7,7 @@ import { toast } from 'sonner'
 interface CartContextType {
   items: CartItem[]
   isLoaded: boolean
+  sessionId: string
   addItem: (product: {
     id: string
     productId?: string
@@ -38,8 +39,17 @@ interface CartProviderProps {
 export function CartProvider({ children }: CartProviderProps) {
   const [items, setItems] = useState<CartItem[]>([])
   const [isLoaded, setIsLoaded] = useState(false)
+  const [sessionId, setSessionId] = useState<string>('')
 
   useEffect(() => {
+    // Generate or retrieve session ID
+    let savedSessionId = localStorage.getItem('rincon-diabetico-session')
+    if (!savedSessionId) {
+      savedSessionId = 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9)
+      localStorage.setItem('rincon-diabetico-session', savedSessionId)
+    }
+    setSessionId(savedSessionId)
+
     const savedCart = localStorage.getItem('rincon-diabetico-cart')
     if (savedCart) {
       try {
@@ -54,8 +64,30 @@ export function CartProvider({ children }: CartProviderProps) {
   useEffect(() => {
     if (isLoaded) {
       localStorage.setItem('rincon-diabetico-cart', JSON.stringify(items))
+      // Reserve stock for items in cart
+      if (sessionId && items.length > 0) {
+        reserveCartStock()
+      }
     }
-  }, [items, isLoaded])
+  }, [items, isLoaded, sessionId])
+
+  const reserveCartStock = async () => {
+    for (const item of items) {
+      try {
+        await fetch('/api/stock/reserve', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            productId: item.productId,
+            quantity: item.quantity,
+            sessionId
+          })
+        })
+      } catch (error) {
+        console.error('Error reserving stock for item:', item.id, error)
+      }
+    }
+  }
 
   const addItem = async (product: {
     id: string
@@ -72,18 +104,22 @@ export function CartProvider({ children }: CartProviderProps) {
   }) => {
     try {
       const productId = product.productId || product.id
-      const response = await fetch(`/api/products/${productId}/stock`)
-      const { stock } = await response.json()
+      
+      // Check available stock (considering reservations)
+      const stockResponse = await fetch(`/api/stock/available?productId=${productId}`)
+      const { availableStock } = await stockResponse.json()
 
       setItems(currentItems => {
         const existingItem = currentItems.find(item => item.id === product.id)
+        const currentQuantity = existingItem ? existingItem.quantity : 0
+        const newQuantity = currentQuantity + 1
         
-        if (existingItem) {
-          if (existingItem.quantity >= stock) {
-            toast.error(`No hay más stock disponible de ${product.name}`)
-            return currentItems
-          }
+        if (newQuantity > availableStock) {
+          toast.error(`No hay más stock disponible de ${product.name}`)
+          return currentItems
+        }
 
+        if (existingItem) {
           setTimeout(() => {
             toast.success(`${product.name} cantidad actualizada en el carrito`)
           }, 0)
@@ -136,12 +172,13 @@ export function CartProvider({ children }: CartProviderProps) {
     if (!item) return
 
     try {
-      const response = await fetch(`/api/products/${item.productId}/stock`)
-      const { stock } = await response.json()
+      // Check available stock (considering reservations)
+      const stockResponse = await fetch(`/api/stock/available?productId=${item.productId}`)
+      const { availableStock } = await stockResponse.json()
       
-      if (quantity > stock) {
-        toast.error(`Solo hay ${stock} unidades disponibles`)
-        quantity = stock
+      if (quantity > availableStock) {
+        toast.error(`Solo hay ${availableStock} unidades disponibles`)
+        quantity = availableStock
       }
     } catch (error) {
       console.error('Error checking stock:', error)
@@ -154,7 +191,20 @@ export function CartProvider({ children }: CartProviderProps) {
     )
   }
 
-  const clearCart = () => {
+  const clearCart = async () => {
+    // Release all stock reservations for this session
+    if (sessionId) {
+      try {
+        await fetch('/api/stock/reserve', {
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ sessionId })
+        })
+      } catch (error) {
+        console.error('Error releasing stock reservations:', error)
+      }
+    }
+    
     setItems([])
     setTimeout(() => {
       toast.info('Carrito vaciado')
@@ -181,6 +231,7 @@ export function CartProvider({ children }: CartProviderProps) {
   const value: CartContextType = {
     items,
     isLoaded,
+    sessionId,
     addItem,
     removeItem,
     updateQuantity,

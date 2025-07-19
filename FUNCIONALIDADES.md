@@ -1,7 +1,7 @@
 # 📋 FUNCIONALIDADES - RINCÓN DIABÉTICO
 
 > **Última actualización**: 19 Enero 2025  
-> **Estado del proyecto**: 🟡 En desarrollo activo
+> **Estado del proyecto**: 🟢 Funcionalidades avanzadas implementadas
 
 ## ✅ FUNCIONALIDADES COMPLETADAS
 
@@ -13,6 +13,9 @@
 - [x] **Gestión de stock básica** - Control de inventario
 - [x] **Cálculo de precios** - Con variaciones y totales
 - [x] **Búsqueda de productos** - Por nombre y descripción
+- [x] **Sorting productos** - Precio, nombre, popularidad, fecha
+- [x] **Filtros avanzados** - Precio, categorías, stock, búsqueda
+- [x] **Reserva temporal stock** - Durante checkout (15min)
 
 ### 🔐 **Autenticación y Usuarios**
 - [x] **Sistema de autenticación** - Clerk integration
@@ -21,6 +24,7 @@
 - [x] **Roles de usuario** - Admin vs Customer
 - [x] **Perfil de usuario** - Información personal y contacto
 - [x] **Sincronización Clerk-DB** - Webhook integration
+- [x] **Sistema de favoritos** - Wishlist con persistencia y UI completa
 
 ### 🛒 **Gestión de Pedidos**
 - [x] **Creación de pedidos** - Flow completo de checkout
@@ -29,6 +33,7 @@
 - [x] **Programación de retiro** - Fecha y hora
 - [x] **Notas del cliente** - Comentarios en pedidos
 - [x] **Validación de stock** - Antes de crear pedido
+- [x] **Validación tiempo real** - Stock en carrito con alertas
 - [x] **Historial de pedidos** - Para clientes y admin
 
 ### 💳 **Pagos**
@@ -63,6 +68,9 @@
 - [x] **Toast notifications** - Feedback visual
 - [x] **Loading states** - Mejor UX durante carga
 - [x] **Galería de imágenes** - Modal para productos
+- [x] **Sistema de filtros** - UI expandible con múltiples opciones
+- [x] **Botones de favoritos** - Corazones animados en productos
+- [x] **Página de favoritos** - Grid completo con gestión de wishlist
 
 ### 🇨🇱 **Localización Chilena**
 - [x] **Formato peso chileno** - CLP sin centavos
@@ -99,16 +107,16 @@
 - [x] ~~**Templates de email profesionales**~~ - ✅ COMPLETADO (19 Enero)
 
 ### 📦 **Gestión de Stock Avanzada**
-- [ ] **Reserva temporal stock** - Durante checkout (15min)
-- [ ] **Validación tiempo real** - Stock en carrito
+- [x] ~~**Reserva temporal stock**~~ - ✅ COMPLETADO (19 Enero)
+- [x] ~~**Validación tiempo real**~~ - ✅ COMPLETADO (19 Enero)
 - [ ] **Historial movimientos** - Track cambios de stock
 - [ ] **Predicción demanda** - Analytics de ventas
 - [ ] **Stock mínimo configurable** - Por producto
 
 ### 🛍️ **Experiencia Cliente**
-- [ ] **Sorting productos** - Precio, nombre, popularidad
-- [ ] **Filtros avanzados** - Precio, ingredientes, tamaño
-- [ ] **Wishlist/Favoritos** - Guardar productos
+- [x] ~~**Sorting productos**~~ - ✅ COMPLETADO (19 Enero)
+- [x] ~~**Filtros avanzados**~~ - ✅ COMPLETADO (19 Enero)
+- [x] ~~**Wishlist/Favoritos**~~ - ✅ COMPLETADO (19 Enero)
 - [ ] **Productos relacionados** - Recomendaciones
 - [ ] **Recently viewed** - Historial de navegación
 - [ ] **Guest checkout** - Sin registrarse
@@ -184,9 +192,9 @@
 
 ## 📈 ESTADÍSTICAS DEL PROYECTO
 
-### **Completado**: 58 funcionalidades ✅
-### **Pendiente**: 41 funcionalidades ⏳
-### **Progreso total**: 58.6%
+### **Completado**: 65 funcionalidades ✅
+### **Pendiente**: 36 funcionalidades ⏳
+### **Progreso total**: 64.4%
 
 ---
 
@@ -212,10 +220,16 @@
   - Sistema unificado de notificaciones con configuración granular
   - Dashboard admin para gestionar configuración de notificaciones
   - Integración completa en API routes (orders, admin)
+- ✅ **Sistema completo de funcionalidades avanzadas**: Implementación de 5 funcionalidades core con:
+  - **Sorting de productos**: 6 opciones (newest, oldest, name A-Z/Z-A, price low-high/high-low)
+  - **Reserva temporal de stock**: Sistema de 15 minutos con limpieza automática
+  - **Validación tiempo real**: Hook useStockValidation con verificación cada 30s
+  - **Filtros avanzados**: UI expandible con precio, categorías, stock, búsqueda
+  - **Sistema de wishlist/favoritos**: CRUD completo con hook, UI y página dedicada
 
 ### **Próximas acciones sugeridas**:
-1. Advanced sorting productos - Precio, popularidad, fecha
-2. Stock temporal reservation - Durante checkout (15min)
-3. Customer wishlist/favorites - Guardar productos
-4. Product filtering avanzado - Precio, ingredientes, tamaño
-5. Sales analytics dashboard - Reportes detallados
+1. Sales analytics dashboard - Reportes detallados y métricas
+2. Guest checkout - Compra sin registro obligatorio  
+3. Product recommendations - Productos relacionados y sugerencias
+4. Advanced admin tools - Bulk operations y CSV import/export
+5. Performance optimization - Caching, image optimization, PWA

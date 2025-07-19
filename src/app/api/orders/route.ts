@@ -3,6 +3,7 @@ import { currentUser } from '@clerk/nextjs/server'
 import { prisma } from '@/lib/prisma'
 import { getOrCreateUser } from '@/lib/auth'
 import { notifyOrderConfirmation } from '@/lib/notification-system'
+import { confirmStockReservation } from '@/lib/stock-reservation'
 
 interface CreateOrderRequest {
   items: Array<{
@@ -17,6 +18,7 @@ interface CreateOrderRequest {
   phone: string
   isDraft?: boolean
   paymentMethod?: string
+  sessionId?: string
 }
 
 // Generar número de orden único
@@ -202,6 +204,15 @@ export async function POST(request: NextRequest) {
 
       return newOrder
     })
+
+    // Confirmar reservas de stock (eliminar reservas temporales)
+    if (body.sessionId && !body.isDraft) {
+      try {
+        await confirmStockReservation(body.sessionId)
+      } catch (error) {
+        console.error('Error confirming stock reservation:', error)
+      }
+    }
 
     // Obtener el pedido completo con items y productos
     const completeOrder = await prisma.order.findUnique({

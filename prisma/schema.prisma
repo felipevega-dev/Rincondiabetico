@@ -33,6 +33,7 @@ model User {
   
   // Relaciones
   orders        Order[]
+  wishlistItems WishlistItem[]
   
   @@map("users")
 }
@@ -136,6 +137,8 @@ model Product {
   category    Category         @relation(fields: [categoryId], references: [id])
   orderItems  OrderItem[]
   variations  ProductVariation[]
+  stockReservations StockReservation[]
+  wishlistItems WishlistItem[]
   
   @@map("products")
 }
@@ -272,4 +275,38 @@ model Payment {
   order           Order         @relation(fields: [orderId], references: [id])
   
   @@map("payments")
+}
+
+// Reservas temporales de stock
+model StockReservation {
+  id        String   @id @default(cuid())
+  productId String
+  quantity  Int
+  sessionId String   // ID de sesión del usuario o carrito
+  expiresAt DateTime // 15 minutos desde creación
+  
+  // Metadatos
+  createdAt DateTime @default(now())
+  
+  // Relaciones
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  
+  @@map("stock_reservations")
+}
+
+// Lista de deseos/favoritos
+model WishlistItem {
+  id        String   @id @default(cuid())
+  userId    String
+  productId String
+  
+  // Metadatos
+  createdAt DateTime @default(now())
+  
+  // Relaciones
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  
+  @@unique([userId, productId])
+  @@map("wishlist_items")
 } 

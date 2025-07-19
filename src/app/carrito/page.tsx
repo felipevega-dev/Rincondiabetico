@@ -5,6 +5,7 @@ import { formatPrice } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { StockValidationAlert } from '@/components/client/stock-validation-alert'
 import { ShoppingCart, Minus, Plus, Trash2, ArrowLeft, Users, Cookie } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -85,6 +86,9 @@ export default function CartPage() {
           </div>
         </div>
 
+        {/* Stock Validation Alert */}
+        <StockValidationAlert />
+
         <div className="lg:grid lg:grid-cols-3 lg:gap-8">
           <div className="lg:col-span-2">
             <Card>
@@ -95,7 +99,12 @@ export default function CartPage() {
               <CardContent className="p-0">
                 <div className="divide-y divide-border">
                   {items.map((item) => (
-                    <div key={item.id} className="p-6">
+                    <div 
+                      key={item.id} 
+                      className="p-6"
+                      data-item-id={item.id}
+                      data-product-id={item.productId}
+                    >
                       <div className="flex items-center">
                         <div className="flex-shrink-0 w-20 h-20">
                           {item.image ? (

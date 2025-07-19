@@ -5,6 +5,7 @@ import { prisma } from '@/lib/prisma'
 import { formatPrice } from '@/lib/utils'
 import { ArrowLeft, Package } from 'lucide-react'
 import { AddToCartButton } from '@/components/client/add-to-cart-button'
+import { WishlistButton } from '@/components/client/wishlist-button'
 import { ProductVariationsSelector } from '@/components/client/product-variations-selector'
 import { ProductImageCollage } from '@/components/client/product-image-collage'
 
@@ -181,13 +182,21 @@ export default async function ProductPage({ params }: ProductPageProps) {
                   />
                 ) : (
                   <>
-                    <AddToCartButton 
-                      productName={product.name}
-                      productId={product.id}
-                      productPrice={product.price}
-                      productImage={product.images?.[0]}
-                      productStock={product.stock}
-                    />
+                    <div className="flex gap-3">
+                      <AddToCartButton 
+                        productName={product.name}
+                        productId={product.id}
+                        productPrice={product.price}
+                        productImage={product.images?.[0]}
+                        productStock={product.stock}
+                        className="flex-1"
+                      />
+                      <WishlistButton
+                        productId={product.id}
+                        variant="outline"
+                        size="lg"
+                      />
+                    </div>
                     <p className="text-sm text-gray-600 text-center">
                       * Solo retiro en tienda física
                     </p>
