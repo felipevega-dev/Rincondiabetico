@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { currentUser } from '@clerk/nextjs/server'
 import { prisma } from '@/lib/prisma'
 import { getOrCreateUser } from '@/lib/auth'
+import { notifyStatusChange } from '@/lib/notification-system'
 
 export async function PATCH(
   request: NextRequest,
@@ -41,11 +42,15 @@ export async function PATCH(
       )
     }
 
+    // Guardar el estado anterior para notificaciones
+    const previousStatus = order.status
+    const newStatus = body.status || order.status
+
     // Actualizar el pedido
     const updatedOrder = await prisma.order.update({
       where: { id },
       data: {
-        status: body.status || order.status,
+        status: newStatus,
         paymentMethod: body.paymentMethod || order.paymentMethod,
         adminNotes: body.adminNotes || order.adminNotes,
         updatedAt: new Date()
@@ -59,6 +64,38 @@ export async function PATCH(
         user: true
       }
     })
+
+    // Enviar notificaciones si el estado cambió
+    if (body.status && previousStatus !== newStatus) {
+      try {
+        const notificationResult = await notifyStatusChange({
+          orderNumber: updatedOrder.orderNumber,
+          customerName: `${updatedOrder.user.firstName} ${updatedOrder.user.lastName}`.trim(),
+          customerEmail: updatedOrder.user.email,
+          total: updatedOrder.total,
+          items: updatedOrder.items.map(item => ({
+            name: item.product.name,
+            quantity: item.quantity,
+            price: item.price
+          })),
+          paymentMethod: updatedOrder.paymentMethod || 'PENDIENTE',
+          pickupDate: updatedOrder.pickupDate?.toLocaleDateString('es-CL') || '',
+          pickupTime: updatedOrder.pickupTime || '',
+          newStatus,
+          previousStatus
+        })
+
+        console.log(`Notificaciones de cambio de estado enviadas para pedido ${updatedOrder.orderNumber}:`, {
+          from: previousStatus,
+          to: newStatus,
+          email: notificationResult.email.success,
+          whatsapp: notificationResult.whatsapp.success
+        })
+      } catch (notificationError) {
+        console.error('Error enviando notificaciones de cambio de estado:', notificationError)
+        // No fallar la actualización por error de notificaciones
+      }
+    }
 
     return NextResponse.json(updatedOrder)
 

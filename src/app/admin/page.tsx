@@ -5,6 +5,7 @@ import { prisma } from '@/lib/prisma'
 import Link from 'next/link'
 import { Package, ShoppingCart, FolderOpen, Users, AlertTriangle, TrendingUp } from 'lucide-react'
 import OrderCleanup from '@/components/admin/order-cleanup'
+import NotificationSettings from '@/components/admin/notification-settings'
 
 export default async function AdminDashboard() {
   const user = await currentUser()
@@ -199,6 +200,18 @@ export default async function AdminDashboard() {
 
       {/* Order Cleanup */}
       <OrderCleanup />
+
+      {/* Notification Settings */}
+      <div className="bg-white rounded-lg shadow">
+        <div className="p-6 border-b border-gray-200">
+          <h2 className="text-xl font-bold text-gray-900">
+            Sistema de Notificaciones
+          </h2>
+        </div>
+        <div className="p-6">
+          <NotificationSettings />
+        </div>
+      </div>
 
       {/* Quick Actions */}
       <div className="bg-white rounded-lg shadow">

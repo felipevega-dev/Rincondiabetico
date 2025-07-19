@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@clerk/nextjs/server'
 import { getLowStockProducts } from '@/lib/stock'
+import { notifyLowStock } from '@/lib/notification-system'
 
 export async function GET(request: NextRequest) {
   try {
@@ -15,6 +16,22 @@ export async function GET(request: NextRequest) {
     const threshold = parseInt(url.searchParams.get('threshold') || '5')
 
     const products = await getLowStockProducts(threshold)
+    
+    // Enviar notificación si hay productos críticos (stock 0 o ≤ 2)
+    const criticalProducts = products.filter(p => p.currentStock <= 2)
+    if (criticalProducts.length > 0) {
+      try {
+        await notifyLowStock(criticalProducts.map(p => ({
+          name: p.name,
+          stock: p.currentStock,
+          category: 'General' // TODO: agregar categoría real
+        })))
+        
+        console.log(`Notificación de stock bajo enviada para ${criticalProducts.length} productos`)
+      } catch (notificationError) {
+        console.error('Error enviando notificación de stock bajo:', notificationError)
+      }
+    }
 
     return NextResponse.json({
       products: products.map(product => ({

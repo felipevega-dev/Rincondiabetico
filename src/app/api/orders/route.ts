@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { currentUser } from '@clerk/nextjs/server'
 import { prisma } from '@/lib/prisma'
 import { getOrCreateUser } from '@/lib/auth'
-import { sendOrderConfirmationEmail } from '@/lib/email'
+import { notifyOrderConfirmation } from '@/lib/notification-system'
 
 interface CreateOrderRequest {
   items: Array<{
@@ -219,7 +219,7 @@ export async function POST(request: NextRequest) {
     // Enviar email de confirmación si no es borrador
     if (!body.isDraft && completeOrder && user.emailAddresses?.[0]?.emailAddress && completeOrder.pickupDate) {
       try {
-        await sendOrderConfirmationEmail({
+        const notificationResult = await notifyOrderConfirmation({
           orderNumber: completeOrder.orderNumber,
           customerName: (user.firstName && user.lastName) 
             ? `${user.firstName} ${user.lastName}` 
@@ -233,14 +233,16 @@ export async function POST(request: NextRequest) {
           total: completeOrder.total,
           pickupDate: completeOrder.pickupDate.toLocaleDateString('es-CL'),
           pickupTime: completeOrder.pickupTime || '',
-          customerNotes: completeOrder.customerNotes || undefined,
-          status: completeOrder.status
+          paymentMethod: completeOrder.paymentMethod || 'PENDIENTE'
         })
         
-        console.log(`Email de confirmación enviado para pedido ${completeOrder.orderNumber}`)
-      } catch (emailError) {
-        console.error('Error enviando email de confirmación:', emailError)
-        // No fallar la creación del pedido por error de email
+        console.log(`Notificaciones enviadas para pedido ${completeOrder.orderNumber}:`, {
+          email: notificationResult.email.success,
+          whatsapp: notificationResult.whatsapp.success
+        })
+      } catch (notificationError) {
+        console.error('Error enviando notificaciones:', notificationError)
+        // No fallar la creación del pedido por error de notificaciones
       }
     }
 
