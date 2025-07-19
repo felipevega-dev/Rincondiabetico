@@ -1,28 +1,27 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { Calendar, Clock, Package, Eye, AlertCircle, CheckCircle, XCircle } from 'lucide-react'
+import { Card, CardContent } from '@/components/ui/card'
 
-interface OrdersListProps {
-  orders: Array<{
+interface Order {
+  id: string
+  orderNumber: string
+  status: string
+  total: number
+  pickupDate: Date | null
+  pickupTime: string | null
+  createdAt: Date
+  items: Array<{
     id: string
-    orderNumber: string
-    status: string
-    total: number
-    pickupDate: Date | null
-    pickupTime: string | null
-    createdAt: Date
-    items: Array<{
+    quantity: number
+    product: {
       id: string
-      quantity: number
-      product: {
-        id: string
-        name: string
-        images: string[]
-      }
-    }>
+      name: string
+      images: string[]
+    }
   }>
 }
 
@@ -59,8 +58,34 @@ const statusConfig = {
   }
 }
 
-export function OrdersList({ orders }: OrdersListProps) {
+export function OrdersList() {
+  const [orders, setOrders] = useState<Order[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const [statusFilter, setStatusFilter] = useState<string>('TODOS')
+
+  useEffect(() => {
+    const fetchOrders = async () => {
+      try {
+        setLoading(true)
+        const response = await fetch('/api/orders')
+        
+        if (!response.ok) {
+          throw new Error('Error al cargar pedidos')
+        }
+        
+        const data = await response.json()
+        setOrders(data)
+      } catch (error) {
+        console.error('Error fetching orders:', error)
+        setError('Error al cargar los pedidos')
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchOrders()
+  }, [])
 
   const filteredOrders = orders.filter(order => 
     statusFilter === 'TODOS' || order.status === statusFilter
@@ -79,7 +104,7 @@ export function OrdersList({ orders }: OrdersListProps) {
     return time
   }
 
-  const getItemsPreview = (items: OrdersListProps['orders'][0]['items']) => {
+  const getItemsPreview = (items: Order['items']) => {
     const firstThree = items.slice(0, 3)
     const remaining = items.length - 3
     
@@ -112,47 +137,92 @@ export function OrdersList({ orders }: OrdersListProps) {
     )
   }
 
+  if (loading) {
+    return (
+      <div className="space-y-4">
+        {[...Array(3)].map((_, i) => (
+          <Card key={i} className="animate-pulse">
+            <CardContent className="p-6">
+              <div className="space-y-4">
+                <div className="flex justify-between items-center">
+                  <div className="h-4 bg-gray-200 rounded w-32"></div>
+                  <div className="h-6 bg-gray-200 rounded w-20"></div>
+                </div>
+                <div className="h-4 bg-gray-200 rounded w-48"></div>
+                <div className="h-4 bg-gray-200 rounded w-24"></div>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <Card>
+        <CardContent className="p-12 text-center">
+          <div className="text-4xl mb-4">⚠️</div>
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">
+            Error al cargar pedidos
+          </h3>
+          <p className="text-gray-600 mb-6">{error}</p>
+          <button
+            onClick={() => window.location.reload()}
+            className="bg-pink-600 text-white px-6 py-2 rounded-lg hover:bg-pink-700 transition-colors"
+          >
+            Reintentar
+          </button>
+        </CardContent>
+      </Card>
+    )
+  }
+
   if (orders.length === 0) {
     return (
-      <div className="bg-white rounded-lg shadow-lg p-12 text-center">
-        <div className="text-6xl mb-4">📦</div>
-        <h2 className="text-2xl font-bold text-gray-900 mb-4">
-          No tienes pedidos aún
-        </h2>
-        <p className="text-gray-600 mb-8">
-          ¡Haz tu primer pedido y disfruta de nuestros deliciosos postres!
-        </p>
-        <Link
-          href="/productos"
-          className="inline-block bg-pink-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-pink-700 transition-colors"
-        >
-          Ver Productos
-        </Link>
-      </div>
+      <Card>
+        <CardContent className="p-12 text-center">
+          <div className="text-6xl mb-4">📦</div>
+          <h2 className="text-2xl font-bold text-gray-900 mb-4">
+            No tienes pedidos aún
+          </h2>
+          <p className="text-gray-600 mb-8">
+            ¡Haz tu primer pedido y disfruta de nuestros deliciosos postres!
+          </p>
+          <Link
+            href="/productos"
+            className="inline-block bg-pink-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-pink-700 transition-colors"
+          >
+            Ver Productos
+          </Link>
+        </CardContent>
+      </Card>
     )
   }
 
   return (
     <div className="space-y-6">
       {/* Filtros */}
-      <div className="bg-white rounded-lg shadow-lg p-6">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">Filtrar por Estado</h2>
-        <div className="flex flex-wrap gap-2">
-          {['TODOS', 'PENDIENTE', 'PAGADO', 'PREPARANDO', 'LISTO', 'RETIRADO', 'CANCELADO'].map((status) => (
-            <button
-              key={status}
-              onClick={() => setStatusFilter(status)}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                statusFilter === status
-                  ? 'bg-pink-600 text-white'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              }`}
-            >
-              {status === 'TODOS' ? 'Todos' : statusConfig[status as keyof typeof statusConfig]?.label || status}
-            </button>
-          ))}
-        </div>
-      </div>
+      <Card>
+        <CardContent className="p-6">
+          <h2 className="text-lg font-semibold text-gray-900 mb-4">Filtrar por Estado</h2>
+          <div className="flex flex-wrap gap-2">
+            {['TODOS', 'PENDIENTE', 'PAGADO', 'PREPARANDO', 'LISTO', 'RETIRADO', 'CANCELADO'].map((status) => (
+              <button
+                key={status}
+                onClick={() => setStatusFilter(status)}
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  statusFilter === status
+                    ? 'bg-pink-600 text-white'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+              >
+                {status === 'TODOS' ? 'Todos' : statusConfig[status as keyof typeof statusConfig]?.label || status}
+              </button>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Lista de Pedidos */}
       <div className="space-y-4">
@@ -161,7 +231,8 @@ export function OrdersList({ orders }: OrdersListProps) {
           const StatusIcon = status.icon
 
           return (
-            <div key={order.id} className="bg-white rounded-lg shadow-lg p-6 hover:shadow-xl transition-shadow">
+            <Card key={order.id} className="hover:shadow-xl transition-shadow">
+              <CardContent className="p-6">
               <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between">
                 {/* Información Principal */}
                 <div className="flex-1">
@@ -219,21 +290,24 @@ export function OrdersList({ orders }: OrdersListProps) {
                   </Link>
                 </div>
               </div>
-            </div>
+              </CardContent>
+            </Card>
           )
         })}
       </div>
 
       {filteredOrders.length === 0 && statusFilter !== 'TODOS' && (
-        <div className="bg-white rounded-lg shadow-lg p-8 text-center">
-          <div className="text-4xl mb-4">🔍</div>
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">
-            No hay pedidos con este estado
-          </h3>
-          <p className="text-gray-600">
-            Intenta con otro filtro o realiza un nuevo pedido
-          </p>
-        </div>
+        <Card>
+          <CardContent className="p-8 text-center">
+            <div className="text-4xl mb-4">🔍</div>
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">
+              No hay pedidos con este estado
+            </h3>
+            <p className="text-gray-600">
+              Intenta con otro filtro o realiza un nuevo pedido
+            </p>
+          </CardContent>
+        </Card>
       )}
     </div>
   )

@@ -8,6 +8,7 @@ const isProtectedRoute = createRouteMatcher([
   '/perfil(.*)',
   '/carrito(.*)',
   '/favoritos(.*)',
+  '/cuenta(.*)',
 ])
 
 // Rutas solo para administradores
