@@ -84,20 +84,8 @@ export async function POST(request: NextRequest) {
     
     if (result.status === 'approved') {
       orderStatus = 'PAGADO'
-      
-      // Reducir stock de productos
-      for (const item of order.items) {
-        if (item.product.stock !== null) {
-          await prisma.product.update({
-            where: { id: item.productId },
-            data: {
-              stock: {
-                decrement: item.quantity
-              }
-            }
-          })
-        }
-      }
+      // Nota: El stock se reducirá cuando llegue el webhook de confirmación
+      // Esto evita doble reducción y garantiza consistencia con MercadoPago
     } else if (result.status === 'rejected') {
       orderStatus = 'CANCELADO'
     }

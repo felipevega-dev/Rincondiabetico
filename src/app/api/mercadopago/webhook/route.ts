@@ -36,12 +36,27 @@ export async function POST(request: NextRequest) {
     // Buscar el pedido en la base de datos
     const order = await prisma.order.findUnique({
       where: { id: externalReference },
-      include: { items: true }
+      include: { 
+        items: true,
+        payment: true // Incluir información de pago existente
+      }
     })
 
     if (!order) {
       console.log('Order not found:', externalReference)
       return NextResponse.json({ error: 'Order not found' }, { status: 404 })
+    }
+
+    // Verificar si ya procesamos este pago (idempotencia)
+    if (order.payment?.transactionId === paymentId.toString() && 
+        order.payment?.status === 'PAID' && 
+        paymentInfo.status === 'approved') {
+      console.log(`Payment ${paymentId} already processed for order ${order.id}`)
+      return NextResponse.json({ 
+        message: 'Payment already processed',
+        orderId: order.id,
+        status: order.status
+      })
     }
 
     // Mapear estados de MercadoPago a nuestros estados
@@ -92,20 +107,30 @@ export async function POST(request: NextRequest) {
       }
     })
 
-    // Si el pago fue aprobado, reducir stock
+    // Si el pago fue aprobado y la orden no estaba ya en estado PAGADO, reducir stock
+    // Esta verificación evita doble reducción de stock
     if (paymentInfo.status === 'approved' && order.status !== 'PAGADO') {
-      for (const item of order.items) {
-        await prisma.product.update({
-          where: { id: item.productId },
-          data: {
-            stock: {
-              decrement: item.quantity
-            }
+      try {
+        // Reducir stock usando transacción para garantizar consistencia
+        await prisma.$transaction(async (tx) => {
+          for (const item of order.items) {
+            await tx.product.update({
+              where: { id: item.productId },
+              data: {
+                stock: {
+                  decrement: item.quantity
+                }
+              }
+            })
           }
         })
-      }
 
-      console.log(`Payment approved for order ${order.id}, stock updated`)
+        console.log(`Payment approved for order ${order.id}, stock updated`)
+      } catch (error) {
+        console.error('Error updating stock for order:', order.id, error)
+        // No lanzamos error para no afectar el procesamiento del webhook
+        // El admin puede manejar esto manualmente si es necesario
+      }
     }
 
     console.log(`Order ${order.id} updated to status: ${orderStatus}`)
