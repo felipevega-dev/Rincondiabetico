@@ -4,6 +4,7 @@ import { isAdmin } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import Link from 'next/link'
 import { Package, ShoppingCart, FolderOpen, Users, AlertTriangle, TrendingUp } from 'lucide-react'
+import OrderCleanup from '@/components/admin/order-cleanup'
 
 export default async function AdminDashboard() {
   const user = await currentUser()
@@ -195,6 +196,9 @@ export default async function AdminDashboard() {
           </div>
         </div>
       )}
+
+      {/* Order Cleanup */}
+      <OrderCleanup />
 
       {/* Quick Actions */}
       <div className="bg-white rounded-lg shadow">

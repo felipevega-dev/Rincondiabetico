@@ -82,11 +82,11 @@
 ## ⏳ FUNCIONALIDADES PENDIENTES
 
 ### 🚨 **CRÍTICAS (Arreglar ASAP)**
-- [ ] **Fix OrderStatus enum** - Agregar ESPERANDO_CONFIRMACION
+- [x] ~~**Fix OrderStatus enum**~~ - ✅ COMPLETADO (19 Enero)
 - [x] ~~**Fix double stock reduction**~~ - ✅ COMPLETADO (19 Enero)
 - [x] ~~**Rebuild email system**~~ - ✅ COMPLETADO (19 Enero)
-- [ ] **Admin middleware enabled** - Descomentar protección real
-- [ ] **Draft order cleanup** - Limpiar órdenes abandonadas
+- [x] ~~**Admin middleware enabled**~~ - ✅ COMPLETADO (19 Enero)
+- [x] ~~**Draft order cleanup**~~ - ✅ COMPLETADO (19 Enero)
 
 ### 📧 **Sistema de Notificaciones**
 - [x] ~~**Email confirmación pedidos**~~ - ✅ COMPLETADO (19 Enero)
@@ -181,9 +181,9 @@
 
 ## 📈 ESTADÍSTICAS DEL PROYECTO
 
-### **Completado**: 47 funcionalidades ✅
-### **Pendiente**: 52 funcionalidades ⏳
-### **Progreso total**: 47.5%
+### **Completado**: 51 funcionalidades ✅
+### **Pendiente**: 48 funcionalidades ⏳
+### **Progreso total**: 51.5%
 
 ---
 
@@ -193,9 +193,18 @@
 - ✅ **Fix double stock reduction**: Eliminada duplicación en MercadoPago flow
 - ✅ **Rebuild email system**: Recreado archivo email.ts corrupto con templates
 - ✅ **Idempotency checks**: Implementado en webhook MercadoPago
+- ✅ **OrderStatus enum consistency**: Verificado que ya estaba correctamente implementado
+- ✅ **Admin middleware protection**: Habilitada protección real de rutas admin
+- ✅ **Draft order cleanup system**: Sistema completo de limpieza automática con:
+  - Eliminación de órdenes DRAFT después de 15 minutos
+  - Cancelación de órdenes PENDIENTE después de 24 horas
+  - API endpoint admin para ejecución manual
+  - Dashboard component con estadísticas en tiempo real
+  - Programación automática cada 30 minutos
 
 ### **Próximas acciones sugeridas**:
-1. Fix OrderStatus enum inconsistency  
-2. Enable admin middleware protection
-3. Implement draft order cleanup
-4. Add email status notifications
+1. Email status notifications - Notificar cambios de estado a clientes
+2. Advanced sorting productos - Precio, popularidad, fecha
+3. Stock temporal reservation - Durante checkout (15min)
+4. WhatsApp admin automation - Integración API
+5. Customer wishlist/favorites - Guardar productos
