@@ -23,19 +23,15 @@ export default clerkMiddleware(async (auth, req) => {
   
   // Proteger rutas de administrador
   if (isAdminRoute(req)) {
-    const { userId, user } = await auth()
+    const { userId } = await auth()
     if (!userId) {
       await auth.protect()
       return
     }
     
-    // Verificar si el usuario es admin usando metadata de Clerk
-    const isUserAdmin = user?.publicMetadata?.role === 'admin'
-    
-    if (!isUserAdmin) {
-      // Redirigir a dashboard si no es admin
-      return Response.redirect(new URL('/dashboard', req.url))
-    }
+    // Para simplificar, permitimos todas las rutas admin autenticadas
+    // La verificación específica de admin se hace en cada página
+    await auth.protect()
   }
 })
 

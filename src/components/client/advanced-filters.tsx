@@ -67,7 +67,7 @@ export function AdvancedFilters({ categories, className }: AdvancedFiltersProps)
     const params = new URLSearchParams()
     
     Object.entries(newFilters).forEach(([k, v]) => {
-      if (v && v !== 'newest' && v !== false) {
+      if (v && v !== 'newest' && v !== false && v !== '') {
         params.set(k, v.toString())
       }
     })
