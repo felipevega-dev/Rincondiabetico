@@ -58,42 +58,19 @@ export default function NotificationSettings() {
   const [loading, setLoading] = useState(false)
   const [saved, setSaved] = useState(false)
 
-  // Simular carga de configuración desde API
   useEffect(() => {
-    loadSettings()
-    loadStats()
+    // Simular carga de datos
+    setStats({
+      emailsSentToday: 12,
+      whatsappSentToday: 8,
+      lastEmail: '2025-01-20 14:30',
+      lastWhatsapp: '2025-01-20 15:45',
+      systemHealth: {
+        email: true,
+        whatsapp: true
+      }
+    })
   }, [])
-
-  const loadSettings = async () => {
-    try {
-      // En producción cargaría desde API
-      // const response = await fetch('/api/admin/notifications/settings')
-      // const data = await response.json()
-      // setSettings(data.settings)
-      
-      console.log('Configuración de notificaciones cargada')
-    } catch (error) {
-      console.error('Error cargando configuración:', error)
-    }
-  }
-
-  const loadStats = async () => {
-    try {
-      // En producción cargaría estadísticas reales
-      setStats({
-        emailsSentToday: 23,
-        whatsappSentToday: 15,
-        lastEmail: new Date(Date.now() - 30 * 60 * 1000).toLocaleString('es-CL'),
-        lastWhatsapp: new Date(Date.now() - 5 * 60 * 1000).toLocaleString('es-CL'),
-        systemHealth: {
-          email: true,
-          whatsapp: true
-        }
-      })
-    } catch (error) {
-      console.error('Error cargando estadísticas:', error)
-    }
-  }
 
   const saveSettings = async () => {
     setLoading(true)
@@ -101,15 +78,8 @@ export default function NotificationSettings() {
     
     try {
       // En producción enviaría a API
-      // await fetch('/api/admin/notifications/settings', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify(settings)
-      // })
-      
       console.log('Configuración guardada:', settings)
       setSaved(true)
-      
       setTimeout(() => setSaved(false), 3000)
     } catch (error) {
       console.error('Error guardando configuración:', error)
@@ -121,27 +91,20 @@ export default function NotificationSettings() {
   const updateEmailSetting = (key: keyof NotificationSettings['email'], value: boolean) => {
     setSettings(prev => ({
       ...prev,
-      email: {
-        ...prev.email,
-        [key]: value
-      }
+      email: { ...prev.email, [key]: value }
     }))
   }
 
   const updateWhatsAppSetting = (key: keyof NotificationSettings['whatsapp'], value: boolean) => {
     setSettings(prev => ({
       ...prev,
-      whatsapp: {
-        ...prev.whatsapp,
-        [key]: value
-      }
+      whatsapp: { ...prev.whatsapp, [key]: value }
     }))
   }
 
   const testNotifications = async () => {
     try {
       console.log('Enviando notificaciones de prueba...')
-      // En producción enviaría notificaciones de prueba
       alert('Notificaciones de prueba enviadas')
     } catch (error) {
       console.error('Error enviando notificaciones de prueba:', error)
@@ -149,196 +112,178 @@ export default function NotificationSettings() {
   }
 
   return (
-    <div className="space-y-6">
-      {/* Stats Overview */}
-      <Card className="p-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">
-          Estado del Sistema de Notificaciones
-        </h3>
-        
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-          <div className="bg-blue-50 p-4 rounded-lg">
-            <p className="text-sm font-medium text-blue-600">Emails Hoy</p>
-            <p className="text-2xl font-bold text-blue-900">{stats.emailsSentToday}</p>
-          </div>
-          
-          <div className="bg-green-50 p-4 rounded-lg">
-            <p className="text-sm font-medium text-green-600">WhatsApp Hoy</p>
-            <p className="text-2xl font-bold text-green-900">{stats.whatsappSentToday}</p>
-          </div>
-          
-          <div className="bg-purple-50 p-4 rounded-lg">
-            <p className="text-sm font-medium text-purple-600">Estado Email</p>
-            <div className="flex items-center gap-2 mt-1">
-              <div className={`w-3 h-3 rounded-full ${stats.systemHealth.email ? 'bg-green-500' : 'bg-red-500'}`}></div>
-              <span className="text-sm font-medium">{stats.systemHealth.email ? 'Activo' : 'Error'}</span>
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      {/* Left Column - Settings */}
+      <div className="space-y-4">
+        {/* Email Settings */}
+        <div>
+          <h3 className="text-base font-semibold text-gray-900 mb-3">
+            📧 Configuración de Emails
+          </h3>
+          <div className="space-y-3 bg-gray-50 p-3 rounded-lg">
+            <div className="flex items-center justify-between">
+              <div>
+                <Label className="text-sm font-medium">Confirmación de Pedidos</Label>
+                <p className="text-xs text-gray-600">Email automático al crear pedido</p>
+              </div>
+              <Switch
+                checked={settings.email.orderConfirmation}
+                onCheckedChange={(checked) => updateEmailSetting('orderConfirmation', checked)}
+              />
             </div>
-          </div>
-          
-          <div className="bg-orange-50 p-4 rounded-lg">
-            <p className="text-sm font-medium text-orange-600">Estado WhatsApp</p>
-            <div className="flex items-center gap-2 mt-1">
-              <div className={`w-3 h-3 rounded-full ${stats.systemHealth.whatsapp ? 'bg-green-500' : 'bg-red-500'}`}></div>
-              <span className="text-sm font-medium">{stats.systemHealth.whatsapp ? 'Activo' : 'Error'}</span>
+            
+            <div className="flex items-center justify-between">
+              <div>
+                <Label className="text-sm font-medium">Cambios de Estado</Label>
+                <p className="text-xs text-gray-600">Notificar cambios de estado</p>
+              </div>
+              <Switch
+                checked={settings.email.statusUpdates}
+                onCheckedChange={(checked) => updateEmailSetting('statusUpdates', checked)}
+              />
+            </div>
+            
+            <div className="flex items-center justify-between">
+              <div>
+                <Label className="text-sm font-medium">Recordatorios</Label>
+                <p className="text-xs text-gray-600">Recordar retiro (1h antes)</p>
+              </div>
+              <Switch
+                checked={settings.email.pickupReminders}
+                onCheckedChange={(checked) => updateEmailSetting('pickupReminders', checked)}
+              />
             </div>
           </div>
         </div>
 
-        {/* Last Activity */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-600">
-          <div>
-            <strong>Último email:</strong> {stats.lastEmail || 'Ninguno'}
-          </div>
-          <div>
-            <strong>Último WhatsApp:</strong> {stats.lastWhatsapp || 'Ninguno'}
+        {/* WhatsApp Settings */}
+        <div>
+          <h3 className="text-base font-semibold text-gray-900 mb-3">
+            📱 WhatsApp (Admin)
+          </h3>
+          <div className="space-y-3 bg-gray-50 p-3 rounded-lg">
+            <div className="flex items-center justify-between">
+              <div>
+                <Label className="text-sm font-medium">Nuevos Pedidos</Label>
+                <p className="text-xs text-gray-600">Notificar pedidos nuevos</p>
+              </div>
+              <Switch
+                checked={settings.whatsapp.adminNewOrders}
+                onCheckedChange={(checked) => updateWhatsAppSetting('adminNewOrders', checked)}
+              />
+            </div>
+            
+            <div className="flex items-center justify-between">
+              <div>
+                <Label className="text-sm font-medium">Cambios de Estado</Label>
+                <p className="text-xs text-gray-600">Notificar cambios</p>
+              </div>
+              <Switch
+                checked={settings.whatsapp.adminStatusUpdates}
+                onCheckedChange={(checked) => updateWhatsAppSetting('adminStatusUpdates', checked)}
+              />
+            </div>
+            
+            <div className="flex items-center justify-between">
+              <div>
+                <Label className="text-sm font-medium">Alertas Stock</Label>
+                <p className="text-xs text-gray-600">Stock bajo</p>
+              </div>
+              <Switch
+                checked={settings.whatsapp.adminLowStock}
+                onCheckedChange={(checked) => updateWhatsAppSetting('adminLowStock', checked)}
+              />
+            </div>
           </div>
         </div>
-      </Card>
 
-      {/* Email Settings */}
-      <Card className="p-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">
-          📧 Configuración de Emails
-        </h3>
-        
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <Label htmlFor="email-confirmation" className="text-sm font-medium">
-                Confirmación de Pedidos
-              </Label>
-              <p className="text-sm text-gray-600">
-                Enviar email de confirmación cuando se crea un pedido
-              </p>
-            </div>
-            <Switch
-              id="email-confirmation"
-              checked={settings.email.orderConfirmation}
-              onCheckedChange={(checked) => updateEmailSetting('orderConfirmation', checked)}
-            />
-          </div>
-          
-          <div className="flex items-center justify-between">
-            <div>
-              <Label htmlFor="email-status" className="text-sm font-medium">
-                Cambios de Estado
-              </Label>
-              <p className="text-sm text-gray-600">
-                Notificar al cliente cuando cambia el estado del pedido
-              </p>
-            </div>
-            <Switch
-              id="email-status"
-              checked={settings.email.statusUpdates}
-              onCheckedChange={(checked) => updateEmailSetting('statusUpdates', checked)}
-            />
-          </div>
-          
-          <div className="flex items-center justify-between">
-            <div>
-              <Label htmlFor="email-reminders" className="text-sm font-medium">
-                Recordatorios de Retiro
-              </Label>
-              <p className="text-sm text-gray-600">
-                Recordar al cliente retirar su pedido (1 hora antes)
-              </p>
-            </div>
-            <Switch
-              id="email-reminders"
-              checked={settings.email.pickupReminders}
-              onCheckedChange={(checked) => updateEmailSetting('pickupReminders', checked)}
-            />
-          </div>
-        </div>
-      </Card>
-
-      {/* WhatsApp Settings */}
-      <Card className="p-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">
-          📱 Configuración de WhatsApp (Admin)
-        </h3>
-        
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <Label htmlFor="whatsapp-orders" className="text-sm font-medium">
-                Nuevos Pedidos
-              </Label>
-              <p className="text-sm text-gray-600">
-                Notificar al admin cuando llega un nuevo pedido
-              </p>
-            </div>
-            <Switch
-              id="whatsapp-orders"
-              checked={settings.whatsapp.adminNewOrders}
-              onCheckedChange={(checked) => updateWhatsAppSetting('adminNewOrders', checked)}
-            />
-          </div>
-          
-          <div className="flex items-center justify-between">
-            <div>
-              <Label htmlFor="whatsapp-status" className="text-sm font-medium">
-                Cambios de Estado
-              </Label>
-              <p className="text-sm text-gray-600">
-                Notificar al admin sobre cambios de estado de pedidos
-              </p>
-            </div>
-            <Switch
-              id="whatsapp-status"
-              checked={settings.whatsapp.adminStatusUpdates}
-              onCheckedChange={(checked) => updateWhatsAppSetting('adminStatusUpdates', checked)}
-            />
-          </div>
-          
-          <div className="flex items-center justify-between">
-            <div>
-              <Label htmlFor="whatsapp-stock" className="text-sm font-medium">
-                Alertas de Stock
-              </Label>
-              <p className="text-sm text-gray-600">
-                Alertar cuando productos tienen stock bajo
-              </p>
-            </div>
-            <Switch
-              id="whatsapp-stock"
-              checked={settings.whatsapp.adminLowStock}
-              onCheckedChange={(checked) => updateWhatsAppSetting('adminLowStock', checked)}
-            />
-          </div>
-        </div>
-      </Card>
-
-      {/* Actions */}
-      <Card className="p-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">
-          Acciones
-        </h3>
-        
-        <div className="flex gap-4">
+        {/* Actions */}
+        <div className="flex gap-3 pt-2">
           <Button 
             onClick={saveSettings}
             disabled={loading}
+            size="sm"
             className="bg-green-600 hover:bg-green-700"
           >
-            {loading ? 'Guardando...' : 'Guardar Configuración'}
+            {loading ? 'Guardando...' : 'Guardar'}
           </Button>
           
           <Button 
             variant="outline"
             onClick={testNotifications}
+            size="sm"
           >
-            Enviar Prueba
+            Probar
           </Button>
           
           {saved && (
             <div className="flex items-center gap-2 text-green-600">
               <div className="w-2 h-2 bg-green-600 rounded-full"></div>
-              <span className="text-sm font-medium">Configuración guardada</span>
+              <span className="text-xs font-medium">Guardado</span>
             </div>
           )}
         </div>
-      </Card>
+      </div>
+
+      {/* Right Column - Stats */}
+      <div className="space-y-4">
+        {/* Stats Overview */}
+        <div>
+          <h3 className="text-base font-semibold text-gray-900 mb-3">
+            📊 Estadísticas de Hoy
+          </h3>
+          <div className="grid grid-cols-2 gap-3">
+            <div className="bg-blue-50 p-3 rounded-lg">
+              <p className="text-xs font-medium text-blue-600">Emails</p>
+              <p className="text-xl font-bold text-blue-900">{stats.emailsSentToday}</p>
+            </div>
+            <div className="bg-green-50 p-3 rounded-lg">
+              <p className="text-xs font-medium text-green-600">WhatsApp</p>
+              <p className="text-xl font-bold text-green-900">{stats.whatsappSentToday}</p>
+            </div>
+          </div>
+        </div>
+
+        {/* System Status */}
+        <div>
+          <h3 className="text-base font-semibold text-gray-900 mb-3">
+            🔧 Estado del Sistema
+          </h3>
+          <div className="space-y-2 bg-gray-50 p-3 rounded-lg">
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-gray-700">Email</span>
+              <div className="flex items-center gap-2">
+                <div className={`w-2 h-2 rounded-full ${stats.systemHealth.email ? 'bg-green-500' : 'bg-red-500'}`}></div>
+                <span className="text-xs font-medium">{stats.systemHealth.email ? 'Activo' : 'Error'}</span>
+              </div>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-gray-700">WhatsApp</span>
+              <div className="flex items-center gap-2">
+                <div className={`w-2 h-2 rounded-full ${stats.systemHealth.whatsapp ? 'bg-green-500' : 'bg-red-500'}`}></div>
+                <span className="text-xs font-medium">{stats.systemHealth.whatsapp ? 'Activo' : 'Error'}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Last Activity */}
+        <div>
+          <h3 className="text-base font-semibold text-gray-900 mb-3">
+            🕒 Última Actividad
+          </h3>
+          <div className="space-y-2 text-sm text-gray-600 bg-gray-50 p-3 rounded-lg">
+            <div className="flex justify-between">
+              <span>Último email:</span>
+              <span className="font-mono text-xs">{stats.lastEmail || 'Ninguno'}</span>
+            </div>
+            <div className="flex justify-between">
+              <span>Último WhatsApp:</span>
+              <span className="font-mono text-xs">{stats.lastWhatsapp || 'Ninguno'}</span>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   )
 }

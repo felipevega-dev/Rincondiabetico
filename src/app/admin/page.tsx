@@ -198,72 +198,87 @@ export default async function AdminDashboard() {
         </div>
       </div>
 
-      {/* Alertas de Stock */}
-      {(lowStockProducts.length > 0 || outOfStockProducts > 0) && (
-        <div className="bg-white rounded-lg shadow">
-          <div className="p-6 border-b border-gray-200">
-            <div className="flex items-center">
-              <AlertTriangle className="h-6 w-6 text-orange-500 mr-2" />
-              <h2 className="text-xl font-bold text-gray-900">
-                Alertas de Inventario
-              </h2>
-            </div>
-          </div>
-          
-          <div className="p-6">
-            {outOfStockProducts > 0 && (
-              <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
-                <div className="flex items-center">
-                  <Package className="h-5 w-5 text-red-500 mr-2" />
-                  <span className="font-medium text-red-800">
-                    {outOfStockProducts} producto{outOfStockProducts !== 1 ? 's' : ''} sin stock
-                  </span>
-                </div>
-                <p className="text-red-700 text-sm mt-1">
-                  Estos productos no están disponibles para venta
-                </p>
+      {/* Alertas y Gestión - Layout mejorado */}
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+        {/* Alertas de Stock */}
+        {(lowStockProducts.length > 0 || outOfStockProducts > 0) && (
+          <div className="bg-white rounded-lg shadow">
+            <div className="p-4 border-b border-gray-200">
+              <div className="flex items-center">
+                <AlertTriangle className="h-5 w-5 text-orange-500 mr-2" />
+                <h2 className="text-lg font-semibold text-gray-900">
+                  Alertas de Inventario
+                </h2>
               </div>
-            )}
+            </div>
+            
+            <div className="p-4 max-h-96 overflow-y-auto">
+              {outOfStockProducts > 0 && (
+                <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+                  <div className="flex items-center">
+                    <Package className="h-4 w-4 text-red-500 mr-2" />
+                    <span className="font-medium text-red-800 text-sm">
+                      {outOfStockProducts} producto{outOfStockProducts !== 1 ? 's' : ''} sin stock
+                    </span>
+                  </div>
+                </div>
+              )}
 
-            {lowStockProducts.length > 0 && (
-              <div>
-                <h3 className="font-medium text-gray-900 mb-3">
-                  Productos con Stock Bajo (≤ 5 unidades)
-                </h3>
-                <div className="space-y-3">
-                  {lowStockProducts.map((product) => (
-                    <div key={product.id} className="flex items-center justify-between p-3 bg-orange-50 border border-orange-200 rounded-lg">
-                      <div>
-                        <p className="font-medium text-gray-900">{product.name}</p>
-                        <p className="text-sm text-gray-600">{product.category.name}</p>
-                      </div>
-                      <div className="text-right">
-                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+              {lowStockProducts.length > 0 && (
+                <div>
+                  <h3 className="font-medium text-gray-900 mb-3 text-sm">
+                    Productos con Stock Bajo (≤ 5 unidades)
+                  </h3>
+                  <div className="space-y-2">
+                    {lowStockProducts.slice(0, 5).map((product) => (
+                      <div key={product.id} className="flex items-center justify-between p-2 bg-orange-50 border border-orange-200 rounded-lg">
+                        <div>
+                          <p className="font-medium text-gray-900 text-sm">{product.name}</p>
+                          <p className="text-xs text-gray-600">{product.category.name}</p>
+                        </div>
+                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${
                           product.stock <= 2 ? 'bg-red-100 text-red-800' : 'bg-orange-100 text-orange-800'
                         }`}>
-                          {product.stock} unidades
+                          {product.stock}
                         </span>
                       </div>
-                    </div>
-                  ))}
+                    ))}
+                    {lowStockProducts.length > 5 && (
+                      <Link 
+                        href="/admin/stock" 
+                        className="block text-center text-sm text-blue-600 hover:text-blue-800 py-2"
+                      >
+                        Ver {lowStockProducts.length - 5} más...
+                      </Link>
+                    )}
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Order Cleanup */}
+        <div className="bg-white rounded-lg shadow">
+          <div className="p-4 border-b border-gray-200">
+            <h2 className="text-lg font-semibold text-gray-900">
+              Limpieza de Pedidos
+            </h2>
+          </div>
+          <div className="p-4">
+            <OrderCleanup />
           </div>
         </div>
-      )}
+      </div>
 
-      {/* Order Cleanup */}
-      <OrderCleanup />
-
-      {/* Notification Settings */}
+      {/* Notification Settings - Layout optimizado */}
       <div className="bg-white rounded-lg shadow">
-        <div className="p-6 border-b border-gray-200">
-          <h2 className="text-xl font-bold text-gray-900">
+        <div className="p-4 border-b border-gray-200">
+          <h2 className="text-lg font-semibold text-gray-900">
             Sistema de Notificaciones
           </h2>
         </div>
-        <div className="p-6">
+        <div className="p-4">
           <NotificationSettings />
         </div>
       </div>

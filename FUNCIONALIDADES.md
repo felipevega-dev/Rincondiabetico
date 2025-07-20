@@ -152,7 +152,7 @@
 - [ ] **Facturación electrónica** - SII integration
 
 ### 🎯 **Marketing y Growth**
-- [ ] **Sistema de cupones** - Descuentos y promociones
+- [x] **Sistema de cupones** - ✅ COMPLETADO (20 Julio) - Descuentos y promociones completos
 - [ ] **Programa de lealtad** - Puntos y recompensas
 - [ ] **Newsletter integration** - Email marketing
 - [ ] **Referral system** - Programa de referidos
@@ -194,9 +194,9 @@
 
 ## 📈 ESTADÍSTICAS DEL PROYECTO
 
-### **Completado**: 77 funcionalidades ✅
-### **Pendiente**: 26 funcionalidades ⏳
-### **Progreso total**: 74.8%
+### **Completado**: 82 funcionalidades ✅
+### **Pendiente**: 21 funcionalidades ⏳
+### **Progreso total**: 79.6%
 
 ---
 
@@ -281,15 +281,26 @@
   - **Trazabilidad completa**: Historial de stock movements y registro de cambios en pedidos
   - **Schema actualizado**: Campos de cancelación (cancelledAt, cancelReason, cancelledBy) y variationId en OrderItem
   - **Integración total**: Páginas de detalle de pedidos con permisos y acciones contextuales
+- ✅ **Sistema completo de cupones y descuentos**: Implementación integral con:
+  - **Modelo completo**: Coupon con tipos (PERCENTAGE, FIXED_AMOUNT, FREE_SHIPPING, PRODUCT_SPECIFIC)
+  - **Estados de cupones**: ACTIVE, INACTIVE, EXPIRED, USED_UP con transiciones automáticas
+  - **Restricciones avanzadas**: Monto mínimo, límites de uso total y por usuario, fechas de validez
+  - **API de validación**: Endpoint `/api/coupons/validate` con validación en tiempo real
+  - **Panel administrativo**: CRUD completo en `/admin/coupons` con estadísticas y filtros
+  - **Gestión de usuarios**: Sección "Mis Cupones" en cuenta personal con visualización tipo cupón
+  - **Hook personalizado**: useCoupons con stackability, revalidación y persistencia
+  - **Componente de input**: CouponInput para aplicar cupones en carrito con validación visual
+  - **Sistema stackeable**: Cupones que se pueden combinar según configuración isStackable
+  - **Trazabilidad completa**: Modelo CouponUsage para tracking de uso por usuario y pedido
 
 ### **Próximas acciones sugeridas (orden de prioridad)**:
 
 #### **🎯 ALTA PRIORIDAD - Próxima implementación**
-1. **Sistema de cupones y descuentos** - Promociones y marketing avanzado
-   - Tipos: porcentaje, monto fijo, envío gratis
-   - Restricciones por usuario, producto, monto mínimo
-   - Códigos únicos y límites de uso
-   - Sistema de puntos de recompensas integrado
+1. **Sistema de puntos de lealtad** - Programa de fidelización de clientes
+   - Niveles automáticos (Bronze, Silver, Gold, VIP)
+   - Ganancia automática por compras
+   - Multiplicadores por nivel
+   - Dashboard de seguimiento
 
 #### **🎯 MEDIA PRIORIDAD**
 2. **Advanced admin tools** - Herramientas de gestión masiva

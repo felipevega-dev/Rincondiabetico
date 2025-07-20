@@ -4,11 +4,12 @@ import { useState, useEffect } from 'react'
 import { useUser, useClerk } from '@clerk/nextjs'
 import { ProfileForm } from '@/components/client/profile-form'
 import { OrdersList } from '@/components/client/orders-list'
+import { LoyaltyDashboard } from '@/components/client/loyalty-dashboard'
 import { useWishlist } from '@/hooks/use-wishlist'
 import { useCart } from '@/components/providers/cart-provider'
 import { WishlistButton } from '@/components/client/wishlist-button'
 import { AddToCartButton } from '@/components/client/add-to-cart-button'
-import { User, Package2, Heart, LogOut, ShoppingBag, Package, Bell, Shield, Trash2, Tag } from 'lucide-react'
+import { User, Package2, Heart, LogOut, ShoppingBag, Package, Bell, Shield, Trash2, Tag, Star } from 'lucide-react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { formatPrice } from '@/lib/utils'
@@ -102,6 +103,7 @@ export default function AccountPage() {
     { id: 'wishlist', label: 'Favoritos', icon: Heart },
     { id: 'cart', label: 'Carrito', icon: ShoppingBag },
     { id: 'coupons', label: 'Mis Cupones', icon: Tag },
+    { id: 'loyalty', label: 'Puntos de Lealtad', icon: Star },
     { id: 'notifications', label: 'Notificaciones', icon: Bell },
     { id: 'security', label: 'Seguridad', icon: Shield },
   ]
@@ -552,6 +554,14 @@ export default function AccountPage() {
                 ))}
               </div>
             )}
+          </div>
+        )
+
+      case 'loyalty':
+        return (
+          <div>
+            <h2 className="text-2xl font-bold text-gray-900 mb-6">Puntos de Lealtad</h2>
+            <LoyaltyDashboard />
           </div>
         )
 
