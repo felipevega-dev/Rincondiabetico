@@ -3,7 +3,7 @@ import { redirect } from 'next/navigation'
 import { isAdmin } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import Link from 'next/link'
-import { Package, ShoppingCart, FolderOpen, Users, AlertTriangle, TrendingUp } from 'lucide-react'
+import { Package, ShoppingCart, FolderOpen, Users, AlertTriangle, TrendingUp, BarChart3 } from 'lucide-react'
 import OrderCleanup from '@/components/admin/order-cleanup'
 import NotificationSettings from '@/components/admin/notification-settings'
 
@@ -103,6 +103,30 @@ export default async function AdminDashboard() {
     }
   ]
 
+  const quickActions = [
+    {
+      title: 'Analytics y Métricas',
+      description: 'Ver reportes detallados de ventas, productos y clientes',
+      icon: BarChart3,
+      color: 'bg-indigo-500',
+      href: '/admin/analytics'
+    },
+    {
+      title: 'Gestión de Stock',
+      description: 'Monitorear inventario y movimientos de stock',
+      icon: Package,
+      color: 'bg-emerald-500',
+      href: '/admin/stock'
+    },
+    {
+      title: 'Pedidos Recientes',
+      description: 'Gestionar y procesar pedidos pendientes',
+      icon: ShoppingCart,
+      color: 'bg-blue-500',
+      href: '/admin/pedidos'
+    }
+  ]
+
   return (
     <div className="space-y-8">
       {/* Header */}
@@ -141,6 +165,37 @@ export default async function AdminDashboard() {
             </Link>
           )
         })}
+      </div>
+
+      {/* Quick Actions */}
+      <div>
+        <h2 className="text-xl font-bold text-gray-900 mb-6">Acciones Rápidas</h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {quickActions.map((action) => {
+            const Icon = action.icon
+            return (
+              <Link
+                key={action.title}
+                href={action.href}
+                className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-all group border border-gray-200 hover:border-gray-300"
+              >
+                <div className="flex items-start">
+                  <div className={`${action.color} rounded-lg p-3 group-hover:scale-110 transition-transform`}>
+                    <Icon className="h-6 w-6 text-white" />
+                  </div>
+                  <div className="ml-4 flex-1">
+                    <h3 className="text-lg font-medium text-gray-900 group-hover:text-gray-700 transition-colors">
+                      {action.title}
+                    </h3>
+                    <p className="text-sm text-gray-600 mt-1">
+                      {action.description}
+                    </p>
+                  </div>
+                </div>
+              </Link>
+            )
+          })}
+        </div>
       </div>
 
       {/* Alertas de Stock */}

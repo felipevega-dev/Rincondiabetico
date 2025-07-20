@@ -233,11 +233,15 @@ export function ProductsGrid() {
                   
                   <div onClick={(e) => e.preventDefault()}>
                     {product.variations && product.variations.length > 0 ? (
-                      <Link href={`/productos/${product.slug}`}>
-                        <Button className="w-full bg-gradient-to-r from-pink-500 to-pink-600 hover:from-pink-600 hover:to-pink-700 text-white py-4 text-lg font-semibold shadow-lg shadow-pink-200">
-                          Ver Opciones
-                        </Button>
-                      </Link>
+                      <Button 
+                        className="w-full bg-gradient-to-r from-pink-500 to-pink-600 hover:from-pink-600 hover:to-pink-700 text-white py-4 text-lg font-semibold shadow-lg shadow-pink-200"
+                        onClick={(e) => {
+                          e.preventDefault()
+                          window.location.href = `/productos/${product.slug}`
+                        }}
+                      >
+                        Ver Opciones
+                      </Button>
                     ) : (
                       <AddToCartButton
                         productId={product.id}

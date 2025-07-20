@@ -4,6 +4,8 @@ import { currentUser } from '@clerk/nextjs/server'
 import { isAdmin } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { ProductForm } from '@/components/admin/product-form'
+import { StockHistory } from '@/components/admin/stock-history'
+import { ProductRelations } from '@/components/admin/product-relations'
 
 interface EditProductPageProps {
   params: { id: string }
@@ -68,7 +70,7 @@ export default async function EditProductPage({ params }: EditProductPageProps) 
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
             Editar Producto
@@ -78,11 +80,33 @@ export default async function EditProductPage({ params }: EditProductPageProps) 
           </p>
         </div>
 
-        <ProductForm 
-          product={product}
-          categories={categories}
-          isEditing={true}
-        />
+        <div className="space-y-8">
+          {/* Formulario de edición */}
+          <ProductForm 
+            product={product}
+            categories={categories}
+            isEditing={true}
+            embedded={true}
+          />
+
+          <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
+            {/* Historial de stock */}
+            <div>
+              <StockHistory 
+                productId={product.id}
+                productName={product.name}
+              />
+            </div>
+
+            {/* Productos relacionados */}
+            <div>
+              <ProductRelations 
+                productId={product.id}
+                productName={product.name}
+              />
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   )

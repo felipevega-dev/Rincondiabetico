@@ -4,7 +4,7 @@ import { useUser } from '@clerk/nextjs'
 import { UserButton } from '@clerk/nextjs'
 import Link from 'next/link'
 import Image from 'next/image'
-import { ShoppingCart, Settings, Search, Package, Menu, X, ChevronDown, Heart } from 'lucide-react'
+import { ShoppingCart, Settings, Search, Package, Menu, X, ChevronDown, Heart, Clock } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useState, useEffect } from 'react'
 import { useCart } from '@/components/providers/cart-provider'
@@ -149,6 +149,18 @@ export function Navbar() {
                 <Search className="h-5 w-5" />
               </Button>
 
+              {/* Recently Viewed */}
+              <Link href="/historial" className="relative group">
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="relative p-2 hover:bg-primary-50 hover:text-primary-600 rounded-xl"
+                  title="Historial de navegación"
+                >
+                  <Clock className="h-5 w-5" />
+                </Button>
+              </Link>
+
               {/* Wishlist */}
               {user && (
                 <Link href="/favoritos" className="relative group">
@@ -290,6 +302,15 @@ export function Navbar() {
                 onClick={closeMobileMenu}
               >
                 Contacto
+              </Link>
+
+              <Link
+                href="/historial"
+                className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:text-primary-600 hover:bg-primary-50 rounded-xl transition-all duration-300 font-medium"
+                onClick={closeMobileMenu}
+              >
+                <Clock className="h-5 w-5" />
+                Historial
               </Link>
               
               {user && (

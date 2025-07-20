@@ -17,7 +17,9 @@ import {
   ChevronDown,
   ChevronRight,
   FileText,
-  Store
+  Store,
+  PackageSearch,
+  TrendingUp
 } from 'lucide-react'
 
 type User = {
@@ -67,8 +69,10 @@ export function AdminSidebar({ user }: AdminSidebarProps) {
       items: [
         { name: 'Productos', href: '/admin/productos', icon: Package },
         { name: 'Categorías', href: '/admin/categorias', icon: FolderOpen },
+        { name: 'Stock', href: '/admin/stock', icon: PackageSearch },
         { name: 'Pedidos', href: '/admin/pedidos', icon: ShoppingCart },
         { name: 'Clientes', href: '/admin/clientes', icon: Users },
+        { name: 'Analytics', href: '/admin/analytics', icon: TrendingUp },
       ]
     }
   ]

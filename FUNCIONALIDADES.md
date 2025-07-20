@@ -1,6 +1,6 @@
 # 📋 FUNCIONALIDADES - RINCÓN DIABÉTICO
 
-> **Última actualización**: 19 Enero 2025  
+> **Última actualización**: 20 Julio 2025  
 > **Estado del proyecto**: 🟢 Funcionalidades avanzadas implementadas
 
 ## ✅ FUNCIONALIDADES COMPLETADAS
@@ -57,6 +57,8 @@
 - [x] **Sistema de notificaciones completo** - Email + WhatsApp integrado
 - [x] **Limpieza automática de órdenes** - Draft/Pendiente expiradas
 - [x] **Protección middleware admin** - Seguridad de rutas admin
+- [x] **Dashboard de stock avanzado** - Página completa con métricas y gestión
+- [x] **Gestión de productos relacionados** - Interface admin para configurar recomendaciones
 
 ### 🎨 **UI/UX y Diseño**
 - [x] **Diseño responsive** - Mobile-first approach
@@ -109,24 +111,24 @@
 ### 📦 **Gestión de Stock Avanzada**
 - [x] ~~**Reserva temporal stock**~~ - ✅ COMPLETADO (19 Enero)
 - [x] ~~**Validación tiempo real**~~ - ✅ COMPLETADO (19 Enero)
-- [ ] **Historial movimientos** - Track cambios de stock
+- [x] **Historial movimientos** - ✅ COMPLETADO (20 Julio) - Track cambios de stock con timestamps, razones y referencias
+- [x] **Stock mínimo configurable** - ✅ COMPLETADO (20 Julio) - Por producto con alertas personalizadas
 - [ ] **Predicción demanda** - Analytics de ventas
-- [ ] **Stock mínimo configurable** - Por producto
 
 ### 🛍️ **Experiencia Cliente**
 - [x] ~~**Sorting productos**~~ - ✅ COMPLETADO (19 Enero)
 - [x] ~~**Filtros avanzados**~~ - ✅ COMPLETADO (19 Enero)
 - [x] ~~**Wishlist/Favoritos**~~ - ✅ COMPLETADO (19 Enero)
-- [ ] **Productos relacionados** - Recomendaciones
-- [ ] **Recently viewed** - Historial de navegación
-- [ ] **Guest checkout** - Sin registrarse
+- [x] **Productos relacionados** - ✅ COMPLETADO (20 Julio) - Sistema de recomendaciones manuales y automáticas
+- [x] **Recently viewed** - ✅ COMPLETADO (20 Julio) - Historial de navegación del cliente
+- [x] **Guest checkout** - ✅ COMPLETADO (20 Julio) - Compra sin registro obligatorio
 - [ ] **Modificar pedidos** - Antes de preparar
 - [ ] **Cancelar pedidos** - Por cliente o admin
 
 ### 📊 **Dashboard y Analytics**
-- [ ] **Sales analytics** - Reportes detallados
-- [ ] **Product performance** - Más vendidos, menos vendidos
-- [ ] **Customer insights** - Segmentación y comportamiento
+- [x] **Sales analytics** - ✅ COMPLETADO (20 Julio) - Reportes detallados con métricas de ventas, productos top, categorías
+- [x] **Product performance** - ✅ COMPLETADO (20 Julio) - Performance de productos, stock bajo, trending analysis
+- [x] **Customer insights** - ✅ COMPLETADO (20 Julio) - Segmentación, retención, análisis geográfico
 - [ ] **Conversion tracking** - Funnel de ventas
 - [ ] **Inventory forecasting** - Predicción stock necesario
 - [ ] **Revenue reports** - Por período
@@ -192,9 +194,9 @@
 
 ## 📈 ESTADÍSTICAS DEL PROYECTO
 
-### **Completado**: 65 funcionalidades ✅
-### **Pendiente**: 36 funcionalidades ⏳
-### **Progreso total**: 64.4%
+### **Completado**: 75 funcionalidades ✅
+### **Pendiente**: 28 funcionalidades ⏳
+### **Progreso total**: 72.8%
 
 ---
 
@@ -227,9 +229,94 @@
   - **Filtros avanzados**: UI expandible con precio, categorías, stock, búsqueda
   - **Sistema de wishlist/favoritos**: CRUD completo con hook, UI y página dedicada
 
-### **Próximas acciones sugeridas**:
-1. Sales analytics dashboard - Reportes detallados y métricas
-2. Guest checkout - Compra sin registro obligatorio  
-3. Product recommendations - Productos relacionados y sugerencias
-4. Advanced admin tools - Bulk operations y CSV import/export
-5. Performance optimization - Caching, image optimization, PWA
+### **20 Julio 2025**
+- ✅ **Sistema de gestión de stock avanzada**: Implementación completa con:
+  - **Historial completo de movimientos**: Modelo StockMovement con tipos (PURCHASE, CANCEL, MANUAL_INCREASE, etc.)
+  - **Stock mínimo configurable**: Campo minStock por producto para alertas personalizadas
+  - **Dashboard de stock**: Página `/admin/stock` con métricas, productos con stock bajo y estadísticas
+  - **API completa**: Endpoints para ajustar stock, ver historial y estadísticas
+  - **Integración con pagos**: MercadoPago webhook actualiza stock con historial automáticamente
+  - **UI administrativa**: Componente StockHistory integrado en edición de productos
+- ✅ **Sistema de productos relacionados**: Implementación integral con:
+  - **Recomendaciones manuales**: Los admins pueden configurar relaciones específicas entre productos
+  - **Recomendaciones automáticas**: Algoritmo que sugiere productos por categoría y popularidad
+  - **Componente visual**: RelatedProducts que se muestra en páginas de producto
+  - **Gestión admin**: Interface ProductRelations para agregar/quitar relaciones
+  - **API endpoints**: Sistema completo para gestionar relaciones con ProductRelation model
+  - **Algoritmo inteligente**: Combina relaciones manuales con automáticas basadas en ventas
+- ✅ **Sistema de productos recientemente vistos**: Implementación completa con:
+  - **Hook personalizado**: useRecentlyViewed para gestionar historial en localStorage
+  - **Tracking automático**: ProductViewTracker que registra visitas a productos automáticamente
+  - **Componente visual**: RecentlyViewed que muestra productos con timestamps relativos
+  - **Página dedicada**: /historial con estadísticas y gestión completa del historial
+  - **Integración navbar**: Enlaces en desktop y móvil para fácil acceso
+  - **Persistencia inteligente**: Limpieza automática de items de más de 30 días
+- ✅ **Sistema de guest checkout**: Implementación integral con:
+  - **Middleware actualizado**: Rutas de checkout abiertas para invitados
+  - **Hook de gestión**: useGuestCheckout para manejar información de invitados
+  - **Formulario dedicado**: GuestInfoForm con validaciones y persistencia
+  - **API actualizada**: Soporte para órdenes de invitados en /api/orders
+  - **UX optimizada**: Opción de continuar como invitado o iniciar sesión
+  - **Información persistente**: Datos de invitado guardados en localStorage
+- ✅ **Sistema completo de analytics dashboard**: Implementación integral con:
+  - **Sales analytics**: Dashboard completo en `/admin/analytics` con métricas detalladas de ventas, comparación vs período anterior, KPIs principales
+  - **Product performance**: Análisis exhaustivo de rendimiento por producto, productos con stock bajo, nunca vendidos, trending analysis
+  - **Customer insights**: Segmentación avanzada de clientes (VIP, alto/medio/bajo valor), análisis de retención, distribución geográfica, clientes inactivos
+  - **Componentes reutilizables**: AnalyticsSummaryCard, TopProductsList, AnalyticsCharts para visualización de datos
+  - **APIs especializadas**: 3 endpoints robustos (/admin/analytics/sales, /products, /customers) con queries SQL optimizadas
+  - **Hook personalizado**: useAnalytics con auto-refresh, exportación de datos y funciones auxiliares
+  - **Filtros avanzados**: Períodos de 7, 30, 90 días y 1 año con métricas comparativas
+  - **Exportación completa**: Descarga de reportes en formato JSON con toda la data
+  - **UI responsive**: Dashboard con 3 tabs especializadas, loading states, error handling
+  - **Integración total**: Acceso desde admin sidebar, dashboard principal con quick actions destacadas
+  - **Métricas financieras**: Ingresos totales, valor promedio pedido, distribución métodos de pago
+  - **Performance de inventario**: Valor total de stock, productos top performers, alertas automáticas
+
+### **Próximas acciones sugeridas (orden de prioridad)**:
+
+#### **🎯 ALTA PRIORIDAD - Próxima implementación**
+1. **Modificar/cancelar pedidos** - Sistema completo de gestión de pedidos para clientes y admin
+   - Cancelación por cliente (pedidos PENDIENTE/PREPARANDO)
+   - Modificación de items antes de PREPARANDO  
+   - Cancelación admin con razones
+   - Restock automático + notificaciones
+
+#### **🎯 MEDIA PRIORIDAD**
+2. **Sistema de cupones y descuentos** - Promociones y marketing
+   - Tipos: porcentaje, monto fijo, envío gratis
+   - Restricciones por usuario, producto, monto mínimo
+   - Códigos únicos y límites de uso
+
+3. **Advanced admin tools** - Herramientas de gestión masiva
+   - Bulk operations para productos
+   - CSV import/export
+   - Product templates
+   - Print functionality
+
+#### **🎯 BAJA PRIORIDAD**
+4. **Performance optimization** - Optimizaciones técnicas
+   - Caching strategy (Redis)
+   - Image optimization avanzada
+   - PWA features
+
+5. **Conversion tracking** - Analytics avanzados
+   - Funnel de ventas detallado
+   - Conversion rate por producto
+   - A/B testing framework
+
+---
+
+## 🔄 **PARA CONTINUAR EN NUEVO CHAT**
+
+### 📋 **Estado Actual**
+- **Progreso**: 75/103 funcionalidades (72.8% completado)
+- **Última feature**: Analytics dashboard 100% funcional
+- **Próxima tarea**: Sistema modificar/cancelar pedidos
+
+### 📁 **Archivos Importantes Actualizados**
+- `ESTADO_ACTUAL.md` - Resumen completo del estado del proyecto
+- `FUNCIONALIDADES.md` - Lista actualizada con progreso detallado  
+- Analytics dashboard completamente implementado en `/src/app/admin/analytics/`
+
+### 🚀 **Ready para Producción**
+El proyecto tiene todas las funcionalidades core de e-commerce completadas y un sistema de analytics robusto. Las siguientes implementaciones son mejoras de experiencia del usuario y herramientas administrativas avanzadas.

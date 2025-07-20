@@ -19,6 +19,12 @@ interface CreateOrderRequest {
   isDraft?: boolean
   paymentMethod?: string
   sessionId?: string
+  guestInfo?: {
+    firstName: string
+    lastName: string
+    email: string
+    phone: string
+  } | null
 }
 
 // Generar número de orden único
@@ -35,18 +41,22 @@ function generateOrderNumber(): string {
 export async function POST(request: NextRequest) {
   try {
     const user = await currentUser()
+    const body: CreateOrderRequest = await request.json()
     
-    if (!user) {
+    // Para invitados, verificar que se tenga la información necesaria
+    if (!user && !body.guestInfo) {
       return NextResponse.json(
-        { error: 'No autorizado' },
-        { status: 401 }
+        { error: 'Información de contacto requerida para invitados' },
+        { status: 400 }
       )
     }
 
-    // Sincronizar usuario con BD
-    const dbUser = await getOrCreateUser()
+    let dbUser = null
     
-    const body: CreateOrderRequest = await request.json()
+    // Si hay usuario autenticado, sincronizar con BD
+    if (user) {
+      dbUser = await getOrCreateUser()
+    }
     
     // Validaciones
     if (!body.items || body.items.length === 0) {

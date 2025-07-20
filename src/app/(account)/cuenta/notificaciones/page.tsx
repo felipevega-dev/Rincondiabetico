@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useUser } from '@clerk/nextjs'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -127,7 +126,7 @@ export default function NotificationsPage() {
       
       // Aquí enviarías la actualización a la API
       toast.success('Preferencias de notificación actualizadas')
-    } catch (error) {
+    } catch {
       toast.error('Error al actualizar preferencias')
     }
   }

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { mercadoPagoClient } from '@/lib/mercadopago'
 import { prisma } from '@/lib/prisma'
+import { updateStockWithHistory } from '@/lib/stock-history'
 import { Payment } from 'mercadopago'
 
 const payment = new Payment(mercadoPagoClient)
@@ -111,21 +112,18 @@ export async function POST(request: NextRequest) {
     // Esta verificación evita doble reducción de stock
     if (paymentInfo.status === 'approved' && order.status !== 'PAGADO') {
       try {
-        // Reducir stock usando transacción para garantizar consistencia
-        await prisma.$transaction(async (tx) => {
-          for (const item of order.items) {
-            await tx.product.update({
-              where: { id: item.productId },
-              data: {
-                stock: {
-                  decrement: item.quantity
-                }
-              }
-            })
-          }
-        })
+        // Reducir stock usando el sistema de historial
+        for (const item of order.items) {
+          await updateStockWithHistory({
+            productId: item.productId,
+            type: 'PURCHASE',
+            quantity: item.quantity,
+            reason: `Compra confirmada via MercadoPago`,
+            reference: order.id
+          })
+        }
 
-        console.log(`Payment approved for order ${order.id}, stock updated`)
+        console.log(`Payment approved for order ${order.id}, stock updated with history`)
       } catch (error) {
         console.error('Error updating stock for order:', order.id, error)
         // No lanzamos error para no afectar el procesamiento del webhook

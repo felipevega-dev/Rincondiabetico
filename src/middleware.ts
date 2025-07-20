@@ -6,9 +6,14 @@ const isProtectedRoute = createRouteMatcher([
   '/admin(.*)',
   '/pedidos(.*)',
   '/perfil(.*)',
-  '/carrito(.*)',
   '/favoritos(.*)',
   '/cuenta(.*)',
+])
+
+// Rutas de checkout que permiten tanto usuarios autenticados como invitados
+const isCheckoutRoute = createRouteMatcher([
+  '/carrito(.*)',
+  '/checkout(.*)',
 ])
 
 // Rutas solo para administradores
@@ -20,6 +25,13 @@ export default clerkMiddleware(async (auth, req) => {
   // Proteger rutas que requieren autenticación
   if (isProtectedRoute(req)) {
     await auth.protect()
+  }
+  
+  // Las rutas de checkout NO requieren autenticación (guest checkout)
+  // pero pueden usar la info del usuario si está logueado
+  if (isCheckoutRoute(req)) {
+    // No proteger - permitir acceso a invitados
+    return
   }
   
   // Proteger rutas de administrador

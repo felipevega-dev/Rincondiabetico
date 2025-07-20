@@ -4,6 +4,7 @@ import { prisma } from '@/lib/prisma'
 import Link from 'next/link'
 import { HeroCarousel } from '@/components/client/hero-carousel'
 import { FeaturedProducts } from '@/components/client/featured-products'
+import { RecentlyViewed } from '@/components/client/recently-viewed'
 import { Cake, Heart, MapPin, MessageCircle, Instagram, Facebook, House, Sparkles, Clock, ChevronRight } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -50,6 +51,14 @@ export default async function Home() {
         </div>
         <div className="relative z-10">
           <FeaturedProducts />
+          
+          {/* Productos recientemente vistos */}
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <RecentlyViewed 
+              title="Continúa explorando"
+              limit={6}
+            />
+          </div>
         </div>
       </section>
 

@@ -8,6 +8,8 @@ import { AddToCartButton } from '@/components/client/add-to-cart-button'
 import { WishlistButton } from '@/components/client/wishlist-button'
 import { ProductVariationsSelector } from '@/components/client/product-variations-selector'
 import { ProductImageCollage } from '@/components/client/product-image-collage'
+import { RelatedProducts } from '@/components/client/related-products'
+import { ProductViewTracker } from '@/components/client/product-view-tracker'
 
 interface ProductPageProps {
   params: Promise<{
@@ -209,16 +211,15 @@ export default async function ProductPage({ params }: ProductPageProps) {
 
         </div>
 
-        <div className="mt-12">
-          <h2 className="text-2xl font-bold text-gray-900 mb-6">
-            Productos relacionados
-          </h2>
-          <div className="bg-white rounded-lg shadow p-6">
-            <p className="text-gray-600 text-center">
-              Próximamente: productos relacionados de la categoría {product.category.name}
-            </p>
-          </div>
-        </div>
+        {/* Productos relacionados */}
+        <RelatedProducts 
+          productId={product.id}
+          title="Productos relacionados"
+          limit={4}
+        />
+
+        {/* Tracker para historial de navegación */}
+        <ProductViewTracker product={product} />
       </div>
     </div>
   )

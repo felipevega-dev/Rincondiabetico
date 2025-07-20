@@ -4,6 +4,7 @@ import { Inter } from 'next/font/google'
 import { Navbar } from '@/components/shared/navbar'
 import { ClerkProvider } from '@clerk/nextjs'
 import { CartProvider } from '@/components/providers/cart-provider'
+import { RecentlyViewedProvider } from '@/components/providers/recently-viewed-provider'
 import { Toaster } from 'sonner'
 import { clerkTranslations } from '@/lib/clerk-localization'
 import { clerkConfig } from '@/lib/clerk-config'
@@ -52,13 +53,15 @@ export default function RootLayout({
       <html lang="es">
         <body className={inter.className}>
           <CartProvider>
-            <Navbar />
-            <main>
-              {children}
-            </main>
-            <Footer />
-            <FloatingWhatsAppButton />
-            <Toaster position="top-center" />
+            <RecentlyViewedProvider>
+              <Navbar />
+              <main>
+                {children}
+              </main>
+              <Footer />
+              <FloatingWhatsAppButton />
+              <Toaster position="top-center" />
+            </RecentlyViewedProvider>
           </CartProvider>
         </body>
       </html>

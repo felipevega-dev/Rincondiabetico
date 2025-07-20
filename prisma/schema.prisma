@@ -34,6 +34,7 @@ model User {
   // Relaciones
   orders        Order[]
   wishlistItems WishlistItem[]
+  stockMovements StockMovement[]
   
   @@map("users")
 }
@@ -127,6 +128,7 @@ model Product {
   isActive    Boolean  @default(true)
   isAvailable Boolean  @default(true)
   stock       Int      @default(0)
+  minStock    Int      @default(0) // Stock mínimo para alertas
   
   // Metadatos
   createdAt   DateTime @default(now())
@@ -139,6 +141,9 @@ model Product {
   variations  ProductVariation[]
   stockReservations StockReservation[]
   wishlistItems WishlistItem[]
+  stockMovements StockMovement[]
+  relatedProducts ProductRelation[] @relation("SourceProduct")
+  relatedByProducts ProductRelation[] @relation("RelatedProduct")
   
   @@map("products")
 }
@@ -309,4 +314,59 @@ model WishlistItem {
   
   @@unique([userId, productId])
   @@map("wishlist_items")
+}
+
+// Tipos de movimiento de stock
+enum StockMovementType {
+  MANUAL_INCREASE   // Incremento manual por admin
+  MANUAL_DECREASE   // Decremento manual por admin
+  PURCHASE          // Compra confirmada (reduce stock)
+  CANCEL            // Cancelación de pedido (incrementa stock)
+  ADJUSTMENT        // Ajuste de inventario
+  RESERVATION       // Reserva temporal
+  RELEASE           // Liberación de reserva
+  RETURN            // Devolución de producto
+}
+
+// Historial de movimientos de stock
+model StockMovement {
+  id            String            @id @default(cuid())
+  productId     String
+  type          StockMovementType
+  quantity      Int               // Cantidad (positiva para incrementos, negativa para decrementos)
+  previousStock Int               // Stock antes del movimiento
+  newStock      Int               // Stock después del movimiento
+  reason        String?           // Motivo del movimiento
+  reference     String?           // Referencia (ID de pedido, usuario, etc.)
+  
+  // Usuario que realizó el movimiento (opcional para movimientos automáticos)
+  userId        String?
+  
+  // Metadatos
+  createdAt     DateTime          @default(now())
+  
+  // Relaciones
+  product       Product           @relation(fields: [productId], references: [id], onDelete: Cascade)
+  user          User?             @relation(fields: [userId], references: [id])
+  
+  @@map("stock_movements")
+}
+
+// Relaciones entre productos
+model ProductRelation {
+  id              String   @id @default(cuid())
+  sourceProductId String   // Producto principal
+  relatedProductId String  // Producto relacionado
+  type            String   @default("RELATED") // RELATED, SIMILAR, COMPLEMENTARY
+  order           Int      @default(0) // Orden de recomendación
+  
+  // Metadatos
+  createdAt       DateTime @default(now())
+  
+  // Relaciones
+  sourceProduct   Product  @relation("SourceProduct", fields: [sourceProductId], references: [id], onDelete: Cascade)
+  relatedProduct  Product  @relation("RelatedProduct", fields: [relatedProductId], references: [id], onDelete: Cascade)
+  
+  @@unique([sourceProductId, relatedProductId])
+  @@map("product_relations")
 } 

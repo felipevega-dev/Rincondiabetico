@@ -31,6 +31,7 @@ const productSchema = z.object({
   description: z.string().optional(),
   price: z.number().min(1, 'El precio debe ser mayor a 0'),
   stock: z.number().min(0, 'El stock no puede ser negativo'),
+  minStock: z.number().min(0, 'El stock mínimo no puede ser negativo'),
   categoryId: z.string().min(1, 'La categoría es requerida'),
   isAvailable: z.boolean(),
 })
@@ -114,6 +115,7 @@ export function ProductForm({
       description: product?.description || '',
       price: product?.price || 0,
       stock: product?.stock || 0,
+      minStock: product?.minStock || 0,
       categoryId: product?.categoryId || '',
       isAvailable: product?.isAvailable ?? true,
     },
@@ -336,22 +338,42 @@ export function ProductForm({
           </div>
 
           {/* Stock */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Stock Disponible *
-            </label>
-            <Input
-              type="number"
-              min="0"
-              {...register('stock', { valueAsNumber: true })}
-              placeholder="Ej: 10"
-            />
-            {errors.stock && (
-              <p className="text-red-600 text-sm mt-1">{errors.stock.message}</p>
-            )}
-            <p className="text-sm text-gray-500 mt-1">
-              Cantidad de unidades disponibles para venta
-            </p>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Stock Disponible *
+              </label>
+              <Input
+                type="number"
+                min="0"
+                {...register('stock', { valueAsNumber: true })}
+                placeholder="Ej: 10"
+              />
+              {errors.stock && (
+                <p className="text-red-600 text-sm mt-1">{errors.stock.message}</p>
+              )}
+              <p className="text-sm text-gray-500 mt-1">
+                Cantidad de unidades disponibles para venta
+              </p>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Stock Mínimo *
+              </label>
+              <Input
+                type="number"
+                min="0"
+                {...register('minStock', { valueAsNumber: true })}
+                placeholder="Ej: 5"
+              />
+              {errors.minStock && (
+                <p className="text-red-600 text-sm mt-1">{errors.minStock.message}</p>
+              )}
+              <p className="text-sm text-gray-500 mt-1">
+                Cantidad mínima que activa alertas de stock bajo
+              </p>
+            </div>
           </div>
 
           {/* Categoría */}

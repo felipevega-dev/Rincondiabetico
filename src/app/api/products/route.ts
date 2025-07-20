@@ -19,6 +19,7 @@ const createProductSchema = z.object({
   description: z.string().optional(),
   price: z.number().positive('El precio debe ser mayor a 0'),
   stock: z.number().min(0, 'El stock no puede ser negativo').default(0),
+  minStock: z.number().min(0, 'El stock mínimo no puede ser negativo').default(0),
   categoryId: z.string().min(1, 'La categoría es requerida'),
   images: z.array(z.string()).optional(),
   isAvailable: z.boolean(),
@@ -188,6 +189,7 @@ export async function POST(request: NextRequest) {
         description: validatedData.description,
         price: validatedData.price, // Precio en pesos chilenos
         stock: validatedData.stock,
+        minStock: validatedData.minStock,
         categoryId: validatedData.categoryId,
         images: validatedData.images || [],
         isAvailable: validatedData.isAvailable,

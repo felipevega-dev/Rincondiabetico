@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useUser } from '@clerk/nextjs'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -29,7 +28,6 @@ interface PaymentMethod {
 }
 
 export default function PaymentMethodsPage() {
-  const { user } = useUser()
   const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([])
   const [isLoading, setIsLoading] = useState(true)
 
@@ -68,7 +66,7 @@ export default function PaymentMethodsPage() {
       }))
       setPaymentMethods(updatedMethods)
       toast.success('Método de pago predeterminado actualizado')
-    } catch (error) {
+    } catch {
       toast.error('Error al actualizar método de pago')
     }
   }
@@ -84,7 +82,7 @@ export default function PaymentMethodsPage() {
       try {
         setPaymentMethods(paymentMethods.filter(method => method.id !== methodId))
         toast.success('Método de pago eliminado exitosamente')
-      } catch (error) {
+      } catch {
         toast.error('Error al eliminar método de pago')
       }
     }

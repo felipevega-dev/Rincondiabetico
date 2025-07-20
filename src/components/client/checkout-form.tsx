@@ -1,8 +1,10 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useCart } from '@/components/providers/cart-provider'
 import { useUser } from '@clerk/nextjs'
+import { useGuestCheckout } from '@/hooks/use-guest-checkout'
+import { GuestInfoForm } from './guest-info-form'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
@@ -22,14 +24,24 @@ interface OrderData {
 export function CheckoutForm() {
   const { items, total, clearCart, sessionId } = useCart()
   const { user } = useUser()
+  const { isGuest, getUserInfo, hasCompleteInfo } = useGuestCheckout()
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [showGuestForm, setShowGuestForm] = useState(false)
   const [orderData, setOrderData] = useState<OrderData>({
     pickupDate: '',
     pickupTime: '',
     customerNotes: '',
-    phone: user?.phoneNumbers?.[0]?.phoneNumber || '',
+    phone: '',
     paymentMethod: 'MERCADOPAGO'
   })
+
+  // Inicializar teléfono cuando se tenga la información del usuario
+  useEffect(() => {
+    const userInfo = getUserInfo()
+    if (userInfo?.phone) {
+      setOrderData(prev => ({ ...prev, phone: userInfo.phone }))
+    }
+  }, [getUserInfo])
 
   // Generar horarios disponibles
   const generateTimeSlots = () => {
@@ -70,6 +82,16 @@ export function CheckoutForm() {
         return
       }
 
+      // Para invitados, verificar que se tenga la información completa
+      if (isGuest && !hasCompleteInfo()) {
+        setShowGuestForm(true)
+        toast.error('Por favor completa tu información de contacto')
+        return
+      }
+
+      // Obtener información del usuario (autenticado o invitado)
+      const userInfo = getUserInfo()
+
       // Crear pedido temporal (status: DRAFT)
       const orderResponse = await fetch('/api/orders', {
         method: 'POST',
@@ -89,7 +111,9 @@ export function CheckoutForm() {
           phone: orderData.phone,
           paymentMethod: orderData.paymentMethod,
           isDraft: orderData.paymentMethod === 'MERCADOPAGO', // Solo MercadoPago es borrador
-          sessionId
+          sessionId,
+          // Información de invitado si aplica
+          guestInfo: isGuest ? userInfo : null
         }),
       })
 
@@ -190,19 +214,43 @@ export function CheckoutForm() {
           Información del Pedido
         </h2>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Información del Cliente */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Nombre Completo
-            </label>
-            <Input
-              type="text"
-              value={`${user?.firstName || ''} ${user?.lastName || ''}`.trim()}
-              disabled
-              className="bg-gray-50"
-            />
-          </div>
+        {/* Formulario de información de invitado */}
+        {isGuest && (!hasCompleteInfo() || showGuestForm) && (
+          <GuestInfoForm
+            onComplete={() => setShowGuestForm(false)}
+            onSkip={() => setShowGuestForm(false)}
+          />
+        )}
+
+        {/* Solo mostrar el formulario de pedido si se tiene la info completa */}
+        {(!isGuest || hasCompleteInfo()) && !showGuestForm && (
+          <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Información del Cliente */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Nombre Completo
+              </label>
+              <Input
+                type="text"
+                value={(() => {
+                  const userInfo = getUserInfo()
+                  return userInfo ? `${userInfo.firstName} ${userInfo.lastName}`.trim() : ''
+                })()}
+                disabled
+                className="bg-gray-50"
+              />
+              {isGuest && (
+                <p className="text-sm text-gray-500 mt-1">
+                  <button
+                    type="button"
+                    onClick={() => setShowGuestForm(true)}
+                    className="text-primary-600 hover:text-primary-700"
+                  >
+                    Editar información
+                  </button>
+                </p>
+              )}
+            </div>
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -210,7 +258,10 @@ export function CheckoutForm() {
             </label>
             <Input
               type="email"
-              value={user?.emailAddresses?.[0]?.emailAddress || ''}
+              value={(() => {
+                const userInfo = getUserInfo()
+                return userInfo?.email || ''
+              })()}
               disabled
               className="bg-gray-50"
             />
@@ -361,6 +412,7 @@ export function CheckoutForm() {
              orderData.paymentMethod === 'MERCADOPAGO' ? 'Continuar al Pago' : 'Crear Pedido'}
           </Button>
         </form>
+        )}
       </div>
     </div>
   )

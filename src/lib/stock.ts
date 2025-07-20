@@ -1,4 +1,5 @@
 import { prisma } from '@/lib/prisma'
+import { updateStockWithHistory } from '@/lib/stock-history'
 
 export interface StockValidationResult {
   isValid: boolean
@@ -36,6 +37,7 @@ export async function validateProductStock(
         id: true,
         name: true,
         stock: true,
+        minStock: true,
         isAvailable: true
       }
     })
@@ -67,9 +69,10 @@ export async function validateProductStock(
         continue
       }
 
-      // Advertencias para stock bajo
-      if (product.stock <= 5 && product.stock > item.quantity) {
-        result.warnings.push(`Stock bajo para ${product.name}: ${product.stock} unidades`)
+      // Advertencias para stock bajo (usar minStock si está configurado)
+      const minThreshold = product.minStock || 5
+      if (product.stock <= minThreshold && product.stock > item.quantity) {
+        result.warnings.push(`Stock bajo para ${product.name}: ${product.stock} unidades (mínimo: ${minThreshold})`)
       }
     }
 
@@ -141,39 +144,38 @@ export async function releaseStockReservation(reservationId: string): Promise<vo
 
 // Actualizar stock después de venta
 export async function updateStockAfterSale(
-  items: Array<{ productId: string; quantity: number }>
+  items: Array<{ productId: string; quantity: number }>,
+  orderId?: string
 ): Promise<void> {
   try {
-    await prisma.$transaction(async (tx) => {
-      for (const item of items) {
-        await tx.product.update({
-          where: { id: item.productId },
-          data: {
-            stock: {
-              decrement: item.quantity
-            }
-          }
-        })
-      }
-    })
+    for (const item of items) {
+      await updateStockWithHistory({
+        productId: item.productId,
+        type: 'PURCHASE',
+        quantity: item.quantity,
+        reason: 'Venta confirmada',
+        reference: orderId
+      })
+    }
   } catch (error) {
     console.error('Error actualizando stock:', error)
     throw error
   }
 }
 
-// Obtener productos con stock bajo
-export async function getLowStockProducts(threshold: number = 5): Promise<ProductStock[]> {
+// Obtener productos con stock bajo (basado en minStock configurado o threshold)
+export async function getLowStockProducts(fallbackThreshold: number = 5): Promise<ProductStock[]> {
   try {
+    // Obtener todos los productos activos para evaluar stock bajo
     const products = await prisma.product.findMany({
       where: {
-        stock: { lte: threshold },
         isActive: true
       },
       select: {
         id: true,
         name: true,
         stock: true,
+        minStock: true,
         isAvailable: true
       },
       orderBy: {
@@ -181,7 +183,13 @@ export async function getLowStockProducts(threshold: number = 5): Promise<Produc
       }
     })
 
-    return products.map(product => ({
+    // Filtrar productos con stock bajo basado en su minStock configurado
+    const lowStockProducts = products.filter(product => {
+      const threshold = product.minStock || fallbackThreshold
+      return product.stock <= threshold
+    })
+
+    return lowStockProducts.map(product => ({
       productId: product.id,
       name: product.name,
       currentStock: product.stock,
