@@ -31,16 +31,18 @@ export default async function OrderPage({ params }: PageProps) {
     redirect('/sign-in')
   }
 
-  // Obtener el pedido
+  // Obtener el pedido - permitir que admin vea cualquier pedido
   const order = await prisma.order.findUnique({
     where: { 
       id: params.id,
-      userId: dbUser.id // Solo el usuario propietario puede ver el pedido
+      ...(dbUser.role !== 'ADMIN' && { userId: dbUser.id }) // Solo filtrar por userId si no es admin
     },
     include: {
+      user: true,
       items: {
         include: {
-          product: true
+          product: true,
+          variation: true
         }
       },
       payment: true
@@ -51,11 +53,19 @@ export default async function OrderPage({ params }: PageProps) {
     notFound()
   }
 
+  // Determinar permisos
+  const isOwner = order.userId === dbUser.id
+  const isAdmin = dbUser.role === 'ADMIN'
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50">
       <div className="container mx-auto px-4 py-12">
         <div className="max-w-4xl mx-auto">
-          <OrderDetails order={order} />
+          <OrderDetails 
+            order={order} 
+            isOwner={isOwner}
+            isAdmin={isAdmin}
+          />
         </div>
       </div>
     </div>

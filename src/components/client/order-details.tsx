@@ -3,6 +3,7 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { Calendar, Clock, Package, MapPin, Phone, MessageSquare, CheckCircle, XCircle, AlertCircle } from 'lucide-react'
+import { OrderActions } from '@/components/client/order-actions'
 
 interface OrderDetailsProps {
   order: {
@@ -15,20 +16,36 @@ interface OrderDetailsProps {
     customerNotes: string | null
     adminNotes: string | null
     createdAt: Date
+    userId?: string | null
     items: Array<{
       id: string
+      productId: string
+      variationId?: string | null
       quantity: number
       price: number
       product: {
         id: string
         name: string
         images: string[]
+        stock: number
       }
+      variation?: {
+        id: string
+        name: string
+        priceChange: number
+      } | null
     }>
     payment: {
       status: string
     } | null
+    user?: {
+      id: string
+      firstName: string | null
+      lastName: string | null
+    } | null
   }
+  isOwner: boolean
+  isAdmin: boolean
 }
 
 const statusConfig = {
@@ -70,7 +87,7 @@ const statusConfig = {
   }
 }
 
-export function OrderDetails({ order }: OrderDetailsProps) {
+export function OrderDetails({ order, isOwner, isAdmin }: OrderDetailsProps) {
   const status = statusConfig[order.status as keyof typeof statusConfig] || statusConfig.PENDIENTE
   const StatusIcon = status.icon
 
@@ -105,6 +122,11 @@ export function OrderDetails({ order }: OrderDetailsProps) {
                 minute: '2-digit' 
               })}
             </p>
+            {isAdmin && order.user && (
+              <p className="text-sm text-blue-600 mt-1">
+                Cliente: {order.user.firstName} {order.user.lastName}
+              </p>
+            )}
           </div>
           
           <div className="mt-4 md:mt-0">
@@ -117,6 +139,15 @@ export function OrderDetails({ order }: OrderDetailsProps) {
 
         <div className="bg-gray-50 rounded-lg p-4">
           <p className="text-gray-700">{status.description}</p>
+        </div>
+        
+        {/* Order Actions - Show if user can cancel or modify */}
+        <div className="mt-6">
+          <OrderActions 
+            order={order}
+            isOwner={isOwner}
+            isAdmin={isAdmin}
+          />
         </div>
       </div>
 
@@ -210,9 +241,17 @@ export function OrderDetails({ order }: OrderDetailsProps) {
               
               <div className="flex-1">
                 <h3 className="font-medium text-gray-900">{item.product.name}</h3>
+                {item.variation && (
+                  <p className="text-sm text-blue-600">{item.variation.name}</p>
+                )}
                 <p className="text-sm text-gray-600">
                   Cantidad: {item.quantity} × ${item.price.toLocaleString('es-CL')}
                 </p>
+                {isAdmin && (
+                  <p className="text-xs text-gray-500">
+                    Stock actual: {item.product.stock}
+                  </p>
+                )}
               </div>
               
               <div className="text-right">

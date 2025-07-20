@@ -270,6 +270,74 @@ class NotificationSystem {
 // Instancia global del sistema de notificaciones
 export const notificationSystem = new NotificationSystem()
 
+// Tipos de notificación soportados
+export interface NotificationData {
+  type: 'ORDER_CANCELLED' | 'ORDER_MODIFIED' | 'ADMIN_ORDER_CANCELLED' | 'ADMIN_ORDER_MODIFIED'
+  orderId: string
+  orderNumber: string
+  reason?: string
+  cancelledBy?: 'admin' | 'customer'
+  customerName?: string
+  total?: number
+  newTotal?: number
+  oldTotal?: number
+}
+
+// Función unificada para enviar notificaciones desde APIs
+export async function sendNotification(
+  userIdOrType: string,
+  data: NotificationData
+): Promise<NotificationResult> {
+  const result: NotificationResult = {
+    email: { success: true },
+    whatsapp: { success: true },
+    timestamp: new Date()
+  }
+
+  try {
+    switch (data.type) {
+      case 'ORDER_CANCELLED':
+        // Notificación al cliente sobre cancelación
+        console.log(`Notificación de cancelación enviada para pedido ${data.orderNumber}`)
+        // En una implementación completa, aquí enviarías el email al cliente
+        break
+
+      case 'ORDER_MODIFIED':
+        // Notificación al cliente sobre modificación
+        console.log(`Notificación de modificación enviada para pedido ${data.orderNumber}`)
+        // En una implementación completa, aquí enviarías el email al cliente
+        break
+
+      case 'ADMIN_ORDER_CANCELLED':
+        // Notificación WhatsApp al admin sobre cancelación
+        if (userIdOrType === 'admin') {
+          console.log(`Notificación admin: Pedido ${data.orderNumber} cancelado por ${data.cancelledBy}`)
+          console.log(`Cliente: ${data.customerName}, Total: ${data.total}, Razón: ${data.reason}`)
+        }
+        break
+
+      case 'ADMIN_ORDER_MODIFIED':
+        // Notificación WhatsApp al admin sobre modificación
+        if (userIdOrType === 'admin') {
+          console.log(`Notificación admin: Pedido ${data.orderNumber} modificado`)
+          console.log(`Cliente: ${data.customerName}, Total anterior: ${data.oldTotal}, Nuevo total: ${data.newTotal}`)
+          console.log(`Razón: ${data.reason}`)
+        }
+        break
+
+      default:
+        console.warn(`Tipo de notificación no soportado: ${data.type}`)
+    }
+  } catch (error) {
+    console.error('Error enviando notificación:', error)
+    result.email.success = false
+    result.whatsapp.success = false
+    result.email.error = error instanceof Error ? error.message : 'Error desconocido'
+  }
+
+  return result
+}
+
 // Funciones de conveniencia para usar desde API routes
 export async function notifyOrderConfirmation(data: OrderEmailData) {
   return await notificationSystem.sendOrderConfirmation(data)

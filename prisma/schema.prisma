@@ -174,7 +174,8 @@ model ProductVariation {
   // Relaciones
   productId   String
   product     Product       @relation(fields: [productId], references: [id], onDelete: Cascade)
-  orderItems  OrderItemVariation[]
+  orderItems  OrderItem[]   // Relación directa para OrderItem.variationId
+  orderItemVariations OrderItemVariation[]
   
   @@map("product_variations")
 }
@@ -205,6 +206,11 @@ model Order {
   customerNotes String?     // Notas del cliente
   adminNotes    String?     // Notas internas
   
+  // Información de cancelación
+  cancelledAt   DateTime?   // Fecha de cancelación
+  cancelReason  String?     // Razón de cancelación
+  cancelledBy   String?     // ADMIN o CUSTOMER
+  
   // Metadatos
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt
@@ -220,16 +226,18 @@ model Order {
 
 // Items de pedidos
 model OrderItem {
-  id        String  @id @default(cuid())
-  quantity  Int
-  price     Int     // Precio unitario en pesos chilenos
+  id          String  @id @default(cuid())
+  quantity    Int
+  price       Int     // Precio unitario en pesos chilenos
   
   // Relaciones
-  orderId   String
-  order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  productId String
-  product   Product @relation(fields: [productId], references: [id])
-  variations OrderItemVariation[]
+  orderId     String
+  order       Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId   String
+  product     Product @relation(fields: [productId], references: [id])
+  variationId String? // Variación seleccionada (opcional)
+  variation   ProductVariation? @relation(fields: [variationId], references: [id])
+  variations  OrderItemVariation[]
   
   @@map("order_items")
 }
