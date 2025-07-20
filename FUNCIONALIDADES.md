@@ -122,8 +122,8 @@
 - [x] **Productos relacionados** - ✅ COMPLETADO (20 Julio) - Sistema de recomendaciones manuales y automáticas
 - [x] **Recently viewed** - ✅ COMPLETADO (20 Julio) - Historial de navegación del cliente
 - [x] **Guest checkout** - ✅ COMPLETADO (20 Julio) - Compra sin registro obligatorio
-- [ ] **Modificar pedidos** - Antes de preparar
-- [ ] **Cancelar pedidos** - Por cliente o admin
+- [x] **Modificar pedidos** - ✅ COMPLETADO (20 Julio) - Sistema completo antes de PREPARANDO
+- [x] **Cancelar pedidos** - ✅ COMPLETADO (20 Julio) - Por cliente y admin con restock automático
 
 ### 📊 **Dashboard y Analytics**
 - [x] **Sales analytics** - ✅ COMPLETADO (20 Julio) - Reportes detallados con métricas de ventas, productos top, categorías
@@ -194,9 +194,9 @@
 
 ## 📈 ESTADÍSTICAS DEL PROYECTO
 
-### **Completado**: 75 funcionalidades ✅
-### **Pendiente**: 28 funcionalidades ⏳
-### **Progreso total**: 72.8%
+### **Completado**: 77 funcionalidades ✅
+### **Pendiente**: 26 funcionalidades ⏳
+### **Progreso total**: 74.8%
 
 ---
 
@@ -271,35 +271,40 @@
   - **Integración total**: Acceso desde admin sidebar, dashboard principal con quick actions destacadas
   - **Métricas financieras**: Ingresos totales, valor promedio pedido, distribución métodos de pago
   - **Performance de inventario**: Valor total de stock, productos top performers, alertas automáticas
+- ✅ **Sistema completo de modificar/cancelar pedidos**: Implementación integral con:
+  - **API de cancelación**: Endpoint `/api/orders/[id]/cancel` con permisos diferenciados (cliente/admin)
+  - **API de modificación**: Endpoint `/api/orders/[id]/modify` para cambios antes de PREPARANDO
+  - **Restock automático**: Sistema inteligente que devuelve stock al cancelar y gestiona reservas en modificaciones
+  - **Validaciones robustas**: Estados válidos, permisos, stock disponible y consistencia de datos
+  - **UI completa**: Componente OrderActions con modales interactivos para cancelación y modificación
+  - **Notificaciones integradas**: Emails automáticos y notificaciones WhatsApp admin
+  - **Trazabilidad completa**: Historial de stock movements y registro de cambios en pedidos
+  - **Schema actualizado**: Campos de cancelación (cancelledAt, cancelReason, cancelledBy) y variationId en OrderItem
+  - **Integración total**: Páginas de detalle de pedidos con permisos y acciones contextuales
 
 ### **Próximas acciones sugeridas (orden de prioridad)**:
 
 #### **🎯 ALTA PRIORIDAD - Próxima implementación**
-1. **Modificar/cancelar pedidos** - Sistema completo de gestión de pedidos para clientes y admin
-   - Cancelación por cliente (pedidos PENDIENTE/PREPARANDO)
-   - Modificación de items antes de PREPARANDO  
-   - Cancelación admin con razones
-   - Restock automático + notificaciones
-
-#### **🎯 MEDIA PRIORIDAD**
-2. **Sistema de cupones y descuentos** - Promociones y marketing
+1. **Sistema de cupones y descuentos** - Promociones y marketing avanzado
    - Tipos: porcentaje, monto fijo, envío gratis
    - Restricciones por usuario, producto, monto mínimo
    - Códigos únicos y límites de uso
+   - Sistema de puntos de recompensas integrado
 
-3. **Advanced admin tools** - Herramientas de gestión masiva
+#### **🎯 MEDIA PRIORIDAD**
+2. **Advanced admin tools** - Herramientas de gestión masiva
    - Bulk operations para productos
    - CSV import/export
    - Product templates
    - Print functionality
 
 #### **🎯 BAJA PRIORIDAD**
-4. **Performance optimization** - Optimizaciones técnicas
+3. **Performance optimization** - Optimizaciones técnicas
    - Caching strategy (Redis)
    - Image optimization avanzada
    - PWA features
 
-5. **Conversion tracking** - Analytics avanzados
+4. **Conversion tracking** - Analytics avanzados
    - Funnel de ventas detallado
    - Conversion rate por producto
    - A/B testing framework
@@ -309,9 +314,9 @@
 ## 🔄 **PARA CONTINUAR EN NUEVO CHAT**
 
 ### 📋 **Estado Actual**
-- **Progreso**: 75/103 funcionalidades (72.8% completado)
-- **Última feature**: Analytics dashboard 100% funcional
-- **Próxima tarea**: Sistema modificar/cancelar pedidos
+- **Progreso**: 77/103 funcionalidades (74.8% completado)
+- **Última feature**: Sistema modificar/cancelar pedidos 100% funcional
+- **Próxima tarea**: Sistema de cupones y descuentos
 
 ### 📁 **Archivos Importantes Actualizados**
 - `ESTADO_ACTUAL.md` - Resumen completo del estado del proyecto

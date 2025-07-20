@@ -8,7 +8,7 @@ import { useWishlist } from '@/hooks/use-wishlist'
 import { useCart } from '@/components/providers/cart-provider'
 import { WishlistButton } from '@/components/client/wishlist-button'
 import { AddToCartButton } from '@/components/client/add-to-cart-button'
-import { User, Package2, Heart, LogOut, ShoppingBag, Package, Bell, Shield, Trash2 } from 'lucide-react'
+import { User, Package2, Heart, LogOut, ShoppingBag, Package, Bell, Shield, Trash2, Tag } from 'lucide-react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { formatPrice } from '@/lib/utils'
@@ -28,6 +28,8 @@ export default function AccountPage() {
     notifyEmail: true,
     notifyWhatsapp: true
   })
+  const [userCoupons, setUserCoupons] = useState([])
+  const [couponsLoading, setCouponsLoading] = useState(false)
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -50,6 +52,28 @@ export default function AccountPage() {
       fetchUser()
     }
   }, [user])
+
+  const fetchUserCoupons = async () => {
+    setCouponsLoading(true)
+    try {
+      const response = await fetch('/api/user/coupons')
+      if (response.ok) {
+        const data = await response.json()
+        setUserCoupons(data.coupons || [])
+      }
+    } catch (error) {
+      console.error('Error fetching user coupons:', error)
+      toast.error('Error al cargar cupones')
+    } finally {
+      setCouponsLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    if (activeTab === 'coupons' && user) {
+      fetchUserCoupons()
+    }
+  }, [activeTab, user])
 
   if (!user) {
     return (
@@ -77,6 +101,7 @@ export default function AccountPage() {
     { id: 'orders', label: 'Mis Pedidos', icon: Package2 },
     { id: 'wishlist', label: 'Favoritos', icon: Heart },
     { id: 'cart', label: 'Carrito', icon: ShoppingBag },
+    { id: 'coupons', label: 'Mis Cupones', icon: Tag },
     { id: 'notifications', label: 'Notificaciones', icon: Bell },
     { id: 'security', label: 'Seguridad', icon: Shield },
   ]
@@ -201,7 +226,7 @@ export default function AccountPage() {
                 </Button>
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
                 {wishlistItems.map((item) => (
                   <Card key={item.id} className="group hover:shadow-lg transition-shadow">
                     <div className="relative">
@@ -306,7 +331,7 @@ export default function AccountPage() {
                 </Button>
               </div>
             ) : (
-              <div className="space-y-4">
+              <div className="grid grid-cols-1 gap-4">
                 {cartItems.map((item) => (
                   <Card key={item.id}>
                     <CardContent className="p-4">
@@ -414,6 +439,122 @@ export default function AccountPage() {
           </div>
         )
 
+      case 'coupons':
+        return (
+          <div>
+            <h2 className="text-2xl font-bold text-gray-900 mb-6">Mis Cupones</h2>
+            
+            {couponsLoading ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+                {[...Array(6)].map((_, i) => (
+                  <Card key={i} className="animate-pulse">
+                    <CardContent className="p-6">
+                      <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
+                      <div className="h-6 bg-gray-200 rounded w-1/2 mb-2"></div>
+                      <div className="h-3 bg-gray-200 rounded w-2/3"></div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            ) : userCoupons.length === 0 ? (
+              <div className="text-center py-12">
+                <Tag className="h-16 w-16 text-gray-300 mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-gray-900 mb-2">
+                  No tienes cupones disponibles
+                </h3>
+                <p className="text-gray-600 mb-6">
+                  Los cupones aparecerán aquí cuando tengas descuentos disponibles.
+                </p>
+                <Button asChild>
+                  <Link href="/productos">Explorar productos</Link>
+                </Button>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+                {userCoupons.map((coupon) => (
+                  <Card key={coupon.id} className="border-2 border-dashed border-pink-200">
+                    <CardContent className="p-6">
+                      <div className="flex items-start justify-between mb-4">
+                        <div className="flex items-center gap-2">
+                          <Tag className="h-5 w-5 text-pink-600" />
+                          <Badge variant="outline" className="font-mono">
+                            {coupon.code}
+                          </Badge>
+                        </div>
+                        <Badge className={
+                          coupon.status === 'ACTIVE' ? 'bg-green-100 text-green-800' :
+                          coupon.status === 'EXPIRED' ? 'bg-red-100 text-red-800' :
+                          'bg-gray-100 text-gray-800'
+                        }>
+                          {coupon.status === 'ACTIVE' ? 'Activo' : 
+                           coupon.status === 'EXPIRED' ? 'Expirado' : coupon.status}
+                        </Badge>
+                      </div>
+                      
+                      <h3 className="font-semibold text-gray-900 mb-2">{coupon.name}</h3>
+                      
+                      {coupon.description && (
+                        <p className="text-sm text-gray-600 mb-3">{coupon.description}</p>
+                      )}
+                      
+                      <div className="space-y-2 text-sm">
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">Descuento:</span>
+                          <span className="font-medium">
+                            {coupon.type === 'PERCENTAGE' 
+                              ? `${coupon.discountValue}%`
+                              : formatPrice(coupon.discountValue)
+                            }
+                          </span>
+                        </div>
+                        
+                        {coupon.minOrderAmount && (
+                          <div className="flex justify-between">
+                            <span className="text-gray-600">Mínimo:</span>
+                            <span className="font-medium">{formatPrice(coupon.minOrderAmount)}</span>
+                          </div>
+                        )}
+                        
+                        {coupon.maxUses && (
+                          <div className="flex justify-between">
+                            <span className="text-gray-600">Usos:</span>
+                            <span className="font-medium">
+                              {coupon.usedCount || 0} / {coupon.maxUses}
+                            </span>
+                          </div>
+                        )}
+                        
+                        {coupon.validUntil && (
+                          <div className="flex justify-between">
+                            <span className="text-gray-600">Válido hasta:</span>
+                            <span className="font-medium">
+                              {new Date(coupon.validUntil).toLocaleDateString('es-CL')}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                      
+                      {coupon.status === 'ACTIVE' && (
+                        <div className="mt-4 pt-4 border-t">
+                          <Button 
+                            asChild 
+                            className="w-full" 
+                            variant="outline"
+                          >
+                            <Link href="/carrito">
+                              Usar en mi carrito
+                            </Link>
+                          </Button>
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
+          </div>
+        )
+
       case 'security':
         return (
           <div>
@@ -473,19 +614,9 @@ export default function AccountPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">
-            Mi Cuenta
-          </h1>
-          <p className="text-gray-600">
-            Gestiona tu perfil, pedidos y preferencias
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+    <div className="min-h-screen">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
           {/* Sidebar */}
           <div className="lg:col-span-1">
             <Card>
@@ -532,11 +663,11 @@ export default function AccountPage() {
 
           {/* Main Content */}
           <div className="lg:col-span-3">
-            <Card>
-              <CardContent className="p-6">
+            <div className="bg-white rounded-lg shadow-sm border">
+              <div className="p-6">
                 {renderTabContent()}
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           </div>
         </div>
       </div>

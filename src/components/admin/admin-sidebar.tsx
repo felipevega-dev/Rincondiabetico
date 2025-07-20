@@ -19,7 +19,8 @@ import {
   FileText,
   Store,
   PackageSearch,
-  TrendingUp
+  TrendingUp,
+  Tag
 } from 'lucide-react'
 
 type User = {
@@ -71,6 +72,7 @@ export function AdminSidebar({ user }: AdminSidebarProps) {
         { name: 'Categorías', href: '/admin/categorias', icon: FolderOpen },
         { name: 'Stock', href: '/admin/stock', icon: PackageSearch },
         { name: 'Pedidos', href: '/admin/pedidos', icon: ShoppingCart },
+        { name: 'Cupones', href: '/admin/coupons', icon: Tag },
         { name: 'Clientes', href: '/admin/clientes', icon: Users },
         { name: 'Analytics', href: '/admin/analytics', icon: TrendingUp },
       ]

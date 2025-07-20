@@ -35,6 +35,8 @@ model User {
   orders        Order[]
   wishlistItems WishlistItem[]
   stockMovements StockMovement[]
+  loyaltyPoints LoyaltyPoints?
+  couponsUsed   CouponUsage[]
   
   @@map("users")
 }
@@ -198,6 +200,8 @@ model Order {
   orderNumber   String      @unique
   status        OrderStatus @default(DRAFT)
   total         Int         // Total en pesos chilenos (CLP)
+  subtotal      Int         @default(0) // Subtotal antes de descuentos
+  discountAmount Int        @default(0) // Monto total de descuentos aplicados
   paymentMethod String?     // MERCADOPAGO, TRANSFER
   
   // Información de retiro
@@ -211,15 +215,22 @@ model Order {
   cancelReason  String?     // Razón de cancelación
   cancelledBy   String?     // ADMIN o CUSTOMER
   
+  // Información de descuentos y puntos
+  appliedCoupons String[]   // IDs de cupones aplicados
+  pointsUsed     Int        @default(0) // Puntos de lealtad usados
+  
   // Metadatos
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt
   
   // Relaciones
-  userId        String
-  user          User        @relation(fields: [userId], references: [id])
+  userId        String?     // Null para guest orders
+  guestEmail    String?     // Email para pedidos de invitados
+  user          User?       @relation(fields: [userId], references: [id])
   items         OrderItem[]
   payment       Payment?
+  coupons       Coupon[]    // Cupones aplicados (many-to-many)
+  couponUsages  CouponUsage[]
   
   @@map("orders")
 }
@@ -377,4 +388,146 @@ model ProductRelation {
   
   @@unique([sourceProductId, relatedProductId])
   @@map("product_relations")
+}
+
+// Tipos de cupones
+enum CouponType {
+  PERCENTAGE     // Descuento porcentual
+  FIXED_AMOUNT   // Monto fijo
+  FREE_SHIPPING  // Envío gratis (futuro)
+  PRODUCT_SPECIFIC // Producto específico
+}
+
+// Estados de cupones
+enum CouponStatus {
+  ACTIVE    // Activo
+  INACTIVE  // Inactivo
+  EXPIRED   // Expirado
+  USED_UP   // Agotado (si tiene límite de usos)
+}
+
+// Cupones y descuentos
+model Coupon {
+  id          String       @id @default(cuid())
+  code        String       @unique // Código único (ej: "BIENVENIDO20")
+  name        String       // Nombre descriptivo
+  description String?      // Descripción del cupón
+  type        CouponType   
+  status      CouponStatus @default(ACTIVE)
+  
+  // Configuración de descuento
+  discountValue     Int          // Valor del descuento (% o monto en CLP)
+  maxDiscountAmount Int?         // Máximo descuento en CLP (para porcentuales)
+  
+  // Restricciones de uso
+  minOrderAmount    Int?         // Monto mínimo de pedido
+  maxUses           Int?         // Máximo número de usos (null = ilimitado)
+  maxUsesPerUser    Int?         // Máximo usos por usuario
+  usedCount         Int          @default(0) // Contador de usos
+  
+  // Restricciones de productos/categorías
+  applicableProductIds  String[] // IDs de productos específicos (array vacío = todos)
+  applicableCategoryIds String[] // IDs de categorías específicas
+  
+  // Fechas
+  validFrom     DateTime         // Fecha inicio validez
+  validUntil    DateTime?        // Fecha fin validez (null = sin expiración)
+  
+  // Configuración avanzada
+  isStackable   Boolean          @default(false) // Se puede combinar con otros cupones
+  isPublic      Boolean          @default(true)  // Visible públicamente vs privado
+  autoApply     Boolean          @default(false) // Se aplica automáticamente si cumple condiciones
+  
+  // Metadatos
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+  
+  // Relaciones
+  usages        CouponUsage[]
+  orders        Order[]          // Pedidos que usaron este cupón
+  
+  @@map("coupons")
+}
+
+// Registro de uso de cupones por usuario
+model CouponUsage {
+  id        String   @id @default(cuid())
+  
+  // Relaciones
+  userId    String
+  couponId  String
+  orderId   String?  // Pedido donde se usó (null si no se completó)
+  
+  // Metadatos
+  usedAt    DateTime @default(now())
+  
+  // Relaciones
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  coupon    Coupon   @relation(fields: [couponId], references: [id], onDelete: Cascade)
+  order     Order?   @relation(fields: [orderId], references: [id])
+  
+  @@unique([userId, couponId, orderId]) // Un usuario no puede usar el mismo cupón en el mismo pedido
+  @@map("coupon_usages")
+}
+
+// Niveles de lealtad
+enum LoyaltyLevel {
+  BRONZE   // 0-999 puntos
+  SILVER   // 1000-4999 puntos  
+  GOLD     // 5000+ puntos
+  VIP      // Nivel especial
+}
+
+// Sistema de puntos de lealtad
+model LoyaltyPoints {
+  id              String       @id @default(cuid())
+  
+  // Puntos
+  totalPoints     Int          @default(0)    // Puntos totales ganados
+  availablePoints Int          @default(0)    // Puntos disponibles para usar
+  usedPoints      Int          @default(0)    // Puntos ya usados
+  
+  // Nivel de lealtad
+  level           LoyaltyLevel @default(BRONZE)
+  
+  // Metadatos
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+  
+  // Relaciones
+  userId          String       @unique
+  user            User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  transactions    PointTransaction[]
+  
+  @@map("loyalty_points")
+}
+
+// Tipos de transacciones de puntos
+enum PointTransactionType {
+  EARNED_PURCHASE    // Ganados por compra
+  EARNED_REFERRAL    // Ganados por referir
+  EARNED_BIRTHDAY    // Ganados por cumpleaños
+  EARNED_BONUS       // Ganados por bonificación especial
+  REDEEMED_DISCOUNT  // Canjeados por descuento
+  REDEEMED_COUPON    // Canjeados por cupón
+  EXPIRED            // Puntos expirados
+  ADJUSTMENT         // Ajuste manual (admin)
+}
+
+// Transacciones de puntos (historial)
+model PointTransaction {
+  id          String                @id @default(cuid())
+  type        PointTransactionType
+  points      Int                   // Puntos (positivo = ganado, negativo = usado)
+  description String?               // Descripción de la transacción
+  reference   String?               // Referencia (ID de pedido, etc.)
+  
+  // Metadatos
+  createdAt   DateTime              @default(now())
+  
+  // Relaciones
+  loyaltyId   String
+  loyalty     LoyaltyPoints         @relation(fields: [loyaltyId], references: [id], onDelete: Cascade)
+  
+  @@map("point_transactions")
 } 
