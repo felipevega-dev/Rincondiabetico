@@ -62,13 +62,26 @@ export function ProfileForm({ user }: ProfileFormProps) {
         body: JSON.stringify(formData)
       })
 
-      if (!response.ok) throw new Error('Error al actualizar perfil')
+      if (!response.ok) {
+        const errorData = await response.json()
+        console.error('API Error:', errorData)
+        
+        if (response.status === 400 && errorData.error) {
+          // Handle validation errors
+          const validationErrors = Array.isArray(errorData.error) 
+            ? errorData.error.map((err: any) => err.message).join(', ')
+            : 'Error de validación'
+          throw new Error(validationErrors)
+        }
+        
+        throw new Error(errorData.error || 'Error al actualizar perfil')
+      }
 
       toast.success('Perfil actualizado correctamente')
       router.refresh()
     } catch (error) {
       console.error('Error updating profile:', error)
-      toast.error('Error al actualizar el perfil')
+      toast.error(error instanceof Error ? error.message : 'Error al actualizar el perfil')
     } finally {
       setLoading(false)
     }
@@ -79,7 +92,7 @@ export function ProfileForm({ user }: ProfileFormProps) {
       {/* Personal Information */}
       <div>
         <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-          <User className="h-5 w-5 text-primary-500" />
+          <User className="h-5 w-5 text-pink-500" />
           Información Personal
         </h3>
         
@@ -152,7 +165,7 @@ export function ProfileForm({ user }: ProfileFormProps) {
       {/* Address */}
       <div>
         <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-          <MapPin className="h-5 w-5 text-primary-500" />
+          <MapPin className="h-5 w-5 text-pink-500" />
           Dirección
         </h3>
 
@@ -206,7 +219,7 @@ export function ProfileForm({ user }: ProfileFormProps) {
       {/* Notifications */}
       <div>
         <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-          <Bell className="h-5 w-5 text-primary-500" />
+          <Bell className="h-5 w-5 text-pink-500" />
           Notificaciones
         </h3>
 
@@ -253,7 +266,7 @@ export function ProfileForm({ user }: ProfileFormProps) {
         <Button 
           type="submit"
           disabled={loading}
-          className="bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700"
+          className="bg-gradient-to-r from-pink-500 to-pink-600 hover:from-pink-600 hover:to-pink-700"
         >
           {loading ? 'Guardando...' : 'Guardar Cambios'}
         </Button>

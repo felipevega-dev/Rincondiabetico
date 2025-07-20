@@ -5,8 +5,8 @@ import { getOrCreateUser } from '@/lib/auth'
 import { z } from 'zod'
 
 const updateProfileSchema = z.object({
-  firstName: z.string().min(1, 'El nombre es requerido'),
-  lastName: z.string().min(1, 'El apellido es requerido'),
+  firstName: z.string().optional(),
+  lastName: z.string().optional(),
   phone: z.string().optional(),
   birthDate: z.string().optional(),
   address: z.string().optional(),
@@ -59,13 +59,13 @@ export async function PUT(request: NextRequest) {
     const updatedUser = await prisma.user.update({
       where: { id: user.id },
       data: {
-        firstName: validatedData.firstName,
-        lastName: validatedData.lastName,
-        phone: validatedData.phone,
+        firstName: validatedData.firstName || null,
+        lastName: validatedData.lastName || null,
+        phone: validatedData.phone || null,
         birthDate: validatedData.birthDate ? new Date(validatedData.birthDate) : null,
-        address: validatedData.address,
-        city: validatedData.city,
-        region: validatedData.region,
+        address: validatedData.address || null,
+        city: validatedData.city || null,
+        region: validatedData.region || null,
         notifyEmail: validatedData.notifyEmail,
         notifyWhatsapp: validatedData.notifyWhatsapp
       }
