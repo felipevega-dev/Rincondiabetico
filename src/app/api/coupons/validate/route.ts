@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { auth } from '@clerk/nextjs/server'
+import { currentUser } from '@clerk/nextjs/server'
 import { prisma } from '@/lib/prisma'
 import { getOrCreateUser } from '@/lib/auth'
 import { z } from 'zod'
@@ -17,7 +17,7 @@ const validateCouponSchema = z.object({
 
 export async function POST(request: NextRequest) {
   try {
-    const { userId } = await auth()
+    const clerkUser = await currentUser()
     
     // Para cupones públicos, no requerir autenticación
     // Para cupones privados o límites por usuario, sí requerir
@@ -81,10 +81,10 @@ export async function POST(request: NextRequest) {
     }
 
     // Verificar límite de usos por usuario (solo si está autenticado)
-    if (userId && coupon.maxUsesPerUser) {
-      const currentUser = await getOrCreateUser()
-      if (currentUser) {
-        const userUsageCount = coupon.usages.filter(usage => usage.userId === currentUser.id).length
+    if (clerkUser && coupon.maxUsesPerUser) {
+      const dbUser = await getOrCreateUser()
+      if (dbUser) {
+        const userUsageCount = coupon.usages.filter(usage => usage.userId === dbUser.id).length
         
         if (userUsageCount >= coupon.maxUsesPerUser) {
           return NextResponse.json({ 

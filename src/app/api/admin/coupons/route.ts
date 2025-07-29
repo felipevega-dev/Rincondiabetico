@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { auth } from '@clerk/nextjs/server'
+import { currentUser } from '@clerk/nextjs/server'
 import { prisma } from '@/lib/prisma'
 import { getOrCreateUser } from '@/lib/auth'
 import { z } from 'zod'
@@ -29,13 +29,13 @@ const updateCouponSchema = createCouponSchema.partial()
 // GET - Listar cupones (admin)
 export async function GET(request: NextRequest) {
   try {
-    const { userId } = await auth()
-    if (!userId) {
+    const clerkUser = await currentUser()
+    if (!clerkUser) {
       return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
     }
 
-    const user = await getOrCreateUser()
-    if (!user || user.role !== 'ADMIN') {
+    const dbUser = await getOrCreateUser()
+    if (!dbUser || dbUser.role !== 'ADMIN') {
       return NextResponse.json({ error: 'Acceso denegado' }, { status: 403 })
     }
 
@@ -93,7 +93,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({
       coupons: coupons.map(coupon => ({
         ...coupon,
-        usageCount: coupon._count.usages,
+        usageCount: coupon.usedCount,
         orderCount: coupon._count.orders
       })),
       pagination: {
@@ -113,13 +113,13 @@ export async function GET(request: NextRequest) {
 // POST - Crear cupón (admin)
 export async function POST(request: NextRequest) {
   try {
-    const { userId } = await auth()
-    if (!userId) {
+    const clerkUser = await currentUser()
+    if (!clerkUser) {
       return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
     }
 
-    const user = await getOrCreateUser()
-    if (!user || user.role !== 'ADMIN') {
+    const dbUser = await getOrCreateUser()
+    if (!dbUser || dbUser.role !== 'ADMIN') {
       return NextResponse.json({ error: 'Acceso denegado' }, { status: 403 })
     }
 
@@ -170,7 +170,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       ...coupon,
-      usageCount: coupon._count.usages,
+      usageCount: coupon.usedCount,
       orderCount: coupon._count.orders
     }, { status: 201 })
 

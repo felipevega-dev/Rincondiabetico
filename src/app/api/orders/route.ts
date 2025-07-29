@@ -12,6 +12,7 @@ interface CreateOrderRequest {
     price: number
   }>
   total: number
+  originalTotal?: number
   pickupDate: string
   pickupTime: string
   customerNotes?: string
@@ -19,6 +20,12 @@ interface CreateOrderRequest {
   isDraft?: boolean
   paymentMethod?: string
   sessionId?: string
+  appliedCoupons?: Array<{
+    id: string
+    code: string
+    discountAmount: number
+  }>
+  totalDiscount?: number
   guestInfo?: {
     firstName: string
     lastName: string
@@ -122,15 +129,43 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Calcular total
-    const calculatedTotal = body.items.reduce(
+    // Calcular total antes de descuentos
+    const calculatedSubtotal = body.items.reduce(
       (sum, item) => sum + (item.price * item.quantity),
       0
     )
 
-    if (calculatedTotal !== body.total) {
+    // Si no hay originalTotal, usamos el total como subtotal para compatibilidad
+    const subtotal = body.originalTotal || body.total
+    
+    if (calculatedSubtotal !== subtotal) {
       return NextResponse.json(
-        { error: 'El total no coincide' },
+        { error: 'Error en el cálculo del total' },
+        { status: 400 }
+      )
+    }
+
+    // Validar descuentos si hay cupones aplicados
+    let finalTotal = calculatedSubtotal
+    if (body.appliedCoupons && body.appliedCoupons.length > 0) {
+      const totalDiscountFromCoupons = body.appliedCoupons.reduce(
+        (sum, coupon) => sum + coupon.discountAmount,
+        0
+      )
+      
+      if (totalDiscountFromCoupons !== (body.totalDiscount || 0)) {
+        return NextResponse.json(
+          { error: 'Error en el cálculo de descuentos' },
+          { status: 400 }
+        )
+      }
+      
+      finalTotal = Math.max(0, calculatedSubtotal - totalDiscountFromCoupons)
+    }
+
+    if (finalTotal !== body.total) {
+      return NextResponse.json(
+        { error: 'Error en el total final' },
         { status: 400 }
       )
     }
@@ -170,13 +205,18 @@ export async function POST(request: NextRequest) {
       const newOrder = await tx.order.create({
         data: {
           orderNumber,
-          userId: dbUser!.id,
-          total: calculatedTotal,
+          userId: dbUser?.id || null,
+          total: body.total, // Total final con descuentos aplicados
           pickupDate: pickupDateTime,
           pickupTime: body.pickupTime,
           customerNotes: body.customerNotes,
           status: body.isDraft ? 'DRAFT' : 'PENDIENTE',
-          paymentMethod: body.paymentMethod || null
+          paymentMethod: body.paymentMethod || null,
+          // Información de descuentos
+          discountAmount: body.totalDiscount || 0,
+          subtotal: body.originalTotal || body.total,
+          // Información de invitado si aplica
+          guestEmail: body.guestInfo?.email || null
         }
       })
 
@@ -204,10 +244,24 @@ export async function POST(request: NextRequest) {
         }
       }
 
+      // Crear registros de uso de cupones si existen
+      if (body.appliedCoupons && body.appliedCoupons.length > 0 && dbUser) {
+        for (const coupon of body.appliedCoupons) {
+          await tx.couponUsage.create({
+            data: {
+              couponId: coupon.id,
+              userId: dbUser.id,
+              orderId: newOrder.id,
+              discountAmount: coupon.discountAmount
+            }
+          })
+        }
+      }
+
       // Actualizar teléfono del usuario si no lo tiene
-      if (!dbUser!.phone && body.phone) {
+      if (dbUser && !dbUser.phone && body.phone) {
         await tx.user.update({
-          where: { id: dbUser!.id },
+          where: { id: dbUser.id },
           data: { phone: body.phone }
         })
       }
@@ -238,32 +292,38 @@ export async function POST(request: NextRequest) {
     })
 
     // Enviar email de confirmación si no es borrador
-    if (!body.isDraft && completeOrder && user.emailAddresses?.[0]?.emailAddress && completeOrder.pickupDate) {
-      try {
-        const notificationResult = await notifyOrderConfirmation({
-          orderNumber: completeOrder.orderNumber,
-          customerName: (user.firstName && user.lastName) 
-            ? `${user.firstName} ${user.lastName}` 
-            : user.username || 'Cliente',
-          customerEmail: user.emailAddresses[0].emailAddress,
-          items: completeOrder.items.map(item => ({
-            name: item.product.name,
-            quantity: item.quantity,
-            price: item.price
-          })),
-          total: completeOrder.total,
-          pickupDate: completeOrder.pickupDate.toLocaleDateString('es-CL'),
-          pickupTime: completeOrder.pickupTime || '',
-          paymentMethod: completeOrder.paymentMethod || 'PENDIENTE'
-        })
+    if (!body.isDraft && completeOrder && completeOrder.pickupDate) {
+      // Determinar email y nombre del cliente
+      const customerEmail = user?.emailAddresses?.[0]?.emailAddress || body.guestInfo?.email
+      const customerName = user ? 
+        ((user.firstName && user.lastName) ? `${user.firstName} ${user.lastName}` : user.username || 'Cliente') :
+        body.guestInfo ? `${body.guestInfo.firstName} ${body.guestInfo.lastName}` : 'Cliente'
+      
+      if (customerEmail) {
+        try {
+          const notificationResult = await notifyOrderConfirmation({
+            orderNumber: completeOrder.orderNumber,
+            customerName,
+            customerEmail,
+            items: completeOrder.items.map(item => ({
+              name: item.product.name,
+              quantity: item.quantity,
+              price: item.price
+            })),
+            total: completeOrder.total,
+            pickupDate: completeOrder.pickupDate.toLocaleDateString('es-CL'),
+            pickupTime: completeOrder.pickupTime || '',
+            paymentMethod: completeOrder.paymentMethod || 'PENDIENTE'
+          })
         
-        console.log(`Notificaciones enviadas para pedido ${completeOrder.orderNumber}:`, {
-          email: notificationResult.email.success,
-          whatsapp: notificationResult.whatsapp.success
-        })
-      } catch (notificationError) {
-        console.error('Error enviando notificaciones:', notificationError)
-        // No fallar la creación del pedido por error de notificaciones
+          console.log(`Notificaciones enviadas para pedido ${completeOrder.orderNumber}:`, {
+            email: notificationResult.email.success,
+            whatsapp: notificationResult.whatsapp.success
+          })
+        } catch (notificationError) {
+          console.error('Error enviando notificaciones:', notificationError)
+          // No fallar la creación del pedido por error de notificaciones
+        }
       }
     }
 

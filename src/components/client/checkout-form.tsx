@@ -10,8 +10,20 @@ import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import Link from 'next/link'
 import Image from 'next/image'
-import { Calendar, Clock, ShoppingBag, User, Phone, MessageSquare, CreditCard, Building2 } from 'lucide-react'
+import { Calendar, Clock, ShoppingBag, User, Phone, MessageSquare, CreditCard, Building2, Tag } from 'lucide-react'
 import { toast } from 'sonner'
+import { formatPrice } from '@/lib/utils'
+
+interface AppliedCoupon {
+  id: string
+  code: string
+  name: string
+  description?: string
+  type: string
+  discountValue: number
+  discountAmount: number
+  isStackable: boolean
+}
 
 interface OrderData {
   pickupDate: string
@@ -27,6 +39,7 @@ export function CheckoutForm() {
   const { isGuest, getUserInfo, hasCompleteInfo } = useGuestCheckout()
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [showGuestForm, setShowGuestForm] = useState(false)
+  const [appliedCoupons, setAppliedCoupons] = useState<AppliedCoupon[]>([])
   const [orderData, setOrderData] = useState<OrderData>({
     pickupDate: '',
     pickupTime: '',
@@ -34,6 +47,23 @@ export function CheckoutForm() {
     phone: '',
     paymentMethod: 'MERCADOPAGO'
   })
+
+  // Calcular totales con descuentos
+  const totalDiscount = appliedCoupons.reduce((sum, coupon) => sum + coupon.discountAmount, 0)
+  const finalTotal = Math.max(0, total - totalDiscount)
+
+  // Cargar cupones aplicados desde localStorage
+  useEffect(() => {
+    try {
+      const savedCoupons = localStorage.getItem('applied-coupons')
+      if (savedCoupons) {
+        const coupons = JSON.parse(savedCoupons)
+        setAppliedCoupons(coupons)
+      }
+    } catch (error) {
+      console.error('Error loading applied coupons:', error)
+    }
+  }, [])
 
   // Inicializar teléfono cuando se tenga la información del usuario
   useEffect(() => {
@@ -104,7 +134,8 @@ export function CheckoutForm() {
             quantity: item.quantity,
             price: item.price
           })),
-          total,
+          total: finalTotal, // Usar total con descuentos aplicados
+          originalTotal: total, // Mantener total original para referencia
           pickupDate: orderData.pickupDate,
           pickupTime: orderData.pickupTime,
           customerNotes: orderData.customerNotes,
@@ -112,6 +143,13 @@ export function CheckoutForm() {
           paymentMethod: orderData.paymentMethod,
           isDraft: orderData.paymentMethod === 'MERCADOPAGO', // Solo MercadoPago es borrador
           sessionId,
+          // Información de cupones aplicados
+          appliedCoupons: appliedCoupons.map(coupon => ({
+            id: coupon.id,
+            code: coupon.code,
+            discountAmount: coupon.discountAmount
+          })),
+          totalDiscount,
           // Información de invitado si aplica
           guestInfo: isGuest ? userInfo : null
         }),
@@ -123,12 +161,15 @@ export function CheckoutForm() {
 
       const order = await orderResponse.json()
       
+      // Limpiar cupones aplicados del localStorage
+      localStorage.removeItem('applied-coupons')
+
       // Redirigir según el método de pago elegido
       if (orderData.paymentMethod === 'MERCADOPAGO') {
-        window.location.href = `/checkout/payment?orderId=${order.id}&amount=${total}`
+        window.location.href = `/checkout/payment?orderId=${order.id}&amount=${finalTotal}`
       } else {
         // Para transferencia, crear el pedido directamente y redirigir a confirmación
-        window.location.href = `/checkout/transfer?orderId=${order.id}&amount=${total}`
+        window.location.href = `/checkout/transfer?orderId=${order.id}&amount=${finalTotal}`
       }
       
     } catch (error) {
@@ -199,11 +240,53 @@ export function CheckoutForm() {
           ))}
         </div>
 
-        <div className="border-t pt-4">
-          <div className="flex justify-between items-center text-xl font-bold">
-            <span>Total:</span>
-            <span className="text-pink-600">${total.toLocaleString('es-CL')}</span>
+        {/* Cupones aplicados */}
+        {appliedCoupons.length > 0 && (
+          <div className="space-y-3 mb-4">
+            <h3 className="font-medium text-gray-900 flex items-center">
+              <Tag className="w-4 h-4 mr-1" />
+              Cupones Aplicados
+            </h3>
+            {appliedCoupons.map((coupon) => (
+              <div key={coupon.id} className="flex justify-between items-center p-3 bg-green-50 border border-green-200 rounded-lg">
+                <div>
+                  <span className="font-medium text-green-800">{coupon.code}</span>
+                  <p className="text-sm text-green-600">{coupon.name}</p>
+                </div>
+                <span className="font-medium text-green-800">
+                  -{formatPrice(coupon.discountAmount)}
+                </span>
+              </div>
+            ))}
           </div>
+        )}
+
+        <div className="border-t pt-4 space-y-2">
+          <div className="flex justify-between items-center">
+            <span className="text-gray-600">Subtotal:</span>
+            <span>{formatPrice(total)}</span>
+          </div>
+          
+          {totalDiscount > 0 && (
+            <div className="flex justify-between items-center text-green-600">
+              <span>Descuentos:</span>
+              <span>-{formatPrice(totalDiscount)}</span>
+            </div>
+          )}
+          
+          <div className="flex justify-between items-center text-xl font-bold pt-2 border-t">
+            <span>Total:</span>
+            <span className="text-pink-600">{formatPrice(finalTotal)}</span>
+          </div>
+          
+          {totalDiscount > 0 && (
+            <div className="text-right">
+              <span className="text-sm text-gray-500 line-through">{formatPrice(total)}</span>
+              <span className="ml-2 text-sm text-green-600 font-medium">
+                ¡Ahorras {formatPrice(totalDiscount)}!
+              </span>
+            </div>
+          )}
         </div>
       </div>
 

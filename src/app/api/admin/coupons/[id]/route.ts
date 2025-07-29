@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { auth } from '@clerk/nextjs/server'
+import { currentUser } from '@clerk/nextjs/server'
 import { prisma } from '@/lib/prisma'
 import { getOrCreateUser } from '@/lib/auth'
 import { z } from 'zod'
@@ -30,13 +30,13 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
-    const { userId } = await auth()
-    if (!userId) {
+    const clerkUser = await currentUser()
+    if (!clerkUser) {
       return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
     }
 
-    const user = await getOrCreateUser()
-    if (!user || user.role !== 'ADMIN') {
+    const dbUser = await getOrCreateUser()
+    if (!dbUser || dbUser.role !== 'ADMIN') {
       return NextResponse.json({ error: 'Acceso denegado' }, { status: 403 })
     }
 
@@ -96,13 +96,13 @@ export async function PUT(
   { params }: { params: { id: string } }
 ) {
   try {
-    const { userId } = await auth()
-    if (!userId) {
+    const clerkUser = await currentUser()
+    if (!clerkUser) {
       return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
     }
 
-    const user = await getOrCreateUser()
-    if (!user || user.role !== 'ADMIN') {
+    const dbUser = await getOrCreateUser()
+    if (!dbUser || dbUser.role !== 'ADMIN') {
       return NextResponse.json({ error: 'Acceso denegado' }, { status: 403 })
     }
 
@@ -185,13 +185,13 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
-    const { userId } = await auth()
-    if (!userId) {
+    const clerkUser = await currentUser()
+    if (!clerkUser) {
       return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
     }
 
-    const user = await getOrCreateUser()
-    if (!user || user.role !== 'ADMIN') {
+    const dbUser = await getOrCreateUser()
+    if (!dbUser || dbUser.role !== 'ADMIN') {
       return NextResponse.json({ error: 'Acceso denegado' }, { status: 403 })
     }
 

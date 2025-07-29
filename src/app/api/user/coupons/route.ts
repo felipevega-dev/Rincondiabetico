@@ -1,18 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { auth } from '@clerk/nextjs/server'
+import { currentUser } from '@clerk/nextjs/server'
 import { prisma } from '@/lib/prisma'
 import { getOrCreateUser } from '@/lib/auth'
 
 // GET - Obtener cupones disponibles para el usuario
 export async function GET(request: NextRequest) {
   try {
-    const { userId } = await auth()
-    if (!userId) {
+    const clerkUser = await currentUser()
+    if (!clerkUser) {
       return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
     }
 
-    const user = await getOrCreateUser()
-    if (!user) {
+    const dbUser = await getOrCreateUser()
+    if (!dbUser) {
       return NextResponse.json({ error: 'Usuario no encontrado' }, { status: 404 })
     }
 
@@ -28,7 +28,7 @@ export async function GET(request: NextRequest) {
       },
       include: {
         usages: {
-          where: { userId: user.id },
+          where: { userId: dbUser.id },
           select: { id: true }
         },
         _count: {

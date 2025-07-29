@@ -6,14 +6,47 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { StockValidationAlert } from '@/components/client/stock-validation-alert'
+import { CouponInput } from '@/components/client/coupon-input'
 import { ShoppingCart, Minus, Plus, Trash2, ArrowLeft, Users, Cookie } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useState } from 'react'
 
+interface AppliedCoupon {
+  id: string
+  code: string
+  name: string
+  description?: string
+  type: string
+  discountValue: number
+  discountAmount: number
+  isStackable: boolean
+}
+
 export default function CartPage() {
   const { items, isLoaded, updateQuantity, removeItem, clearCart, itemCount, subtotal, total } = useCart()
   const [isProcessing, setIsProcessing] = useState(false)
+  const [appliedCoupons, setAppliedCoupons] = useState<AppliedCoupon[]>([])
+
+  // Calcular total con descuentos
+  const totalDiscount = appliedCoupons.reduce((sum, coupon) => sum + coupon.discountAmount, 0)
+  const finalTotal = Math.max(0, total - totalDiscount)
+
+  // Preparar items del carrito para validación de cupones
+  const cartItems = items.map(item => ({
+    productId: item.productId,
+    categoryId: item.categoryId || '',
+    quantity: item.quantity,
+    price: item.price
+  }))
+
+  const handleCouponApplied = (coupon: AppliedCoupon) => {
+    setAppliedCoupons(prev => [...prev, coupon])
+  }
+
+  const handleCouponRemoved = (couponId: string) => {
+    setAppliedCoupons(prev => prev.filter(c => c.id !== couponId))
+  }
 
   if (!isLoaded) {
     return (
@@ -28,6 +61,10 @@ export default function CartPage() {
   }
 
   const handleCheckout = () => {
+    // Guardar cupones aplicados en localStorage para el checkout
+    if (appliedCoupons.length > 0) {
+      localStorage.setItem('applied-coupons', JSON.stringify(appliedCoupons))
+    }
     window.location.href = '/checkout'
   }
 
@@ -208,7 +245,20 @@ export default function CartPage() {
             </Card>
           </div>
 
-          <div className="mt-8 lg:mt-0">
+          <div className="mt-8 lg:mt-0 space-y-6">
+            {/* Sección de Cupones */}
+            <Card>
+              <CardContent className="p-6">
+                <CouponInput
+                  cartTotal={total}
+                  cartItems={cartItems}
+                  appliedCoupons={appliedCoupons}
+                  onCouponApplied={handleCouponApplied}
+                  onCouponRemoved={handleCouponRemoved}
+                />
+              </CardContent>
+            </Card>
+
             <Card>
               <CardHeader>
                 <CardTitle className="text-lg">Resumen del Pedido</CardTitle>
@@ -221,6 +271,14 @@ export default function CartPage() {
                     <span className="text-foreground">{formatPrice(subtotal)}</span>
                   </div>
                   
+                  {/* Mostrar descuentos de cupones */}
+                  {totalDiscount > 0 && (
+                    <div className="flex justify-between text-green-600">
+                      <span>Descuentos aplicados</span>
+                      <span>-{formatPrice(totalDiscount)}</span>
+                    </div>
+                  )}
+                  
                   <div className="flex justify-between text-sm text-muted-foreground">
                     <span>Retiro en tienda</span>
                     <span>Gratis</span>
@@ -229,8 +287,16 @@ export default function CartPage() {
                   <div className="border-t border-border pt-3">
                     <div className="flex justify-between text-lg font-medium">
                       <span className="text-foreground">Total</span>
-                      <span className="text-foreground">{formatPrice(total)}</span>
+                      <span className="text-foreground">{formatPrice(finalTotal)}</span>
                     </div>
+                    {totalDiscount > 0 && (
+                      <div className="text-sm text-muted-foreground text-right mt-1">
+                        <span className="line-through">{formatPrice(total)}</span>
+                        <span className="ml-2 text-green-600 font-medium">
+                          ¡Ahorras {formatPrice(totalDiscount)}!
+                        </span>
+                      </div>
+                    )}
                   </div>
                 </div>
 
