@@ -2,10 +2,30 @@
 
 import { useState, useEffect, useCallback } from 'react'
 
+interface SalesData {
+  summary: {
+    totalRevenue: number
+    totalOrders: number
+    averageOrderValue: number
+    revenueChange: number
+    orderCountChange: number
+  }
+  topProducts: unknown[]
+  topCategories: unknown[]
+}
+
+interface ProductsData {
+  lowStockProducts: unknown[]
+}
+
+interface CustomersData {
+  topCustomers: unknown[]
+}
+
 interface AnalyticsData {
-  sales: any | null
-  products: any | null
-  customers: any | null
+  sales: SalesData | null
+  products: ProductsData | null
+  customers: CustomersData | null
 }
 
 interface UseAnalyticsOptions {

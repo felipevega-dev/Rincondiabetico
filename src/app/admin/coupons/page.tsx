@@ -70,7 +70,7 @@ const typeLabels = {
 }
 
 export default function CouponsAdminPage() {
-  const router = useRouter()
+  // const router = useRouter() // Removed as unused
   const [coupons, setCoupons] = useState<Coupon[]>([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')

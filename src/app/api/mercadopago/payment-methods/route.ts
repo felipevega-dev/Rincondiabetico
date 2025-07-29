@@ -4,7 +4,7 @@ import { PaymentMethod } from 'mercadopago'
 
 const paymentMethod = new PaymentMethod(mercadoPagoClient)
 
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     const paymentMethods = await paymentMethod.get()
     

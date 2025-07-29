@@ -24,7 +24,7 @@ const createCouponSchema = z.object({
   autoApply: z.boolean().default(false)
 })
 
-const updateCouponSchema = createCouponSchema.partial()
+// updateCouponSchema removed as it's not used
 
 // GET - Listar cupones (admin)
 export async function GET(request: NextRequest) {
@@ -45,7 +45,7 @@ export async function GET(request: NextRequest) {
     const status = searchParams.get('status')
     const search = searchParams.get('search')
 
-    const where: any = {}
+    const where: Record<string, unknown> = {}
     
     if (status) {
       where.status = status

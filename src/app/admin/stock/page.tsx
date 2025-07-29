@@ -1,10 +1,8 @@
-import { Suspense } from 'react'
 import { prisma } from '@/lib/prisma'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { PackageSearch, TrendingDown, AlertTriangle, Activity } from 'lucide-react'
 import Link from 'next/link'
-import { StockHistory } from '@/components/admin/stock-history'
 
 async function getStockStats() {
   try {

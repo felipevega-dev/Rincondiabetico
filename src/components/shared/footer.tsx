@@ -53,7 +53,7 @@ export async function Footer() {
   // Valores por defecto
   const storeName = storeInfo?.storeName || 'Postres Pasmiño'
   const address = storeInfo?.address || 'Progreso 393, Chiguayante, Región del Biobío, Chile'
-  const phone = storeInfo?.phone || '+56 9 8687 4406'
+  const _phone = storeInfo?.phone || '+56 9 8687 4406'
   const email = storeInfo?.email || 'dulcespasmino@gmail.com'
   const whatsapp = storeInfo?.whatsapp || '+56 9 8687 4406'
   const description = storeInfo?.description || 'Dulces artesanales especialmente diseñados para personas con diabetes. Sin azúcar refinada, con todo el sabor que mereces.'

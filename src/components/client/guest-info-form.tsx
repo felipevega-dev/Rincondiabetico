@@ -14,7 +14,7 @@ interface GuestInfoFormProps {
 }
 
 export function GuestInfoForm({ onComplete, onSkip }: GuestInfoFormProps) {
-  const { isGuest, guestInfo, saveGuestInfo, getUserInfo, hasCompleteInfo } = useGuestCheckout()
+  const { isGuest, saveGuestInfo, getUserInfo, hasCompleteInfo } = useGuestCheckout()
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',

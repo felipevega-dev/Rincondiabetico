@@ -103,7 +103,7 @@ export default function AnalyticsPage() {
 
   useEffect(() => {
     fetchAnalytics()
-  }, [period])
+  }, [period, fetchAnalytics])
 
   const exportData = async () => {
     try {
@@ -126,7 +126,7 @@ export default function AnalyticsPage() {
       URL.revokeObjectURL(url)
       
       toast.success('Datos exportados exitosamente')
-    } catch (error) {
+    } catch {
       toast.error('Error al exportar datos')
     }
   }
@@ -202,7 +202,7 @@ export default function AnalyticsPage() {
             return (
               <button
                 key={tab.id}
-                onClick={() => setActiveTab(tab.id as any)}
+                onClick={() => setActiveTab(tab.id as 'sales' | 'products' | 'customers')}
                 className={`flex items-center gap-2 py-4 px-1 border-b-2 font-medium text-sm ${
                   activeTab === tab.id
                     ? 'border-pink-500 text-pink-600'

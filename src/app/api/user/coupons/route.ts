@@ -4,7 +4,7 @@ import { prisma } from '@/lib/prisma'
 import { getOrCreateUser } from '@/lib/auth'
 
 // GET - Obtener cupones disponibles para el usuario
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     const clerkUser = await currentUser()
     if (!clerkUser) {

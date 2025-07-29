@@ -1,21 +1,7 @@
 import { currentUser } from '@clerk/nextjs/server'
 import { redirect } from 'next/navigation'
 import { isAdmin } from '@/lib/auth'
-import Link from 'next/link'
-import { UserButton } from '@clerk/nextjs'
-import { 
-  Package, 
-  FolderOpen, 
-  ShoppingCart, 
-  Users, 
-  BarChart3, 
-  Home, 
-  Monitor,
-  Image,
-  Settings,
-  ChevronDown,
-  ChevronRight
-} from 'lucide-react'
+// Removed unused imports
 import { AdminSidebar } from '@/components/admin/admin-sidebar'
 
 export default async function AdminLayout({
