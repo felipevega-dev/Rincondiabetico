@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { auth } from '@clerk/nextjs'
+import { auth } from '@clerk/nextjs/server'
 import { adjustProductStock } from '@/lib/stock-history'
 import { prisma } from '@/lib/prisma'
 import { z } from 'zod'

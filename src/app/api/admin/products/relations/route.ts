@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { auth } from '@clerk/nextjs'
+import { auth } from '@clerk/nextjs/server'
 import { addProductRelation } from '@/lib/recommendations'
 import { prisma } from '@/lib/prisma'
 import { z } from 'zod'

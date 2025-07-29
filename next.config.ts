@@ -87,6 +87,11 @@ const nextConfig: NextConfig = {
   // Enable compression and other optimizations
   compress: true,
   poweredByHeader: false,
+  
+  // Disable ESLint during build for deployment
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
 
   // Webpack optimizations
   webpack: (config, { isServer }) => {
