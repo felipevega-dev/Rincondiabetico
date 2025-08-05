@@ -12,9 +12,10 @@ const validStatuses = ['PENDIENTE', 'PAGADO', 'PREPARANDO', 'LISTO', 'RETIRADO',
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const user = await currentUser()
     
     if (!user) {
@@ -46,7 +47,7 @@ export async function PATCH(
 
     // Verificar que el pedido existe
     const existingOrder = await prisma.order.findUnique({
-      where: { id: params.id }
+      where: { id: id }
     })
 
     if (!existingOrder) {
@@ -61,7 +62,7 @@ export async function PATCH(
       // Si se está cancelando el pedido, restaurar stock
       if (body.status === 'CANCELADO' && existingOrder.status !== 'CANCELADO') {
         const orderItems = await tx.orderItem.findMany({
-          where: { orderId: params.id },
+          where: { orderId: id },
           include: { product: true }
         })
 
@@ -80,7 +81,7 @@ export async function PATCH(
 
       // Actualizar el pedido
       return await tx.order.update({
-        where: { id: params.id },
+        where: { id: id },
         data: {
           ...(body.status && { status: body.status as any }),
           ...(body.adminNotes !== undefined && { adminNotes: body.adminNotes }),
@@ -111,9 +112,10 @@ export async function PATCH(
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const user = await currentUser()
     
     if (!user) {
@@ -135,7 +137,7 @@ export async function GET(
 
     // Obtener el pedido con toda la información
     const order = await prisma.order.findUnique({
-      where: { id: params.id },
+      where: { id: id },
       include: {
         user: true,
         items: {

@@ -3,14 +3,15 @@ import { PageForm } from '@/components/admin/page-form'
 import { prisma } from '@/lib/prisma'
 
 type EditPagePageProps = {
-  params: {
+  params: Promise<{
     id: string
-  }
+  }>
 }
 
 export default async function EditPagePage({ params }: EditPagePageProps) {
+  const { id } = await params
   const page = await prisma.page.findUnique({
-    where: { id: params.id }
+    where: { id: id }
   })
 
   if (!page) {

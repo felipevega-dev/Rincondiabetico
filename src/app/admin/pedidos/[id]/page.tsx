@@ -6,17 +6,19 @@ import { prisma } from '@/lib/prisma'
 import { AdminOrderDetail } from '@/components/admin/admin-order-detail'
 
 interface AdminOrderDetailPageProps {
-  params: { id: string }
+  params: Promise<{ id: string }>
 }
 
 export async function generateMetadata({ params }: AdminOrderDetailPageProps): Promise<Metadata> {
+  const { id } = await params
   return {
-    title: `Pedido ${params.id} - Admin - Postres Pasmiño`,
+    title: `Pedido ${id} - Admin - Postres Pasmiño`,
     description: 'Detalle del pedido para administradores.',
   }
 }
 
 export default async function AdminOrderDetailPage({ params }: AdminOrderDetailPageProps) {
+  const { id } = await params
   const user = await currentUser()
   
   if (!user) {
@@ -31,7 +33,7 @@ export default async function AdminOrderDetailPage({ params }: AdminOrderDetailP
 
   // Obtener el pedido con toda la información
   const order = await prisma.order.findUnique({
-    where: { id: params.id },
+    where: { id: id },
     include: {
       user: true,
       items: {

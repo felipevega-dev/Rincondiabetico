@@ -17,15 +17,15 @@ const modifyOrderSchema = z.object({
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id: orderId } = await params
     const { userId } = await auth()
     if (!userId) {
       return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
     }
 
-    const { id: orderId } = params
     const body = await request.json()
     const { items: newItems, reason } = modifyOrderSchema.parse(body)
 

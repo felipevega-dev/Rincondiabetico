@@ -6,9 +6,10 @@ import { notifyStatusChange } from '@/lib/notification-system'
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const user = await currentUser()
     
     if (!user) {
@@ -19,7 +20,6 @@ export async function PATCH(
     }
 
     const dbUser = await getOrCreateUser()
-    const { id } = params
     const body = await request.json()
 
     // Verificar que el pedido pertenece al usuario
@@ -110,9 +110,10 @@ export async function PATCH(
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const user = await currentUser()
     
     if (!user) {
@@ -123,7 +124,6 @@ export async function GET(
     }
 
     const dbUser = await getOrCreateUser()
-    const { id } = params
 
     // Obtener el pedido
     const order = await prisma.order.findUnique({

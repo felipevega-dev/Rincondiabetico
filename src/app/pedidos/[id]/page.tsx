@@ -6,19 +6,21 @@ import { getOrCreateUser } from '@/lib/auth'
 import { OrderDetails } from '@/components/client/order-details'
 
 interface PageProps {
-  params: {
+  params: Promise<{
     id: string
-  }
+  }>
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const { id } = await params
   return {
-    title: `Pedido ${params.id} - Postres Pasmiño`,
+    title: `Pedido ${id} - Postres Pasmiño`,
     description: 'Detalles de tu pedido en Postres Pasmiño',
   }
 }
 
 export default async function OrderPage({ params }: PageProps) {
+  const { id } = await params
   const user = await currentUser()
   
   if (!user) {
@@ -34,7 +36,7 @@ export default async function OrderPage({ params }: PageProps) {
   // Obtener el pedido - permitir que admin vea cualquier pedido
   const order = await prisma.order.findUnique({
     where: { 
-      id: params.id,
+      id: id,
       ...(dbUser.role !== 'ADMIN' && { userId: dbUser.id }) // Solo filtrar por userId si no es admin
     },
     include: {

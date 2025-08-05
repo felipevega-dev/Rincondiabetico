@@ -4,9 +4,10 @@ import { prisma } from '@/lib/prisma'
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const { userId } = auth()
     
     if (!userId) {
@@ -24,7 +25,7 @@ export async function DELETE(
     }
 
     await prisma.productRelation.delete({
-      where: { id: params.id }
+      where: { id: id }
     })
 
     return NextResponse.json({ message: 'Relación eliminada correctamente' })
