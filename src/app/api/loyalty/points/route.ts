@@ -202,7 +202,7 @@ function getNextLevel(currentLevel: 'BRONZE' | 'SILVER' | 'GOLD' | 'VIP'): 'SILV
 }
 
 // Función para agregar puntos por compra (llamada desde webhook de pagos)
-export async function addPurchasePoints(userId: string, orderTotal: number, orderId: string) {
+async function addPurchasePoints(userId: string, orderTotal: number, orderId: string) {
   try {
     const user = await prisma.user.findUnique({ where: { id: userId } })
     if (!user) return

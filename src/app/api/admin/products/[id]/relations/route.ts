@@ -4,9 +4,10 @@ import { prisma } from '@/lib/prisma'
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const { userId } = auth()
     
     if (!userId) {
@@ -24,7 +25,7 @@ export async function GET(
     }
 
     const relations = await prisma.productRelation.findMany({
-      where: { sourceProductId: params.id },
+      where: { sourceProductId: id },
       include: {
         relatedProduct: {
           include: {

@@ -18,18 +18,51 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 
+interface DbUser {
+  id: string
+  firstName: string | null
+  lastName: string | null
+  email: string
+  phone: string | null
+  birthDate: Date | null
+  address: string | null
+  city: string | null
+  region: string | null
+  notifyEmail: boolean
+  notifyWhatsapp: boolean
+}
+
+interface UserCoupon {
+  id: string
+  code: string
+  name: string
+  description?: string
+  type: 'PERCENTAGE' | 'FIXED_AMOUNT' | 'FREE_SHIPPING' | 'PRODUCT_SPECIFIC'
+  discountValue: number
+  maxDiscountAmount?: number
+  minOrderAmount?: number
+  maxUses?: number
+  usedCount?: number
+  validFrom: Date
+  validUntil?: Date
+  isStackable: boolean
+  status: 'ACTIVE' | 'INACTIVE' | 'EXPIRED' | 'USED_UP'
+  usedAt?: Date
+  orderId?: string
+}
+
 export default function AccountPage() {
   const { user } = useUser()
   const { signOut } = useClerk()
   const { items: wishlistItems, isLoading: wishlistLoading } = useWishlist()
   const { items: cartItems, clearCart } = useCart()
   const [activeTab, setActiveTab] = useState('profile')
-  const [dbUser, setDbUser] = useState(null)
+  const [dbUser, setDbUser] = useState<DbUser | null>(null)
   const [notificationSettings, setNotificationSettings] = useState({
     notifyEmail: true,
     notifyWhatsapp: true
   })
-  const [userCoupons, setUserCoupons] = useState([])
+  const [userCoupons, setUserCoupons] = useState<UserCoupon[]>([])
   const [couponsLoading, setCouponsLoading] = useState(false)
 
   useEffect(() => {
@@ -146,8 +179,8 @@ export default function AccountPage() {
           address: dbUser?.address || '',
           city: dbUser?.city || '',
           region: dbUser?.region || '',
-          notifyEmail: key === 'notifyEmail' ? value : dbUser?.notifyEmail || true,
-          notifyWhatsapp: key === 'notifyWhatsapp' ? value : dbUser?.notifyWhatsapp || true,
+          notifyEmail: key === 'notifyEmail' ? value : dbUser?.notifyEmail ?? true,
+          notifyWhatsapp: key === 'notifyWhatsapp' ? value : dbUser?.notifyWhatsapp ?? true,
         }),
       })
 

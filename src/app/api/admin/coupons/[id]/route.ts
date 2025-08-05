@@ -27,9 +27,10 @@ const updateCouponSchema = z.object({
 // GET - Obtener cupón específico (admin)
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const clerkUser = await currentUser()
     if (!clerkUser) {
       return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
@@ -41,7 +42,7 @@ export async function GET(
     }
 
     const coupon = await prisma.coupon.findUnique({
-      where: { id: params.id },
+      where: { id: id },
       include: {
         usages: {
           include: {
@@ -93,9 +94,10 @@ export async function GET(
 // PUT - Actualizar cupón (admin)
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const clerkUser = await currentUser()
     if (!clerkUser) {
       return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
@@ -111,7 +113,7 @@ export async function PUT(
 
     // Verificar que el cupón existe
     const existingCoupon = await prisma.coupon.findUnique({
-      where: { id: params.id }
+      where: { id: id }
     })
 
     if (!existingCoupon) {
@@ -151,7 +153,7 @@ export async function PUT(
     }
 
     const coupon = await prisma.coupon.update({
-      where: { id: params.id },
+      where: { id: id },
       data: updatedData,
       include: {
         _count: {
@@ -182,9 +184,10 @@ export async function PUT(
 // DELETE - Eliminar cupón (admin)
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const clerkUser = await currentUser()
     if (!clerkUser) {
       return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
@@ -197,7 +200,7 @@ export async function DELETE(
 
     // Verificar que el cupón existe
     const existingCoupon = await prisma.coupon.findUnique({
-      where: { id: params.id },
+      where: { id: id },
       include: {
         _count: {
           select: {
@@ -221,7 +224,7 @@ export async function DELETE(
 
     // Eliminar cupón
     await prisma.coupon.delete({
-      where: { id: params.id }
+      where: { id: id }
     })
 
     return NextResponse.json({ 

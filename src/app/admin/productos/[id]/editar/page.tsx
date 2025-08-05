@@ -8,7 +8,7 @@ import { StockHistory } from '@/components/admin/stock-history'
 import { ProductRelations } from '@/components/admin/product-relations'
 
 interface EditProductPageProps {
-  params: { id: string }
+  params: Promise<{ id: string }>
 }
 
 export const metadata: Metadata = {
@@ -47,6 +47,7 @@ async function getCategories() {
 }
 
 export default async function EditProductPage({ params }: EditProductPageProps) {
+  const { id } = await params
   const user = await currentUser()
   
   if (!user) {
@@ -60,7 +61,7 @@ export default async function EditProductPage({ params }: EditProductPageProps) 
   }
 
   const [product, categories] = await Promise.all([
-    getProduct(params.id),
+    getProduct(id),
     getCategories()
   ])
 

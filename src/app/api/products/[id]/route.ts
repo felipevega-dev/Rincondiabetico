@@ -30,11 +30,12 @@ const updateProductSchema = z.object({
 // GET - Obtener producto individual
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const product = await prisma.product.findUnique({
-      where: { id: params.id },
+      where: { id: id },
       include: {
         category: {
           select: {
@@ -62,9 +63,10 @@ export async function GET(
 // PUT - Actualizar producto
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     // Verificar autenticación y permisos de admin
     const { userId } = await auth()
     if (!userId) {
@@ -82,7 +84,7 @@ export async function PUT(
 
     // Verificar que el producto existe
     const existingProduct = await prisma.product.findUnique({
-      where: { id: params.id }
+      where: { id: id }
     })
 
     if (!existingProduct) {
@@ -94,7 +96,7 @@ export async function PUT(
       const duplicateProduct = await prisma.product.findFirst({
         where: {
           name: validatedData.name,
-          id: { not: params.id }
+          id: { not: id }
         }
       })
 
@@ -145,7 +147,7 @@ export async function PUT(
 
     // Actualizar producto
     const updatedProduct = await prisma.product.update({
-      where: { id: params.id },
+      where: { id: id },
       data: updateData,
       include: {
         category: {
@@ -174,7 +176,7 @@ export async function PUT(
 // DELETE - Eliminar producto
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     // Verificar autenticación y permisos de admin

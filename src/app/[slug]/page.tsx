@@ -3,16 +3,17 @@ import { prisma } from '@/lib/prisma'
 import { Metadata } from 'next'
 
 type PageProps = {
-  params: {
+  params: Promise<{
     slug: string
-  }
+  }>
 }
 
 // Generar metadata dinámicamente
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const { slug } = await params
   const page = await prisma.page.findUnique({
     where: { 
-      slug: params.slug,
+      slug: slug,
       isActive: true 
     }
   })
@@ -35,9 +36,10 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 }
 
 export default async function DynamicPage({ params }: PageProps) {
+  const { slug } = await params
   const page = await prisma.page.findUnique({
     where: { 
-      slug: params.slug,
+      slug: slug,
       isActive: true 
     }
   })

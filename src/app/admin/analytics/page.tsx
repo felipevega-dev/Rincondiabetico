@@ -22,6 +22,34 @@ import { formatPrice } from '@/lib/utils'
 import { toast } from 'sonner'
 import Image from 'next/image'
 
+interface TopProduct {
+  product?: {
+    id: string
+    name: string
+    images?: string[]
+  }
+  quantity: number
+  revenue: number
+  orders: number
+}
+
+interface PaymentMethod {
+  paymentMethod: string
+  _sum: {
+    total: number
+  }
+  _count: {
+    id: number
+  }
+}
+
+interface TopCategory {
+  id: string
+  name: string
+  revenue: number
+  quantity: number
+}
+
 interface SalesAnalytics {
   summary: {
     totalRevenue: number
@@ -32,17 +60,40 @@ interface SalesAnalytics {
   }
   ordersByStatus: Array<Record<string, unknown>>
   dailySales: Array<Record<string, unknown>>
-  topProducts: Array<Record<string, unknown>>
-  topCategories: Array<Record<string, unknown>>
-  paymentMethods: Array<Record<string, unknown>>
+  topProducts: TopProduct[]
+  topCategories: TopCategory[]
+  paymentMethods: PaymentMethod[]
   customerAnalysis: Array<Record<string, unknown>>
   hourlyActivity: Array<Record<string, unknown>>
   period: number
 }
 
+interface ProductPerformance {
+  id: string
+  name: string
+  image?: string
+  revenue: number
+  quantity: number
+  orders: number
+  stock: number
+  category?: {
+    name: string
+  }
+}
+
+interface LowStockProduct {
+  id: string
+  name: string
+  stock: number
+  minStock: number
+  category: {
+    name: string
+  }
+}
+
 interface ProductAnalytics {
-  productPerformance: Array<Record<string, unknown>>
-  lowStockProducts: Array<Record<string, unknown>>
+  productPerformance: ProductPerformance[]
+  lowStockProducts: LowStockProduct[]
   neverSoldProducts: Array<Record<string, unknown>>
   stockValue: {
     totalUnits: number
@@ -50,6 +101,17 @@ interface ProductAnalytics {
   }
   categoryPerformance: Array<Record<string, unknown>>
   trendAnalysis: Array<Record<string, unknown>>
+}
+
+interface TopCustomer {
+  id: string
+  firstName: string
+  lastName: string
+  email: string
+  totalOrders: number
+  totalSpent: number
+  lastOrderDate: string
+  avg_order_value: number
 }
 
 interface CustomerAnalytics {
@@ -60,7 +122,7 @@ interface CustomerAnalytics {
     retentionRate: number
   }
   customerSegmentation: Array<Record<string, unknown>>
-  topCustomers: Array<Record<string, unknown>>
+  topCustomers: TopCustomer[]
   retentionAnalysis: Array<Record<string, unknown>>
   customerType: Array<Record<string, unknown>>
   geographicAnalysis: Array<Record<string, unknown>>
@@ -309,7 +371,7 @@ export default function AnalyticsPage() {
             <CardContent>
               <div className="space-y-4">
                 {salesData.topProducts.slice(0, 10).map((item, index) => (
-                  <div key={item.product?.id || index} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                  <div key={item.product?.id || `product-${index}`} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
                     <div className="flex items-center gap-4">
                       <span className="text-sm font-medium text-gray-500 w-6">#{index + 1}</span>
                       {item.product?.images?.[0] && (
@@ -370,7 +432,7 @@ export default function AnalyticsPage() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {salesData.topCategories.slice(0, 5).map((category: Record<string, unknown>, index) => (
+                  {salesData.topCategories.slice(0, 5).map((category: TopCategory, index) => (
                     <div key={category.id || index} className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
                         <span className="text-sm font-medium text-gray-500">#{index + 1}</span>
@@ -450,37 +512,27 @@ export default function AnalyticsPage() {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {productsData.productPerformance.slice(0, 10).map((product: Record<string, unknown>, index) => (
+                {productsData.productPerformance.slice(0, 10).map((product: ProductPerformance, index) => (
                   <div key={product.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
                     <div className="flex items-center gap-4">
                       <span className="text-sm font-medium text-gray-500 w-6">#{index + 1}</span>
                       {product.image && (
                         <Image
-                          src={String(product.image)}
-                          alt={String(product.name)}
+                          src={product.image}
+                          alt={product.name}
                           width={40}
                           height={40}
                           className="rounded-lg object-cover"
                         />
                       )}
                       <div>
-                        <p className="font-medium text-gray-900">{String(product.name)}</p>
-                        <p className="text-sm text-gray-600">{String(product.category_name)}</p>
+                        <p className="font-medium text-gray-900">{product.name}</p>
+                        <p className="text-sm text-gray-600">{product.category?.name || 'Sin categoría'}</p>
                       </div>
                     </div>
-                    <div className="grid grid-cols-3 gap-8 text-right">
-                      <div>
-                        <p className="text-sm font-medium">{Number(product.total_sold)}</p>
-                        <p className="text-xs text-gray-500">Vendidos</p>
-                      </div>
-                      <div>
-                        <p className="text-sm font-medium">{formatPrice(Number(product.revenue))}</p>
-                        <p className="text-xs text-gray-500">Ingresos</p>
-                      </div>
-                      <div>
-                        <p className="text-sm font-medium">{Number(product.stock)}</p>
-                        <p className="text-xs text-gray-500">Stock actual</p>
-                      </div>
+                    <div className="text-right">
+                      <p className="font-medium text-gray-900">{formatPrice(product.revenue)}</p>
+                      <p className="text-sm text-gray-600">{product.quantity} unidades vendidas</p>
                     </div>
                   </div>
                 ))}
@@ -496,15 +548,15 @@ export default function AnalyticsPage() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  {productsData.lowStockProducts.slice(0, 10).map((product) => (
+                  {productsData.lowStockProducts.slice(0, 10).map((product: LowStockProduct) => (
                     <div key={product.id} className="flex items-center justify-between p-3 bg-red-50 rounded-lg">
                       <div className="flex items-center gap-3">
                         <span className="font-medium text-gray-900">{product.name}</span>
                         <Badge variant="outline">{product.category.name}</Badge>
                       </div>
                       <div className="text-right">
-                        <p className="text-sm font-medium text-red-600">Stock: {product.stock}</p>
-                        <p className="text-xs text-gray-500">Mínimo: {product.minStock || 5}</p>
+                        <p className="text-sm font-medium text-red-600">{product.stock} / {product.minStock}</p>
+                        <p className="text-xs text-gray-500">Stock actual / Mínimo</p>
                       </div>
                     </div>
                   ))}
@@ -592,14 +644,14 @@ export default function AnalyticsPage() {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {customersData.topCustomers.slice(0, 10).map((customer: Record<string, unknown>, index) => (
+                {customersData.topCustomers.slice(0, 10).map((customer: TopCustomer, index) => (
                   <div key={customer.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
                     <div className="flex items-center gap-4">
                       <span className="text-sm font-medium text-gray-500 w-6">#{index + 1}</span>
                       <div>
                         <p className="font-medium text-gray-900">
-                          {customer.first_name && customer.last_name 
-                            ? `${String(customer.first_name)} ${String(customer.last_name)}`
+                          {customer.firstName && customer.lastName 
+                            ? `${String(customer.firstName)} ${String(customer.lastName)}`
                             : String(customer.email)
                           }
                         </p>
@@ -608,11 +660,11 @@ export default function AnalyticsPage() {
                     </div>
                     <div className="grid grid-cols-3 gap-8 text-right">
                       <div>
-                        <p className="text-sm font-medium">{Number(customer.order_count)}</p>
+                        <p className="text-sm font-medium">{Number(customer.totalOrders)}</p>
                         <p className="text-xs text-gray-500">Pedidos</p>
                       </div>
                       <div>
-                        <p className="text-sm font-medium">{formatPrice(Number(customer.total_spent))}</p>
+                        <p className="text-sm font-medium">{formatPrice(Number(customer.totalSpent))}</p>
                         <p className="text-xs text-gray-500">Total gastado</p>
                       </div>
                       <div>
