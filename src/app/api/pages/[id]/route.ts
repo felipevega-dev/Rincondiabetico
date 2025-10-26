@@ -19,7 +19,7 @@ const pageSchema = z.object({
 // GET - Obtener página por ID
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const page = await prisma.page.findUnique({
@@ -46,7 +46,7 @@ export async function GET(
 // PUT - Actualizar página (solo admin)
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const { userId } = await auth()
@@ -114,7 +114,7 @@ export async function PUT(
 // DELETE - Eliminar página (solo admin)
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const { userId } = await auth()

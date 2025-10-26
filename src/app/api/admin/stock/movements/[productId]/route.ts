@@ -5,9 +5,10 @@ import { prisma } from '@/lib/prisma'
 
 export async function GET(
   request: Request,
-  { params }: { params: { productId: string } }
+  { params }: { params: Promise<{ productId: string }> }
 ) {
   try {
+    const { productId } = await params
     const { userId } = auth()
     
     if (!userId) {
@@ -27,7 +28,7 @@ export async function GET(
     const url = new URL(request.url)
     const limit = parseInt(url.searchParams.get('limit') || '50')
 
-    const result = await getProductStockHistory(params.productId, limit)
+    const result = await getProductStockHistory(productId, limit)
 
     if (!result.success) {
       return NextResponse.json(

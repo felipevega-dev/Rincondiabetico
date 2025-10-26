@@ -21,11 +21,12 @@ const bannerSchema = z.object({
 // GET - Obtener banner por ID
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const banner = await prisma.banner.findUnique({
-      where: { id: params.id }
+      where: { id: id }
     })
 
     if (!banner) {
@@ -48,9 +49,10 @@ export async function GET(
 // PUT - Actualizar banner (solo admin)
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const { userId } = await auth()
     
     if (!userId) {
@@ -76,7 +78,7 @@ export async function PUT(
     const validatedData = bannerSchema.parse(body)
 
     const banner = await prisma.banner.update({
-      where: { id: params.id },
+      where: { id: id },
       data: validatedData
     })
 
@@ -101,9 +103,10 @@ export async function PUT(
 // DELETE - Eliminar banner (solo admin)
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const { userId } = await auth()
     
     if (!userId) {
@@ -126,10 +129,12 @@ export async function DELETE(
     }
 
     await prisma.banner.delete({
-      where: { id: params.id }
+      where: { id: id }
     })
 
-    return NextResponse.json({ message: 'Banner eliminado correctamente' })
+    return NextResponse.json(
+      { message: 'Banner eliminado correctamente' }
+    )
   } catch (error) {
     console.error('Error deleting banner:', error)
     return NextResponse.json(

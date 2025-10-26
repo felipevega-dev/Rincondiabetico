@@ -12,11 +12,12 @@ const updateCategorySchema = z.object({
 // GET - Obtener categoría por ID
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const category = await prisma.category.findUnique({
-      where: { id: params.id },
+      where: { id: id },
       include: {
         products: {
           select: {
@@ -47,9 +48,10 @@ export async function GET(
 // PUT - Actualizar categoría
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     // Verificar autenticación y permisos de admin
     const { userId } = await auth()
     if (!userId) {
@@ -67,7 +69,7 @@ export async function PUT(
 
     // Verificar que la categoría existe
     const existingCategory = await prisma.category.findUnique({
-      where: { id: params.id }
+      where: { id: id }
     })
 
     if (!existingCategory) {
@@ -87,7 +89,7 @@ export async function PUT(
 
     // Actualizar categoría
     const category = await prisma.category.update({
-      where: { id: params.id },
+      where: { id: id },
       data: validatedData,
       include: {
         _count: {
@@ -110,7 +112,7 @@ export async function PUT(
 // DELETE - Eliminar categoría
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     // Verificar autenticación y permisos de admin
