@@ -686,7 +686,7 @@ export default function AnalyticsPage() {
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
                 {customersData.customerSegmentation.map((segment: Record<string, unknown>) => (
-                  <div key={segment.segment} className="p-4 bg-gray-50 rounded-lg text-center">
+                  <div key={String(segment.segment)} className="p-4 bg-gray-50 rounded-lg text-center">
                     <p className="font-medium text-gray-900">{String(segment.segment)}</p>
                     <p className="text-2xl font-bold text-pink-600">{Number(segment.customers)}</p>
                     <p className="text-sm text-gray-600">Promedio: {formatPrice(Number(segment.avg_spent))}</p>
